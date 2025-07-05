@@ -1,0 +1,18 @@
+fileFormatVersion: 2
+guid: 5059d4e08e129ed4992ed638e71f5a61
+MonoImporter:
+  externalObjects: {}
+  serializedVersion: 2
+  defaultReferences: []
+  executionOrder: 0
+  icon: {fileID: 2800000, guid: bebf9eca7e1bbc94c8e369001522cd76, type: 3}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 214714
+  packageName: RaycastPro
+  packageVersion: 1.1.4
+  assetPath: Assets/Plugins/RaycastPro/Core/Utility/PointSensor.cs
+  uploadId: 765053

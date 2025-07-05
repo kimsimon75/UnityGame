@@ -1,0 +1,10 @@
+﻿fileFormatVersion: 2
+guid: c21fa41841e945cbaccfa01a7580ce27
+timeCreated: 1649019903
+AssetOrigin:
+  serializedVersion: 1
+  productId: 214714
+  packageName: RaycastPro
+  packageVersion: 1.1.4
+  assetPath: Assets/Plugins/RaycastPro/Core/Base/BaseSensor.cs
+  uploadId: 765053

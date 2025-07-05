@@ -1,0 +1,14 @@
+fileFormatVersion: 2
+guid: c889297e880c4894393b1777d61051af
+PrefabImporter:
+  externalObjects: {}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 214714
+  packageName: RaycastPro
+  packageVersion: 1.1.4
+  assetPath: Assets/Plugins/RaycastPro/_Demo/_Prefabs/HugeTileTS.prefab
+  uploadId: 765053

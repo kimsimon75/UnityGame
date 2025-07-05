@@ -1,0 +1,15 @@
+fileFormatVersion: 2
+guid: 4df88af2320088d41974e6db7f18f7b5
+NativeFormatImporter:
+  externalObjects: {}
+  mainObjectFileID: 2100000
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 214714
+  packageName: RaycastPro
+  packageVersion: 1.1.4
+  assetPath: Assets/Plugins/RaycastPro/_Demo/_Resources/PortalLaser.mat
+  uploadId: 765053

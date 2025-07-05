@@ -1,0 +1,18 @@
+fileFormatVersion: 2
+guid: 587f5364d28f0784d8cc69b9cf0c02ef
+MonoImporter:
+  externalObjects: {}
+  serializedVersion: 2
+  defaultReferences: []
+  executionOrder: 0
+  icon: {fileID: 2800000, guid: 9afec9c9febe77e4cadfdb403b8504db, type: 3}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 214714
+  packageName: RaycastPro
+  packageVersion: 1.1.4
+  assetPath: Assets/Plugins/RaycastPro/Core/RaySensors2D/PointerRay2D.cs
+  uploadId: 765053

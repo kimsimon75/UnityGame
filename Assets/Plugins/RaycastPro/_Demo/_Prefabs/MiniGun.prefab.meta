@@ -1,0 +1,14 @@
+fileFormatVersion: 2
+guid: 29293f8ec5e06694d8880abbec0f0993
+PrefabImporter:
+  externalObjects: {}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 214714
+  packageName: RaycastPro
+  packageVersion: 1.1.4
+  assetPath: Assets/Plugins/RaycastPro/_Demo/_Prefabs/MiniGun.prefab
+  uploadId: 765053

@@ -1,0 +1,15 @@
+fileFormatVersion: 2
+guid: 4e528e04ba6508b4ca4b8df6a184cab7
+NativeFormatImporter:
+  externalObjects: {}
+  mainObjectFileID: 2100000
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 214714
+  packageName: RaycastPro
+  packageVersion: 1.1.4
+  assetPath: Assets/Plugins/RaycastPro/_Demo/_Resources/RCPMat_Neon.mat
+  uploadId: 765053

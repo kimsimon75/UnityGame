@@ -1,0 +1,14 @@
+fileFormatVersion: 2
+guid: 16e454a0d16bf4c4eb5144bf4a1a5e88
+PrefabImporter:
+  externalObjects: {}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 214714
+  packageName: RaycastPro
+  packageVersion: 1.1.4
+  assetPath: Assets/Plugins/RaycastPro/_Demo/_Prefabs/PyroboxRounded.prefab
+  uploadId: 765053

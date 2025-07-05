@@ -1,0 +1,18 @@
+fileFormatVersion: 2
+guid: 63d0ddcdaa2742c9836c3bd893a315fa
+MonoImporter:
+  externalObjects: {}
+  serializedVersion: 2
+  defaultReferences: []
+  executionOrder: 0
+  icon: {fileID: 2800000, guid: 35d382b964505e4428f93ee3232aabfe, type: 3}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 214714
+  packageName: RaycastPro
+  packageVersion: 1.1.4
+  assetPath: Assets/Plugins/RaycastPro/Core/Planers/BlockPlanar.cs
+  uploadId: 765053

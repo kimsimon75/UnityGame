@@ -1,0 +1,10 @@
+﻿fileFormatVersion: 2
+guid: c7ed516c3b864e66949755712bfddaa8
+timeCreated: 1648990648
+AssetOrigin:
+  serializedVersion: 1
+  productId: 214714
+  packageName: RaycastPro
+  packageVersion: 1.1.4
+  assetPath: Assets/Plugins/RaycastPro/Core/Base/BaseBullet.cs
+  uploadId: 765053

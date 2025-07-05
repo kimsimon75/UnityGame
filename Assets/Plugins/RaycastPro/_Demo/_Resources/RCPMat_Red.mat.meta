@@ -1,0 +1,15 @@
+fileFormatVersion: 2
+guid: f3a4d4e6b506b3d438aafae866f9730f
+NativeFormatImporter:
+  externalObjects: {}
+  mainObjectFileID: 2100000
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 214714
+  packageName: RaycastPro
+  packageVersion: 1.1.4
+  assetPath: Assets/Plugins/RaycastPro/_Demo/_Resources/RCPMat_Red.mat
+  uploadId: 765053

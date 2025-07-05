@@ -1,0 +1,14 @@
+fileFormatVersion: 2
+guid: 16a56512327be2d498509f209e01066d
+PrefabImporter:
+  externalObjects: {}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 214714
+  packageName: RaycastPro
+  packageVersion: 1.1.4
+  assetPath: Assets/Plugins/RaycastPro/_Demo/_Bullets/Instant Bullet2D.prefab
+  uploadId: 765053

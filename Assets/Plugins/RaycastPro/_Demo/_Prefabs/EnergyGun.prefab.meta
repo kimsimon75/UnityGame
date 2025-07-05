@@ -1,0 +1,14 @@
+fileFormatVersion: 2
+guid: bce2955330ffad0489edc17d1d82e3ca
+PrefabImporter:
+  externalObjects: {}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 214714
+  packageName: RaycastPro
+  packageVersion: 1.1.4
+  assetPath: Assets/Plugins/RaycastPro/_Demo/_Prefabs/EnergyGun.prefab
+  uploadId: 765053

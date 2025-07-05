@@ -1,0 +1,14 @@
+fileFormatVersion: 2
+guid: adb36b070eedf304599c4f8d74129c7d
+DefaultImporter:
+  externalObjects: {}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 214714
+  packageName: RaycastPro
+  packageVersion: 1.1.4
+  assetPath: Assets/Plugins/RaycastPro/_Demo/_Scenes/BasicDemo_07 (Detectors2D).unity
+  uploadId: 765053

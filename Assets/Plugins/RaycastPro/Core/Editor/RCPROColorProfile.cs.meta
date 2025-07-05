@@ -1,0 +1,10 @@
+﻿fileFormatVersion: 2
+guid: b410718e3e8a42c88180f1627307c0bb
+timeCreated: 1730911301
+AssetOrigin:
+  serializedVersion: 1
+  productId: 214714
+  packageName: RaycastPro
+  packageVersion: 1.1.4
+  assetPath: Assets/Plugins/RaycastPro/Core/Editor/RCPROColorProfile.cs
+  uploadId: 765053

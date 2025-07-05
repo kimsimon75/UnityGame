@@ -1,0 +1,10 @@
+﻿fileFormatVersion: 2
+guid: 2d30a84119384805bdebd878b7bcba90
+timeCreated: 1648308916
+AssetOrigin:
+  serializedVersion: 1
+  productId: 214714
+  packageName: RaycastPro
+  packageVersion: 1.1.4
+  assetPath: Assets/Plugins/RaycastPro/Core/Base/BasePlanar.cs
+  uploadId: 765053

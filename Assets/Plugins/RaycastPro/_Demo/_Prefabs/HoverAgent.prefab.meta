@@ -1,0 +1,14 @@
+fileFormatVersion: 2
+guid: 59fe3270581b83c41956c5f91e4cce42
+PrefabImporter:
+  externalObjects: {}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 214714
+  packageName: RaycastPro
+  packageVersion: 1.1.4
+  assetPath: Assets/Plugins/RaycastPro/_Demo/_Prefabs/HoverAgent.prefab
+  uploadId: 765053

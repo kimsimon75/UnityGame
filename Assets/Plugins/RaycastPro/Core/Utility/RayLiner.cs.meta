@@ -1,0 +1,18 @@
+fileFormatVersion: 2
+guid: 99d755bd8159e92459bd203b483cf293
+MonoImporter:
+  externalObjects: {}
+  serializedVersion: 2
+  defaultReferences: []
+  executionOrder: 0
+  icon: {fileID: 2800000, guid: 7e30a6af0bdf96e4fb16a7c2bfbdcd49, type: 3}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 214714
+  packageName: RaycastPro
+  packageVersion: 1.1.4
+  assetPath: Assets/Plugins/RaycastPro/Core/Utility/RayLiner.cs
+  uploadId: 765053

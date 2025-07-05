@@ -1,0 +1,14 @@
+fileFormatVersion: 2
+guid: 7834b48959533d24b8795322f1dbbe79
+PrefabImporter:
+  externalObjects: {}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 214714
+  packageName: RaycastPro
+  packageVersion: 1.1.4
+  assetPath: Assets/Plugins/RaycastPro/_Demo/_Resources/ExplosionParticle.prefab
+  uploadId: 765053

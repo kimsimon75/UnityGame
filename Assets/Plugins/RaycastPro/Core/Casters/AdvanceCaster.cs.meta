@@ -1,0 +1,18 @@
+fileFormatVersion: 2
+guid: c0aea4f039d54275960047154c0caedb
+MonoImporter:
+  externalObjects: {}
+  serializedVersion: 2
+  defaultReferences: []
+  executionOrder: 0
+  icon: {fileID: 2800000, guid: 7488e8dcc98bcda48b1ca1090074f369, type: 3}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 214714
+  packageName: RaycastPro
+  packageVersion: 1.1.4
+  assetPath: Assets/Plugins/RaycastPro/Core/Casters/AdvanceCaster.cs
+  uploadId: 765053

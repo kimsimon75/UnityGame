@@ -1,0 +1,14 @@
+fileFormatVersion: 2
+guid: 1377725669d076843b98c6ae9451e83b
+PrefabImporter:
+  externalObjects: {}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 214714
+  packageName: RaycastPro
+  packageVersion: 1.1.4
+  assetPath: Assets/Plugins/RaycastPro/_Demo/_Prefabs/Planar (Divide).prefab
+  uploadId: 765053

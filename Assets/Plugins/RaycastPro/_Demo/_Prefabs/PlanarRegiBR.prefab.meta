@@ -1,0 +1,14 @@
+fileFormatVersion: 2
+guid: 16ca51c2aae30c941adb0e4a3611a3a1
+PrefabImporter:
+  externalObjects: {}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 214714
+  packageName: RaycastPro
+  packageVersion: 1.1.4
+  assetPath: Assets/Plugins/RaycastPro/_Demo/_Prefabs/PlanarRegiBR.prefab
+  uploadId: 765053

@@ -1,0 +1,18 @@
+fileFormatVersion: 2
+guid: 0d66ec7a4ab20ec4b9b17868328a294e
+MonoImporter:
+  externalObjects: {}
+  serializedVersion: 2
+  defaultReferences: []
+  executionOrder: 0
+  icon: {fileID: 2800000, guid: 1c68442f92d049b4db0ee938d0ad9777, type: 3}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 214714
+  packageName: RaycastPro
+  packageVersion: 1.1.4
+  assetPath: Assets/Plugins/RaycastPro/Core/Detectors/BoxDetector.cs
+  uploadId: 765053

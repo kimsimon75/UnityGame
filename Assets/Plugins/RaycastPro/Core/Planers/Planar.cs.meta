@@ -1,0 +1,10 @@
+﻿fileFormatVersion: 2
+guid: 3e012f206ce14586a21da8c4ff697ebe
+timeCreated: 1647411172
+AssetOrigin:
+  serializedVersion: 1
+  productId: 214714
+  packageName: RaycastPro
+  packageVersion: 1.1.4
+  assetPath: Assets/Plugins/RaycastPro/Core/Planers/Planar.cs
+  uploadId: 765053

@@ -1,0 +1,18 @@
+fileFormatVersion: 2
+guid: 3ad7f3d5e00b2d240b09d09ac7a02e4a
+MonoImporter:
+  externalObjects: {}
+  serializedVersion: 2
+  defaultReferences: []
+  executionOrder: 0
+  icon: {fileID: 2800000, guid: bbc4ab507aa848c40b16681e254d300d, type: 3}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 214714
+  packageName: RaycastPro
+  packageVersion: 1.1.4
+  assetPath: Assets/Plugins/RaycastPro/Core/RaySensors2D/ReflectRay2D.cs
+  uploadId: 765053

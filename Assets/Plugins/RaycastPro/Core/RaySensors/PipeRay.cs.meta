@@ -1,0 +1,18 @@
+fileFormatVersion: 2
+guid: 0b0f5e5ef95f4013bd73cc752faef470
+MonoImporter:
+  externalObjects: {}
+  serializedVersion: 2
+  defaultReferences: []
+  executionOrder: 0
+  icon: {fileID: 2800000, guid: eeb4c93bca306a84db2e914c6a90ce52, type: 3}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 214714
+  packageName: RaycastPro
+  packageVersion: 1.1.4
+  assetPath: Assets/Plugins/RaycastPro/Core/RaySensors/PipeRay.cs
+  uploadId: 765053

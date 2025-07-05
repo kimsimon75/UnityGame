@@ -1,0 +1,15 @@
+fileFormatVersion: 2
+guid: afdd8decba486bf4ea5efa28a184933b
+NativeFormatImporter:
+  externalObjects: {}
+  mainObjectFileID: 0
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 214714
+  packageName: RaycastPro
+  packageVersion: 1.1.4
+  assetPath: Assets/Plugins/RaycastPro/Gizmos/Stamp.mat
+  uploadId: 765053

@@ -1,0 +1,10 @@
+﻿fileFormatVersion: 2
+guid: 063154c1de2d44858d08962e69543fbc
+timeCreated: 1648743608
+AssetOrigin:
+  serializedVersion: 1
+  productId: 214714
+  packageName: RaycastPro
+  packageVersion: 1.1.4
+  assetPath: Assets/Plugins/RaycastPro/Core/Detectors2D/ColliderDetector2D.cs
+  uploadId: 765053

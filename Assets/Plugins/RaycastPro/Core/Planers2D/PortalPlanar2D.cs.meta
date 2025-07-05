@@ -1,0 +1,18 @@
+fileFormatVersion: 2
+guid: df1f636988c67f34caba8a08920d899f
+MonoImporter:
+  externalObjects: {}
+  serializedVersion: 2
+  defaultReferences: []
+  executionOrder: 0
+  icon: {fileID: 2800000, guid: de8e996840012d943853e4fda1d36306, type: 3}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 214714
+  packageName: RaycastPro
+  packageVersion: 1.1.4
+  assetPath: Assets/Plugins/RaycastPro/Core/Planers2D/PortalPlanar2D.cs
+  uploadId: 765053

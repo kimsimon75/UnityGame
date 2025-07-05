@@ -1,0 +1,14 @@
+fileFormatVersion: 2
+guid: b6e2b95c9455d50429458fe80c409341
+PrefabImporter:
+  externalObjects: {}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 214714
+  packageName: RaycastPro
+  packageVersion: 1.1.4
+  assetPath: Assets/Plugins/RaycastPro/_Demo/_Bullets/Bullet_Particle.prefab
+  uploadId: 765053
