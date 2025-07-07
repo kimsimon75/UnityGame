@@ -14,6 +14,7 @@ public class Cannon : MonoBehaviour
     private float attackDelay;
     public int attackCooldownBuff = 0;
     public int damage = 10;
+    public ArmorType damageType = ArmorType.공성;
     void Start()
     {
         attackDelay = attackCooldown;
@@ -22,7 +23,7 @@ public class Cannon : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        attackDelay = attackCooldown * (attackCooldownBuff* 0.01f + 1);
+        attackDelay = attackCooldown * (attackCooldownBuff * 0.01f + 1);
         if (target == null || Vector3.Distance(target.position, transform.position) > detectRange)
         {
             FindClosestEnemy(transform.position, detectRange, LayerMask.GetMask("Enemy"));
@@ -39,7 +40,7 @@ public class Cannon : MonoBehaviour
 
             transform.rotation = Quaternion.Slerp(transform.rotation, rot, Time.deltaTime * 10f);
         }
-        if (!isAttack && target!= null)
+        if (!isAttack && target != null)
             StartCoroutine(Fire());
     }
 
@@ -69,10 +70,15 @@ public class Cannon : MonoBehaviour
         CannonBallMove move = projectile.GetComponent<CannonBallMove>();
 
         move.Targeting(target);
-        move.SetDamage(damage);
-        
-        
+        move.SetDamage(damage, damageType);
+
+
         yield return new WaitForSeconds(attackDelay);
         isAttack = false;
+    }
+
+    public (int damage, float attackDelay, ArmorType damageType) GetDamageInfo()
+    {
+        return (damage, attackDelay, damageType);
     }
 }

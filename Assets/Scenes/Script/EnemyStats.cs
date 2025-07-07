@@ -1,9 +1,10 @@
- using Unity.VisualScripting;
-using TMPro;
+using System;
+using Unity.VisualScripting;
 using UnityEngine;
 
-public class EnemyStats : MonoBehaviour
+public class EnemyStats : Actor
 {
+
     [Header("체력 설정")]
     [Tooltip("최대 체력")]
     public float MaxHealth;
@@ -12,6 +13,10 @@ public class EnemyStats : MonoBehaviour
     public float CurrentHealth;
     private PlayerStats player;
     private bool isDead = false;
+    private int armor = 0;
+    private float moveSpeed = 4.84f;
+
+    public ArmorType armorType { private set; get; }
 
     [System.Obsolete]
     void Start()
@@ -21,13 +26,19 @@ public class EnemyStats : MonoBehaviour
         CurrentHealth = MaxHealth;
 
         player = FindObjectOfType<PlayerStats>();
+
+        if (GameManager.Instance.GetRound() <= 60)
+        {
+            armorType = ArmorType.일반;
+        }
     }
 
     /// <summary>
     /// 데미지를 입었을 때 호출
     /// </summary>
-    public void TakeDamage(float damage)
+    public void TakeDamage(float damage, ArmorType damageType)
     {
+        damage = damage * GetDamage(damageType, armorType);
         CurrentHealth = Mathf.Max(CurrentHealth - damage, 0f);
         if (CurrentHealth <= 0 && !isDead)
         {
@@ -37,11 +48,11 @@ public class EnemyStats : MonoBehaviour
         }
     }
 
-    public void TakeDamageAll(float damageAll, float damage, float radius)
+    public override void TakeDamageAll(float damageAll, float damage, float radius, ArmorType damageType)
     {
         Vector3 center = transform.position;
 
-        TakeDamage(damage + damageAll);
+        TakeDamage(damage + damageAll, damageType);
 
         // 원하는 레이어만 필터링
         LayerMask enemyLayer = LayerMask.GetMask("Enemy");
@@ -53,7 +64,7 @@ public class EnemyStats : MonoBehaviour
             EnemyStats stats = col.GetComponent<EnemyStats>();
             if (stats != null && col.transform != transform)
             {
-                stats.TakeDamage(damageAll);
+                stats.TakeDamage(damageAll, damageType);
             }
         }
 
@@ -67,18 +78,24 @@ public class EnemyStats : MonoBehaviour
     {
         CurrentHealth = Mathf.Min(CurrentHealth + amount, MaxHealth);
     }
-    
-    void DebugDrawCircleXZ(Vector3 center, float radius, Color color, int segments = 36)
-{
-    float delta = 2 * Mathf.PI / segments;
-    Vector3 prev = center + new Vector3(radius, 0, 0);
 
-    for (int i = 1; i <= segments; i++)
+
+
+    void DebugDrawCircleXZ(Vector3 center, float radius, Color color, int segments = 36)
     {
-        float angle = delta * i;
-        Vector3 next = center + new Vector3(Mathf.Cos(angle), 0, Mathf.Sin(angle)) * radius;
-        Debug.DrawLine(prev, next, color, 0.1f);
-        prev = next;
+        float delta = 2 * Mathf.PI / segments;
+        Vector3 prev = center + new Vector3(radius, 0, 0);
+
+        for (int i = 1; i <= segments; i++)
+        {
+            float angle = delta * i;
+            Vector3 next = center + new Vector3(Mathf.Cos(angle), 0, Mathf.Sin(angle)) * radius;
+            Debug.DrawLine(prev, next, color, 0.1f);
+            prev = next;
+        }
     }
-}
+    public (int armor, float moveSpeed, ArmorType armorType) GetDamageInfo()
+    {
+        return (armor, moveSpeed, armorType);
+    }
 }

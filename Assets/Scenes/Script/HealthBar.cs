@@ -27,7 +27,7 @@ public class HealthBar : MonoBehaviour
         canvasGO.transform.SetParent(transform);
         canvasGO.transform.localPosition = new Vector3(0, 2, 0);
         if (stats == null)
-            canvasGO.transform.localPosition = new Vector3(0, 0, 0.005f);
+            canvasGO.transform.localPosition = new Vector3(0, 0, 0.01f);
         canvasGO.GetComponent<RectTransform>().sizeDelta = new Vector2(1, 0.15f);
         canvasGO.AddComponent<Billboard>();
         Canvas canvas = canvasGO.GetComponent<Canvas>();

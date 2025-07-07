@@ -44,13 +44,10 @@ public class HitPoint : StateMachineBehaviour
 
             if (action.target != null && action.target.gameObject.activeInHierarchy)
             {
-                var enemy = action.target.GetComponent<EnemyStats>();
-                if (enemy != null)
-                {
-                    stats.HealthTrigger();
-                    stats.ManaTrigger();
-                    enemy.TakeDamage(stats.damage);
-                }
+                stats.HealthTrigger();
+                stats.ManaTrigger();
+                action.targetParent.TakeDamageAll(0, stats.damage, 0, ArmorType.패기);
+
 
                 Debug.Log("💥 타격 발생");
             }

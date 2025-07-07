@@ -11,20 +11,22 @@ public class PlayerStats : MonoBehaviour
     private float CurrentMana;
     private float MaxMana;
 
-    [NonSerialized]public float HealthRegen;
-    [NonSerialized]public float manaRegen;
+    [NonSerialized] public float HealthRegen;
+    [NonSerialized] public float manaRegen;
 
     private float hpRegenBuffer = 0f;
     private float mpRegenBuffer = 0f;
-    [NonSerialized]public float attackSpeedBonus;
-   [NonSerialized] public float blendingTime;
-    [NonSerialized]public float attackCooldown;
+    [NonSerialized] public float attackSpeedBonus;
+    [NonSerialized] public float blendingTime;
+    [NonSerialized] public float attackCooldown;
     [NonSerialized] public float attackDelay;
     [NonSerialized] public float lastAttackTime = float.MinValue;
     [NonSerialized] public float damage = 10f;
+    [NonSerialized] public float MoveSpeed;
     public int player = 1;
     public SkillManager skill = new SkillManager();
     [NonSerialized] public float detectRange = 2f;
+
 
 
     public TextMeshProUGUI text;
@@ -45,6 +47,7 @@ public class PlayerStats : MonoBehaviour
         attackCooldown = 1f;
         attackSpeedBonus = 0f;
         blendingTime = 0.1f;
+        MoveSpeed = 6f;
 
 
         action = GetComponent<ActionScript>();
@@ -101,7 +104,8 @@ public class PlayerStats : MonoBehaviour
     {
         if (CurrentHealth == MaxHealth)
         {
-            action.target.GetComponent<EnemyStats>().TakeDamageAll(100f, damage, 5f);
+            
+            action.targetParent.TakeDamageAll(100f, 0, 5f, ArmorType.패기);
             skill.CauseDamage(player);
             CurrentHealth = 0;
         }

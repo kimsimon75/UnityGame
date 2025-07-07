@@ -2,6 +2,8 @@ using System.Collections;
 using UnityEngine;
 using UnityEngine.AI;
 using UnityEngine.EventSystems;
+using UnityEngine.Playables;
+using UnityEngine.UIElements;
 
 public class ActionScript : MonoBehaviour
 {
@@ -16,6 +18,14 @@ public class ActionScript : MonoBehaviour
     public NavMeshHit point;
     public float attackDisableTime = 0f;
     public bool isAttack => Time.time < attackDisableTime;    // 기존 플래그
+    public Actor targetParent = null;
+    private bool OnTheStory = false;
+    public Transform statsTarget = null;
+    [SerializeField] private Vector3 offset = new Vector3(0f, 11f, -11f); 
+    public Camera mainCamera;
+
+    public Transform StoryCannon;
+    public Transform MagicZone;
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
     {
@@ -27,6 +37,8 @@ public class ActionScript : MonoBehaviour
         stats = GetComponent<PlayerStats>();
 
         TriggerHold();
+            mainCamera.transform.position = new Vector3(transform.position.x , transform.position.y + 12f, transform.position.z - 6f);
+
     }
 
     // Update is called once per frame
@@ -45,17 +57,35 @@ public class ActionScript : MonoBehaviour
         {
             isReady = true;
         }
-        else if (Input.GetMouseButtonDown(0) && isReady && !EventSystem.current.IsPointerOverGameObject())
+        else if (Input.GetMouseButtonDown(0) && !EventSystem.current.IsPointerOverGameObject())
         {
-            LayerMask enemyLayer = LayerMask.GetMask("Enemy");
-            Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
-            if (Physics.Raycast(ray, out RaycastHit hitInfo, 100f, enemyLayer))
+            if (isReady)
             {
-                target = hitInfo.transform;
-                TriggerAttack();
+                LayerMask enemyLayer = LayerMask.GetMask("Enemy");
+                Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
+                if (Physics.Raycast(ray, out RaycastHit hitInfo, 100f, enemyLayer))
+                {
+                    SetFunction(hitInfo.transform);
+                    TriggerAttack();
+                }
+                else
+                {
+                    TriggerHold();
+                    isReady = false;
+                }
             }
             else
-                isReady = false;
+            {
+                LayerMask mask = LayerMask.GetMask("Enemy", "Cannon");
+                Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
+
+                if (Physics.Raycast(ray, out RaycastHit hitInfo, 100f, mask))
+                {
+                    statsTarget = hitInfo.transform;
+                }
+
+            }
+
         }
         else if (Input.GetMouseButtonDown(1) && !EventSystem.current.IsPointerOverGameObject())
         {
@@ -64,7 +94,7 @@ public class ActionScript : MonoBehaviour
 
             if (Physics.Raycast(ray, out RaycastHit hitInfo, 100f, enemyLayer))
             {
-                target = hitInfo.transform;
+                SetFunction(hitInfo.transform);
                 TriggerAttack();
             }
             else if (Physics.Raycast(ray, out RaycastHit groundHit, 100f))
@@ -75,6 +105,38 @@ public class ActionScript : MonoBehaviour
                     TriggerMove();
                 }
             }
+        }
+        else if (Input.GetKeyDown(KeyCode.G))
+        {
+            OnTheStory = !OnTheStory;
+            Transform Goal;
+
+            if (OnTheStory)
+            {
+                Goal = StoryCannon.transform;
+                mainCamera.transform.position = new Vector3(Goal.position.x, Goal.position.y + 12f, Goal.position.z - 6f);
+            }
+            else
+            {
+                Goal = MagicZone.transform;
+                mainCamera.transform.position = new Vector3(Goal.position.x , Goal.position.y + 12f, Goal.position.z - 6f);
+            }
+            TriggerHold();
+            point = default;
+            if (agent.enabled && agent.isOnNavMesh)
+            {
+                agent.Warp(Goal.position);   // NavMeshAgent 내부 좌표까지 동기화
+                agent.ResetPath();           // 남아 있던 경로 제거 (선택)
+            }
+            else
+            {
+                // Agent 가 꺼져 있거나 아직 NavMesh 위가 아니면 transform 직접 이동
+                transform.position = Goal.position;
+            }
+        }
+        else if (Input.GetKeyDown(KeyCode.Space))
+        {
+            mainCamera.transform.position = new Vector3(transform.position.x , transform.position.y + 12f, transform.position.z - 6f);
         }
     }
 
@@ -119,5 +181,14 @@ public class ActionScript : MonoBehaviour
         agent.isStopped = true;
         target = null;
         anim.CrossFade("Idle", stats.blendingTime);
+    }
+
+    public void SetFunction(Transform hitInfo)
+    {
+        target = hitInfo;
+        if (target.GetComponent<EnemyStats>() != null)
+            targetParent = target.GetComponent<EnemyStats>();
+        else if (target.GetComponent<Story>() != null)
+            targetParent = target.GetComponent<Story>();
     }
 }

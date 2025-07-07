@@ -21,14 +21,14 @@ public class WalkForward : MonoBehaviour
     void Awake()
     {
         Animator anim = GetComponent<Animator>();
-        map = GetComponentInParent<GameManager>().gameObject;
+        map = GameManager.Instance.gameObject;
         anim.applyRootMotion = false;
     }
 
     void Start()
     {
 
-        moveSpeed = 4.84f;
+        moveSpeed = GetComponent<EnemyStats>().GetDamageInfo().moveSpeed;
 
         mapSize = map.GetComponent<Renderer>().bounds.size.x;
 

@@ -16,8 +16,6 @@ public class CameraController : MonoBehaviour
 
     void Update()
 {
-        if (item.activeSelf)
-            return;
     Vector3 mousePos = Input.mousePosition;
 
     // ⛔ 마우스가 화면 바깥이면 무시
@@ -25,15 +23,19 @@ public class CameraController : MonoBehaviour
         return;
 
     Vector3 pos = transform.position;
-    
-    if (Input.GetKey(KeyCode.UpArrow))
-        pos += GetForwardFlat() * moveSpeed * Time.deltaTime;
-    if (Input.GetKey(KeyCode.DownArrow))
-        pos -= GetForwardFlat() * moveSpeed * Time.deltaTime;
-    if (Input.GetKey(KeyCode.LeftArrow))
-        pos -= GetRightFlat() * moveSpeed * Time.deltaTime;
-    if (Input.GetKey(KeyCode.RightArrow))
-        pos += GetRightFlat() * moveSpeed * Time.deltaTime;
+
+        if (!item.activeSelf)
+        {
+
+            if (Input.GetKey(KeyCode.UpArrow))
+                pos += GetForwardFlat() * moveSpeed * Time.deltaTime;
+            if (Input.GetKey(KeyCode.DownArrow))
+                pos -= GetForwardFlat() * moveSpeed * Time.deltaTime;
+            if (Input.GetKey(KeyCode.LeftArrow))
+                pos -= GetRightFlat() * moveSpeed * Time.deltaTime;
+            if (Input.GetKey(KeyCode.RightArrow))
+                pos += GetRightFlat() * moveSpeed * Time.deltaTime;
+        }
 
     if (mousePos.x <= borderThickness)
             pos -= GetRightFlat() * moveSpeed * Time.deltaTime;

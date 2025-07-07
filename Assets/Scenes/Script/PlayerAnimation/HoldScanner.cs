@@ -70,5 +70,7 @@ public class HoldScanner : MonoBehaviour
             }
         }
         action.target = closest;
+        if (closest != null)
+        action.SetFunction(closest);
     }
 }

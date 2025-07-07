@@ -35,6 +35,7 @@ public class PlayerAttack : MonoBehaviour
 
         if (dist > stats.detectRange - 0.1f && !action.isAttack)
         {
+            Debug.Log(dist);
             agent.isStopped = false;
             agent.SetDestination(target.position);
             if(!anim.GetCurrentAnimatorStateInfo(0).IsName("Walking") &&
@@ -48,9 +49,9 @@ public class PlayerAttack : MonoBehaviour
             if (!action.isAttack)
             {
                 agent.isStopped = true;
-                if (!anim.GetCurrentAnimatorStateInfo(0).IsName("Base Layer.Attack") &&
+                if (!anim.GetCurrentAnimatorStateInfo(0).IsName("Attack") &&
                 !(anim.IsInTransition(0) &&
-                anim.GetNextAnimatorStateInfo(0).IsName("Base Layer.Attack")))
+                anim.GetNextAnimatorStateInfo(0).IsName("Attack")))
                 anim.CrossFade("Attack", stats.blendingTime);
             }
         }

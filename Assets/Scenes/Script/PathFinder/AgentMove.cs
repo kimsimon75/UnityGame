@@ -1,4 +1,5 @@
 using System;
+using Unity.VisualScripting.Antlr3.Runtime.Misc;
 using UnityEngine;
 using UnityEngine.AI;
 
@@ -19,6 +20,7 @@ public class AgentMove : MonoBehaviour
         agent.autoBraking = false;  // autoBraking을 true로 설정
 
         action = GetComponent<ActionScript>();
+        agent.speed = GetComponent<PlayerStats>().MoveSpeed;
     }
 
     void Update()

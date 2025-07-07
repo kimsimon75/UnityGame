@@ -8,6 +8,7 @@ public class CannonBallMove : MonoBehaviour
     [NonSerialized] public float speed = 10f;
 
     private float Damage;
+    private ArmorType DamageType;
     void Start()
     {
 
@@ -37,17 +38,15 @@ public class CannonBallMove : MonoBehaviour
     {
         if (other.CompareTag("Enemy"))
         {
-            EnemyStats stats = other.transform.GetComponent<EnemyStats>();
-            if (stats != null)
-                stats.TakeDamageAll(Damage, 0, 3f);
-            else
-                other.transform.GetComponent<Story>().TakeDamageAll(Damage, 0, 3f);
+            Actor stats = other.transform.GetComponent<Actor>();
+                stats.TakeDamageAll(Damage, 0, 3f, DamageType);
             Destroy(gameObject); // 또는 다른 처리
         }
     }
 
-    public void SetDamage(int damage)
+    public void SetDamage(int damage, ArmorType damageType)
     {
         Damage = damage;
+        DamageType = damageType;
     }
 }
