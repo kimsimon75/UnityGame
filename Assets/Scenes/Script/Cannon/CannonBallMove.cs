@@ -39,7 +39,7 @@ public class CannonBallMove : MonoBehaviour
         if (other.CompareTag("Enemy"))
         {
             Actor stats = other.transform.GetComponent<Actor>();
-                stats.TakeDamageAll(Damage, 0, 3f, DamageType);
+                stats.TakeDamageAll(Damage, 0, 3f, DamageType,true,0);
             Destroy(gameObject); // 또는 다른 처리
         }
     }

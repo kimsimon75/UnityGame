@@ -54,7 +54,7 @@ public class UnitStatus : MonoBehaviour
             {
                 slider.gameObject.SetActive(false);
                 var Info = target.GetComponentInParent<Story>().GetDamageInfo();
-                text[0].text = $"방어력 : {Info.Item1}";
+                text[0].text = $"방어력 : {Info.Item1[Info.Item2][1]}";
                 text[1].text = $"스토리 레벨 : {Info.Item2}";
                 text[2].text = $"방어 타입 : {Info.Item3}";
             }

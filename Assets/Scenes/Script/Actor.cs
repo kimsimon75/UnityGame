@@ -10,7 +10,7 @@ using UnityEngine;
 
 public abstract class Actor : MonoBehaviour
 {
-    static public float GetDamage(ArmorType damageType, ArmorType armorType)
+    protected float GetDamage(ArmorType damageType, ArmorType armorType)
     {
         if (damageType == ArmorType.관통)
         {
@@ -58,6 +58,14 @@ public abstract class Actor : MonoBehaviour
         else return 1.05f;
     }
 
-    public abstract void TakeDamageAll(float damageAll, float damage, float radius, ArmorType damageType);
+    protected float ArmorCalculate(int Armor, int armorDecrease)
+    {
+        if (Armor >= armorDecrease)
+            return 100f / (100f + 2f * (Armor - armorDecrease));
+        else
+            return 2 - Mathf.Pow(0.94f, armorDecrease - Armor);
+    }
+
+    public abstract void TakeDamageAll(float damageAll, float damage, float radius, ArmorType damageType, bool physics, int armorDecrease);
     
 }

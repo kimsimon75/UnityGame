@@ -1,4 +1,5 @@
 using System;
+using RaycastPro.RaySensors;
 using Unity.VisualScripting;
 using UnityEngine;
 
@@ -16,18 +17,25 @@ public class EnemyStats : Actor
     private int armor = 0;
     private float moveSpeed = 4.84f;
 
+
     public ArmorType armorType { private set; get; }
 
     [System.Obsolete]
     void Start()
     {
-        MaxHealth = 100f;
+
+        int round = GameManager.Instance.GetRound();
+
+        SetStats(round);
+
+        MaxHealth = DataManager.Instance.enemyStats[round][0];
+        armor = DataManager.Instance.enemyStats[round][1];
         // 게임 시작할 때 현재 체력을 최대치로 초기화
         CurrentHealth = MaxHealth;
 
         player = FindObjectOfType<PlayerStats>();
 
-        if (GameManager.Instance.GetRound() <= 60)
+        if (round <= 60)
         {
             armorType = ArmorType.일반;
         }
@@ -36,11 +44,14 @@ public class EnemyStats : Actor
     /// <summary>
     /// 데미지를 입었을 때 호출
     /// </summary>
-    public void TakeDamage(float damage, ArmorType damageType)
+    public void TakeDamage(float damage, ArmorType damageType, bool physics, int armorDecrease)
     {
+        if (isDead) return;
         damage = damage * GetDamage(damageType, armorType);
+        if (physics)
+            damage = damage * ArmorCalculate(armor, armorDecrease);
         CurrentHealth = Mathf.Max(CurrentHealth - damage, 0f);
-        if (CurrentHealth <= 0 && !isDead)
+        if (CurrentHealth <= 0)
         {
             --player.UnitCount;
             Destroy(gameObject);
@@ -48,11 +59,11 @@ public class EnemyStats : Actor
         }
     }
 
-    public override void TakeDamageAll(float damageAll, float damage, float radius, ArmorType damageType)
+    public override void TakeDamageAll(float damageAll, float damage, float radius, ArmorType damageType, bool physics, int armorDecrease)
     {
         Vector3 center = transform.position;
 
-        TakeDamage(damage + damageAll, damageType);
+        TakeDamage(damage + damageAll, damageType, physics, armorDecrease);
 
         // 원하는 레이어만 필터링
         LayerMask enemyLayer = LayerMask.GetMask("Enemy");
@@ -64,7 +75,7 @@ public class EnemyStats : Actor
             EnemyStats stats = col.GetComponent<EnemyStats>();
             if (stats != null && col.transform != transform)
             {
-                stats.TakeDamage(damageAll, damageType);
+                stats.TakeDamage(damageAll, damageType, physics, armorDecrease);
             }
         }
 
@@ -97,5 +108,16 @@ public class EnemyStats : Actor
     public (int armor, float moveSpeed, ArmorType armorType) GetDamageInfo()
     {
         return (armor, moveSpeed, armorType);
+    }
+
+    private void SetStats(int round)
+    {
+        switch (round)
+        {
+            case 1:
+                MaxHealth = 100f;
+                armor = 0;
+                break;
+        }
     }
 }

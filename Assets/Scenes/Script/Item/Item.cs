@@ -504,6 +504,7 @@ public class List
             Stats.attackSpeedBonus += item.AttackSpeed;
             Stats.HealthRegen += item.HealthRegen;
             Stats.manaRegen += item.ManaRegen;
+            Stats.neutralizeDefense += item.NeutralizeDefense;
             Cannon.SetCannon(item.TowerDamage, item.TowerAttackSpeed);
         }
     }
@@ -513,6 +514,7 @@ public class List
         Stats.attackSpeedBonus -= item.AttackSpeed;
         Stats.HealthRegen -= item.HealthRegen;
         Stats.manaRegen -= item.ManaRegen;
+        Stats.neutralizeDefense -= item.NeutralizeDefense;
         Cannon.SetCannon(-item.TowerDamage, -item.TowerAttackSpeed);
     }
 

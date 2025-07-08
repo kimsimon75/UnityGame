@@ -5,34 +5,29 @@ public class Story : Actor
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     public float currentHealth = 0;
     public float maxHealth = 0;
-    int[] story = new int[1000];
+    int[][] story = new int[14][];
     public byte level = 0;
     bool isDead = false;
-    int armor = 0;
     ArmorType armorType = ArmorType.공성;
     public ItemManager item;
     void Start()
     {
-        story[0] = 100;
-        story[1] = 100;
-        story[2] = 100;
-        story[3] = 100;
-        story[4] = 100;
-        story[5] = 100;
-        story[6] = 100;
-        story[7] = 100;
-        story[8] = 100;
-        story[9] = 100;
-        story[10] = 100;
-        story[11] = 100;
-        story[12] = 100;
+        story[0] = new int[2]{ 0, 0};
+        story[1] = new int[2]{ 100000, 9};
+        story[2] = new int[2]{ 400000, 26};
+        story[3] = new int[2]{ 1320000, 41};
+        story[4] = new int[2]{ 3230000,54};
+        story[5] = new int[2]{ 7000000, 67};
+        story[6] = new int[2]{ 18200000, 82};
+        story[7] = new int[2]{ 34500000, 103};
+        story[8] = new int[2]{ 72000000, 116};
+        story[9] = new int[2]{ 188500000, 118};
+        story[10] = new int[2]{ 300000000, 169};
+        story[11] = new int[2]{ 350000000, 189};
+        story[12] = new int[2]{ 430000000, 216};
+        story[13] = new int[2]{ 550000000, 247};
 
-        for (int i = 0; i < 1000; i++)
-        {
-            story[i] = 1000;
-        }
-
-        currentHealth = maxHealth = story[level++];
+        currentHealth = maxHealth = story[++level][0];
     }
 
     // Update is called once per frame
@@ -50,22 +45,22 @@ public class Story : Actor
                     break;
             }
 
-            currentHealth = maxHealth = story[level++];
-
-
-
+            currentHealth = maxHealth = story[++level][0];
         }
     }
 
-    public override void TakeDamageAll(float damageAll, float damage, float detectRange, ArmorType damageType)
+    public override void TakeDamageAll(float damageAll, float damage, float detectRange, ArmorType damageType, bool physics, int armorDecrease)
     {
+        if (isDead) return;
         damageAll = damageAll * GetDamage(damageType, armorType);
+        if (physics)
+            damageAll = damageAll * ArmorCalculate(story[level][1], armorDecrease);
         currentHealth = Mathf.Max(currentHealth - damage - damageAll, 0f);
-        if (currentHealth <= 0 && !isDead)
+        if (currentHealth <= 0)
         {
             isDead = true;
         }
     }
 
-    public (int armor, byte level, ArmorType armorType) GetDamageInfo() { return (armor, level, armorType); }
+    public (int[][] story, byte level, ArmorType armorType) GetDamageInfo() { return (story, level, armorType); }
 }

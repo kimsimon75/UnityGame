@@ -13,7 +13,7 @@ public class Cannon : MonoBehaviour
     private float attackCooldown = 2f;
     private float attackDelay;
     public int attackCooldownBuff = 0;
-    public int damage = 10;
+    [NonSerialized] public int damage = 50;
     public ArmorType damageType = ArmorType.공성;
     void Start()
     {

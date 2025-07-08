@@ -8,7 +8,7 @@ public class Energy : MonoBehaviour
     public TextMeshProUGUI energyTextBackground;
     public Slider energyBar;
     private float energyRegenBuffer = 0f;
-    private float energyRegen = 300f;
+    private float energyRegen = 0.35f;
     private float maxEnergy = 10000;
     private float currentEnergy = 0;
     // Start is called once before the first execution of Update after the MonoBehaviour is created

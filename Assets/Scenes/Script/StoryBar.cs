@@ -27,6 +27,6 @@ public class StoryBar : MonoBehaviour
 
         healthBar.text = $"{Mathf.Ceil(currentHealth)}/ {maxHealth}";
         backgroundBar.text = $"{Mathf.Ceil(currentHealth)}/ {maxHealth}";
-        Level.text = target.level.ToString();
+        Level.text = (target.level -1).ToString();
     }
 }
