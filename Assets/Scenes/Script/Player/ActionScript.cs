@@ -21,11 +21,20 @@ public class ActionScript : MonoBehaviour
     public Actor targetParent = null;
     private bool OnTheStory = false;
     public Transform statsTarget = null;
-    [SerializeField] private Vector3 offset = new Vector3(0f, 11f, -11f); 
+    [SerializeField] private Vector3 offset = new Vector3(0f, 11f, -11f);
     public Camera mainCamera;
 
     public Transform StoryCannon;
     public Transform MagicZone;
+
+    private float zoomSpeed = 10f;
+    private float minDistance = 30f;
+    private float maxDistance = 80f;
+    private Vector3 camOffset = new Vector3(0, 12f, -6f);
+    private float targetDistance;
+    private float zoomVelocity;
+    private float smoothTimeZoom = 0.10f;
+
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
     {
@@ -37,7 +46,8 @@ public class ActionScript : MonoBehaviour
         stats = GetComponent<PlayerStats>();
 
         TriggerHold();
-            mainCamera.transform.position = new Vector3(transform.position.x , transform.position.y + 12f, transform.position.z - 6f);
+        targetDistance = mainCamera.fieldOfView;
+        mainCamera.transform.position = new Vector3(transform.position.x, transform.position.y + 12f, transform.position.z - 6f);
 
     }
 
@@ -114,12 +124,12 @@ public class ActionScript : MonoBehaviour
             if (OnTheStory)
             {
                 Goal = StoryCannon.transform;
-                mainCamera.transform.position = new Vector3(Goal.position.x, Goal.position.y + 12f, Goal.position.z - 6f);
+                mainCamera.transform.position = new Vector3(Goal.position.x, Goal.position.y - 1f + 0.083333349f, Goal.position.z) + camOffset;
             }
             else
             {
                 Goal = MagicZone.transform;
-                mainCamera.transform.position = new Vector3(Goal.position.x , Goal.position.y + 12f, Goal.position.z - 6f);
+                mainCamera.transform.position = new Vector3(Goal.position.x, Goal.position.y + 0.073333349f, Goal.position.z) + camOffset;
             }
             TriggerHold();
             point = default;
@@ -134,10 +144,30 @@ public class ActionScript : MonoBehaviour
                 transform.position = Goal.position;
             }
         }
-        else if (Input.GetKeyDown(KeyCode.Space))
+        else if (Input.GetKey(KeyCode.Space))
         {
-            mainCamera.transform.position = new Vector3(transform.position.x , transform.position.y + 12f, transform.position.z - 6f);
+            mainCamera.transform.position = new Vector3(transform.position.x, transform.position.y, transform.position.z) + camOffset;
         }
+
+        float scroll = -Input.GetAxis("Mouse ScrollWheel");
+        if (Mathf.Abs(scroll) > 0.0001f)
+        {
+            targetDistance = Mathf.Clamp(
+                targetDistance + scroll * zoomSpeed,
+                minDistance,
+                maxDistance);
+        }
+    }
+
+    void LateUpdate()
+    {
+        mainCamera.fieldOfView = Mathf.SmoothDamp(
+            mainCamera.fieldOfView,
+            targetDistance,
+            ref zoomVelocity,
+            smoothTimeZoom
+        );
+
     }
 
     public void TriggerAttack()

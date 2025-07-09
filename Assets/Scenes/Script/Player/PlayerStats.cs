@@ -28,6 +28,12 @@ public class PlayerStats : MonoBehaviour
     [NonSerialized] public float detectRange = 2f;
 
     public int neutralizeDefense = 0;
+    public int MagicalBuffer;
+    public int MagicalDebuffer;
+    public int TrueDamage;
+    public int MoveSpeeDebuff;
+    public int TowerDamage;
+    public int TowerAttackSpeed;
 
 
 
@@ -127,9 +133,9 @@ public class PlayerStats : MonoBehaviour
         return new Vector2(CurrentMana, MaxMana);
     }
 
-    public Vector3 GetStats()
-    {
-        return new Vector3(damage, attackCooldown, attackSpeedBonus);
-    }
+    public (float damage, float attackCooldown,float attackSpeedBonus,
+     int neutralizeDefense,float HealthRegen, float manaRegen, int MagicalBuffer, int MagicalDebuffer,
+    int TrueDamage, int MoveSpeeDebuff ) GetStats(){ return (damage, attackCooldown, attackSpeedBonus, neutralizeDefense
+    ,HealthRegen,manaRegen, MagicalBuffer, MagicalDebuffer, TrueDamage, MoveSpeeDebuff); }
 
 }

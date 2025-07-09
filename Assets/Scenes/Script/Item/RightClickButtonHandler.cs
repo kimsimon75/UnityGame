@@ -46,7 +46,6 @@ public class RightClickButtonHandler : MonoBehaviour, IPointerClickHandler
         if (img.sprite == null)
             return; 
 
-        if (transform.Find("Image").GetComponent<Image>().sprite == null) return;
         // 마우스 오른쪽 버튼 클릭 시
         if (eventData.button == PointerEventData.InputButton.Right)
         {
@@ -55,29 +54,29 @@ public class RightClickButtonHandler : MonoBehaviour, IPointerClickHandler
 
                 Debug.Log("Ctrl + 오른쪽 클릭됨!");
                 // 여기에 Ctrl+우클릭용 로직
-                CtrlRightClickTrigger();
+                CtrlRightClickTrigger(img);
             }
             else
             {
                 Debug.Log("오른쪽 클릭됨!");
-                RightButtonTrigger(); // 여기에 원하는 트리거 함수 호출
+                RightButtonTrigger(img); // 여기에 원하는 트리거 함수 호출
             }
         }
     }
-    void RightButtonTrigger()
+    void RightButtonTrigger(Image image)
     {
         // 원하는 행동 수행
         Debug.Log("Right-click triggered!");
-        if (!item.list.CombineItem(item.list.FindItem(transform.Find("Image").GetComponent<Image>().sprite.name)))
+        if (!item.list.CombineItem(item.list.FindItem(image.sprite.name)))
             Debug.LogError("아이템이 모자라거나 만물석임");
 
 
 
         
     }
-    void CtrlRightClickTrigger()
+    void CtrlRightClickTrigger(Image image)
     {
-        Dictionary<string, int> dict = item.list.CombineAllItem(item.list.FindItem(transform.Find("Image").GetComponent<Image>().sprite.name), true);
+        Dictionary<string, int> dict = item.list.CombineAllItem(item.list.FindItem(image.sprite.name), true);
 
         foreach (KeyValuePair<string, int> kvp in dict)
         {
@@ -99,11 +98,18 @@ public class RightClickButtonHandler : MonoBehaviour, IPointerClickHandler
         // 3) sprite가 할당되어 있는지 최종 확인
         if (img.sprite == null)
             return; 
-            
-        if (transform.Find("Image").GetComponent<Image>().sprite == null) return;
-        string s = transform.Find("Image").GetComponent<Image>().sprite.name;
-         
 
-        item.Clear(item.list.FindItem(s));
+        string s = img.sprite.name;
+        Item findItem = item.list.FindItem(s);
+
+        if (item.GetEditItem() == findItem)
+        {
+            GridLayoutGroup grid = GetComponentInParent<GridLayoutGroup>();
+            Transform EditItemStatus = GetComponentInParent<ItemManager>().transform.Find("Panel");
+            EditItemStatus.gameObject.SetActive(true);
+            grid.gameObject.SetActive(false);
+        }
+        else
+            item.Clear(findItem);
     }
 }

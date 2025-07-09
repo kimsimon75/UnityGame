@@ -12,6 +12,7 @@ public class ItemManager : MonoBehaviour
     public Item editItem;
 
     private Image[] images;
+    Image[] menu;
     private Button[] buttons;
     private float blur;
     [Range(4, 128)] public int segments = 64;
@@ -22,6 +23,12 @@ public class ItemManager : MonoBehaviour
     private int rank = 0;
     public PlayerStats stats;
     public CannonManager cannon;
+
+    public GameObject ItemList;
+    public GameObject editItemStatus;
+    public Image statusItem;
+    public TextMeshProUGUI editItemName;
+    public TextMeshProUGUI ItemExplanation;
 
     void Awake()
     {
@@ -77,7 +84,7 @@ public class ItemManager : MonoBehaviour
             button.AddComponent<RightClickButtonHandler>();
         }
 
-        Image[] menu = GetComponentsInChildren<Image>().Where(img =>
+        menu = GetComponentsInChildren<Image>().Where(img =>
         !img.gameObject.name.ToLower().Contains("button") &&
         !img.gameObject.name.ToLower().Contains("items") &&
         !img.gameObject.name.ToLower().Contains("number") &&
@@ -92,13 +99,32 @@ public class ItemManager : MonoBehaviour
 
     }
 
+    void Update()
+    {
+        if (!ItemList.activeSelf && editItemStatus.activeSelf)
+        {
+            statusItem.sprite = editItem.Resource;
+            editItemName.text = $"아이템명 : {editItem.Name}";
+        }
+    }
+
     public Image[] GetImages() { return images; }
     public Button[] GetButtons() { return buttons; }
 
     public void SetRank(int sRank)
     {
         rank = sRank;
+        if (!ItemList.activeSelf && editItemStatus.activeSelf)
+        {
+            editItemStatus.SetActive(false);
+            ItemList.SetActive(true);
+        }
         Clear(null);
+    }
+
+    public void StatusReset()
+    {
+        
     }
 
 
