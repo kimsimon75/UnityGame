@@ -10,6 +10,7 @@ using UnityEngine;
 
 public abstract class Actor : MonoBehaviour
 {
+    public ArmorType armorType = ArmorType.일반;
     protected float GetDamage(ArmorType damageType, ArmorType armorType)
     {
         if (damageType == ArmorType.관통)
@@ -66,6 +67,7 @@ public abstract class Actor : MonoBehaviour
             return 2 - Mathf.Pow(0.94f, armorDecrease - Armor);
     }
 
-    public abstract void TakeDamageAll(float damageAll, float damage, float radius, ArmorType damageType, bool physics, int armorDecrease);
-    
+    public abstract void TakeDamageAll(float damageAll, float damage, float radius, ArmorType damageType, bool physics, int armorDecrease, int percent = 0);/// percent 0 : 일반, 1 : 전체, 2 : 현재, 3 : 잃은,
+
+    public abstract void TakeStun(float Time, float TimeAll, float radius, bool boss);
 }

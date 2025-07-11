@@ -27,7 +27,7 @@ public class GameManager : MonoBehaviour
         roundText.text = "라운드 시작 전";
         item = GetComponentInChildren<ItemManager>();
         for (int i = 0; i < 3; i++)
-            item.list.GetRandomItem(ItemRank.Common);
+            item.list.GetRandomItem(ItemRank.흔함);
     }
 
     void Update()
@@ -41,14 +41,14 @@ public class GameManager : MonoBehaviour
         else
         {
             StartCoroutine(summoner.SummonLoop());
-            item.list.GetRandomItem(ItemRank.Common);
-            item.list.GetRandomItem(ItemRank.Common);
+            item.list.GetRandomItem(ItemRank.흔함);
+            item.list.GetRandomItem(ItemRank.흔함);
 
             roundText.text = $"{++round}라운드";
 
-            if (round == 3) item.list.GetRandomItem(ItemRank.Uncommon);
-            if (round == 5) item.list.GetRandomItem(ItemRank.Uncommon);
-            if (round == 6) item.list.GetRandomItem(ItemRank.Special);
+            if (round == 3) item.list.GetRandomItem(ItemRank.안흔함);
+            if (round == 5) item.list.GetRandomItem(ItemRank.안흔함);
+            if (round == 6) item.list.GetRandomItem(ItemRank.특별함);
 
             timeLeft = init - 1;
             // 여기에 타이머 끝났을 때 실행할 코드 추가

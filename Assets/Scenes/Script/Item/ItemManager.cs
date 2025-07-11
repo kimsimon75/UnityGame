@@ -28,6 +28,7 @@ public class ItemManager : MonoBehaviour
     public GameObject editItemStatus;
     public Image statusItem;
     public TextMeshProUGUI editItemName;
+    public TextMeshProUGUI[] ItemStatus;
     public TextMeshProUGUI ItemExplanation;
 
     void Awake()
@@ -55,11 +56,12 @@ public class ItemManager : MonoBehaviour
         {
 
 
-            Image numberImage = new GameObject("number").AddComponent<Image>();
+            Image numberImage = new GameObject("number1").AddComponent<Image>();
 
             numberImage.transform.SetParent(image.transform);
             numberImage.transform.localPosition = new Vector3(25, -25, 0);
             numberImage.rectTransform.sizeDelta = new Vector2(15, 15);
+            numberImage.transform.localScale = new Vector3(1.5f, 1.5f, 1.5f);
             numberImage.sprite = Sprite.Create(tex, new Rect(0, 0, tex.width, tex.height), new Vector2(.5f, .5f));
 
             TextMeshProUGUI text = new GameObject("text").AddComponent<TextMeshProUGUI>();
@@ -67,6 +69,7 @@ public class ItemManager : MonoBehaviour
             tr.SetParent(numberImage.transform);
             tr.localPosition = Vector3.zero;
             text.fontSize = 12;
+            text.transform.localScale = new Vector3(1, 1, 1);
             text.color = Color.black;
             text.text = "";
             text.alignment = TextAlignmentOptions.Center;
@@ -87,7 +90,7 @@ public class ItemManager : MonoBehaviour
         menu = GetComponentsInChildren<Image>().Where(img =>
         !img.gameObject.name.ToLower().Contains("button") &&
         !img.gameObject.name.ToLower().Contains("items") &&
-        !img.gameObject.name.ToLower().Contains("number") &&
+        !img.gameObject.name.ToLower().Contains("number1") &&
         !img.gameObject.name.ToLower().Contains("image") &&
         !img.gameObject.name.ToLower().Contains("row")).ToArray();
 
@@ -105,7 +108,30 @@ public class ItemManager : MonoBehaviour
         {
             statusItem.sprite = editItem.Resource;
             editItemName.text = $"아이템명 : {editItem.Name}";
+
+            ItemStatus[0].text = $"등급 : {editItem.Rank}";
+            ItemStatus[1].text = $"기본 공격력 증가 : {editItem.AttackPower}";
+            ItemStatus[2].text = $"추가 공격력 : {editItem.AdditionalAttackPower}%";
+            ItemStatus[3].text = $"방어력 감소 : {editItem.NeutralizeDefense}";
+            ItemStatus[4].text = $"마법 증폭 : {editItem.MagicalBuffer}%";
+            ItemStatus[5].text = $"마법방어력 감소 : {editItem.MagicalDebuffer}%";
+            ItemStatus[6].text = $"방어무시 데미지 : {editItem.TrueDamage}%";
+            ItemStatus[7].text = $"체력 재생 : {editItem.HealthRegen}";
+            ItemStatus[8].text = $"마나 재생 : {editItem.ManaRegen}";
+            ItemStatus[9].text = $"이동속도 감소 : {editItem.MoveSpeed}";
+            ItemStatus[10].text = $"공격속도 증가 : {editItem.AttackSpeed}%";
+            ItemStatus[11].text = $"타워 공격력 증가 : {editItem.TowerDamage}";
+            ItemStatus[12].text = $"타워 공격속도 증가: {editItem.TowerAttackSpeed}%";
+
+            if (Input.GetKeyDown(KeyCode.Escape))
+            {
+                editItemStatus.SetActive(false);
+                ItemList.SetActive(true);
+                Clear(editItem);
+            }
+
         }
+
     }
 
     public Image[] GetImages() { return images; }
@@ -122,12 +148,6 @@ public class ItemManager : MonoBehaviour
         Clear(null);
     }
 
-    public void StatusReset()
-    {
-        
-    }
-
-
     public int GetRank() { return rank; }
 
     public void Clear(Item item)
@@ -140,14 +160,14 @@ public class ItemManager : MonoBehaviour
             string str = "row1";
 
             Transform[] rankMenu = {
-                transform.Find($"{str}/Common"),
-                transform.Find($"{str}/Uncommon"),
-                transform.Find($"{str}/Special"),
-                transform.Find($"{str}/Rare"),
-                transform.Find($"{str}/Legendary"),
-                transform.Find($"{str}/Hidden"),
-                transform.Find($"{str}/Changed"),
-                transform.Find($"{str}/UpperRanked"), // 7번째
+                transform.Find($"{str}/흔함"),
+                transform.Find($"{str}/안흔함"),
+                transform.Find($"{str}/특별함"),
+                transform.Find($"{str}/희귀함"),
+                transform.Find($"{str}/전설적인"),
+                transform.Find($"{str}/히든"),
+                transform.Find($"{str}/변화된"),
+                transform.Find($"{str}/상위"), // 7번째
             };
 
             foreach (Transform monoMenu in rankMenu)
@@ -157,14 +177,14 @@ public class ItemManager : MonoBehaviour
 
             rankMenu[rank].GetComponent<Outline>().effectDistance = new Vector2(4, 4);
 
-            if (rank <= (int)ItemRank.UpperRanked + 1)
+            if (rank <= (int)ItemRank.상위 + 1)
             {
-                int commonStart = (int)ItemRank.Common;
+                int commonStart = (int)ItemRank.흔함;
                 Item[] Items = list.itemList[rank + commonStart].ToArray();
                 string s = ((ItemRank)(rank + commonStart)).ToString();
                 for (int i = 0; i < list.itemList[rank + commonStart].Count; i++)
                 {
-                    images[i].transform.Find("number").gameObject.SetActive(true);
+                    images[i].transform.Find("number1").gameObject.SetActive(true);
 
                     Sprite sprite = Resources.Load<Sprite>($"Image/Item/{s}/{Items[i].Name}");
                     if (sprite == null)
@@ -180,7 +200,7 @@ public class ItemManager : MonoBehaviour
                 if (rank == 0)
                 {
                     int i = list.itemList[rank + commonStart].Count;
-                    images[i].transform.Find("number").gameObject.SetActive(true);
+                    images[i].transform.Find("number1").gameObject.SetActive(true);
                     images[i].sprite = Resources.Load<Sprite>($"Image/Item/All/{list.itemList[0][0].Name}");
                     images[i].GetComponentInChildren<TextMeshProUGUI>().text = list.itemList[0][0].count.ToString();
 
@@ -189,7 +209,7 @@ public class ItemManager : MonoBehaviour
                     else c.a = 1f;
                     images[i].color = c;
 
-                    images[i + 1].transform.Find("number").gameObject.SetActive(true);
+                    images[i + 1].transform.Find("number1").gameObject.SetActive(true);
                     images[i + 1].sprite = Resources.Load<Sprite>($"Image/Item/All/{list.itemList[0][1].Name}");
                     images[i + 1].GetComponentInChildren<TextMeshProUGUI>().text = list.itemList[0][1].count.ToString();
 
@@ -238,28 +258,28 @@ public class ItemManager : MonoBehaviour
                     case ItemRank.All:
                         targetItemLine.effectColor = Color.skyBlue;
                         break;
-                    case ItemRank.Common:
+                    case ItemRank.흔함:
                         targetItemLine.effectColor = Color.green;
                         break;
-                    case ItemRank.Uncommon:
+                    case ItemRank.안흔함:
                         targetItemLine.effectColor = Color.purple;
                         break;
-                    case ItemRank.Special:
+                    case ItemRank.특별함:
                         targetItemLine.effectColor = Color.yellow;
                         break;
-                    case ItemRank.Rare:
+                    case ItemRank.희귀함:
                         targetItemLine.effectColor = Color.pink;
                         break;
-                    case ItemRank.Legendary:
+                    case ItemRank.전설적인:
                         targetItemLine.effectColor = Color.red;
                         break;
-                    case ItemRank.Hidden:
+                    case ItemRank.히든:
                         targetItemLine.effectColor = new Color32(233, 119, 157, 255);
                         break;
-                    case ItemRank.Changed:
+                    case ItemRank.변화된:
                         targetItemLine.effectColor = new Color32(255, 0, 131, 255);
                         break;
-                    case ItemRank.UpperRanked:
+                    case ItemRank.상위:
                         targetItemLine.effectColor = new Color32(0, 248, 153, 255);
                         break;
 

@@ -24,7 +24,6 @@ public class PlayerStats : MonoBehaviour
     [NonSerialized] public float damage = 10f;
     [NonSerialized] public float MoveSpeed;
     public int player = 1;
-    public SkillManager skill = new SkillManager();
     [NonSerialized] public float detectRange = 2f;
 
     public int neutralizeDefense = 0;

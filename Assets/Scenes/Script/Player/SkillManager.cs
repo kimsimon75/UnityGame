@@ -1,38 +1,39 @@
 using System.Collections.Generic;
-public class SkillManager
+using UnityEngine;
+public class SkillManager : MonoBehaviour
 {
 
     const int playerNumber = 8;
-    public delegate void Skill();
-    public readonly List<Skill>[] _skillList = CreateSkill();
+    public delegate void Skill(Actor actor, object[] commonSkills);
+    public List<Skill>[] skillList;
+    static public SkillManager Instance;
 
-
-
-    private static List<Skill>[] CreateSkill()
+    void Awake()
     {
-        List<Skill>[] arr = new List<Skill>[playerNumber];
+        Instance = this;
+        skillList = new List<Skill>[playerNumber];
 
-        for (int i = 0; i < arr.Length; i++)
+        for (int i = 0; i < skillList.Length; i++)
         {
-            arr[i] = new List<Skill>();
+            skillList[i] = new List<Skill>();
         }
-        return arr;
     }
-    public void CauseDamage(int player)
+
+    public void CauseDamage(Actor actor,object[] Skill, int player)
     {
-        foreach (Skill skills in _skillList[player])
+        foreach (Skill skills in skillList[player])
         {
-            skills.Invoke();
+            skills.Invoke(actor,Skill);
         }
     }
     public void AddSkill(Skill skill, int player)
     {
-        _skillList[player]?.Add(skill);
+        skillList[player]?.Add(skill);
     }
     
         public void RemoveSkill(Skill skill ,int player)
     {
-        _skillList[player]?.Remove(skill);
+        skillList[player]?.Remove(skill);
     }
 
 }

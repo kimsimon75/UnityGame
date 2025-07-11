@@ -18,7 +18,6 @@ public class EnemyStats : Actor
     private float moveSpeed = 4.84f;
 
 
-    public ArmorType armorType { private set; get; }
 
     [System.Obsolete]
     void Start()
@@ -44,10 +43,27 @@ public class EnemyStats : Actor
     /// <summary>
     /// 데미지를 입었을 때 호출
     /// </summary>
-    public void TakeDamage(float damage, ArmorType damageType, bool physics, int armorDecrease)
+    public void TakeDamage(float damage, ArmorType damageType, bool physics, int armorDecrease, int percent = 0) /// percent 0 : 일반, 1 : 전체, 2 : 현재, 3 : 잃은, 
     {
         if (isDead) return;
         damage = damage * GetDamage(damageType, armorType);
+
+        switch (percent)
+        {
+            case 0:
+                break;
+            case 1:
+                damage = damage / 100 * MaxHealth;
+                break;
+            case 2:
+                damage = damage / 100 * CurrentHealth;
+                break;
+            case 3:
+                damage = damage / 100 * (MaxHealth - CurrentHealth);
+                break;
+            default:
+                break;
+        }
         if (physics)
             damage = damage * ArmorCalculate(armor, armorDecrease);
         CurrentHealth = Mathf.Max(CurrentHealth - damage, 0f);
@@ -59,11 +75,10 @@ public class EnemyStats : Actor
         }
     }
 
-    public override void TakeDamageAll(float damageAll, float damage, float radius, ArmorType damageType, bool physics, int armorDecrease)
+    public override void TakeDamageAll(float damageAll, float damage, float radius, ArmorType damageType, bool physics, int armorDecrease, int percent = 0)
     {
         Vector3 center = transform.position;
 
-        TakeDamage(damage + damageAll, damageType, physics, armorDecrease);
 
         // 원하는 레이어만 필터링
         LayerMask enemyLayer = LayerMask.GetMask("Enemy");
@@ -78,9 +93,16 @@ public class EnemyStats : Actor
                 stats.TakeDamage(damageAll, damageType, physics, armorDecrease);
             }
         }
+        TakeDamage(damage + damageAll, damageType, physics, armorDecrease, percent);
 
         DebugDrawCircleXZ(center, radius, Color.red);
     }
+
+    public override void TakeStun(float Time, float TimeAll, float radius, bool boss)
+    {
+        throw new NotImplementedException();
+    }
+
 
     /// <summary>
     /// 회복 아이템 등으로 체력을 회복할 때 호출

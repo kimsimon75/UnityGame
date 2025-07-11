@@ -16,7 +16,7 @@ public class StatsWindow : MonoBehaviour
     {
         var status = stats.GetStats();
         texts[0].text = $"공격력 : {status.Item1}";
-        texts[1].text = $"공격 속도 : {1/status.Item2}";
+        texts[1].text = $"공격 속도 : {(1/status.Item2).ToString("F3")}";
         texts[2].text = $"공속 보너스 : {status.Item3}%";
         texts[3].text = $"방어력 감소 : {status.Item4}";
         texts[4].text = $"체력 재생 : {status.Item5}";
