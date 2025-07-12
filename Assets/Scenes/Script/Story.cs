@@ -7,7 +7,6 @@ public class Story : Actor
     public float maxHealth = 0;
     int[][] story = new int[14][];
     public byte level = 0;
-    bool isDead = false;
     public ItemManager item;
     void Start()
     {
@@ -85,7 +84,7 @@ public class Story : Actor
         }
     }
 
-    public override void TakeStun(float Time, float TimeAll, float radius, bool boss)
+    public override void TakeStunAll(float Time, float TimeAll, float radius)
     {
         throw new System.NotImplementedException();
     }

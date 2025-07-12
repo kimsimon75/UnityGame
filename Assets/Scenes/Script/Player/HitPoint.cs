@@ -1,5 +1,6 @@
 using Unity.VisualScripting.Antlr3.Runtime.Misc;
 using UnityEngine;
+using System.Collections.Generic;
 
 public class HitPoint : StateMachineBehaviour
 {
@@ -8,6 +9,7 @@ public class HitPoint : StateMachineBehaviour
     public bool hashitThisLoop = false;
     private ActionScript action;
     private PlayerStats stats;
+    private ItemManager item;
     private float attackDelay;
     private float hitTiming = .4f;
     private int currentLoop;
@@ -17,6 +19,7 @@ public class HitPoint : StateMachineBehaviour
         hashitThisLoop = false;
         action = animator.GetComponent<ActionScript>();
         stats = animator.GetComponent<PlayerStats>();
+        item = animator.GetComponentInChildren<ItemManager>();
 
         float animDuration = stats.attackCooldown;
 
@@ -47,6 +50,12 @@ public class HitPoint : StateMachineBehaviour
                 stats.HealthTrigger();
                 stats.ManaTrigger();
                 action.targetParent.TakeDamageAll(0, stats.damage, 0, ArmorType.패기, true, stats.neutralizeDefense);
+                foreach (List<Item> items in item.list.itemList)
+                {
+                    foreach (Item item in items)
+                    {
+                    }
+                }
 
 
                 Debug.Log("💥 타격 발생");

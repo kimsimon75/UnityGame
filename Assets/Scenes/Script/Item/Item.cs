@@ -675,13 +675,29 @@ public class List
     private void SetSkill(Actor actor, object[] commonSkills)//확률, 단일 물리 데미지, 범위 물리 데미지, 단일 마법데미지, 범위 마법 데미지, 단일 스턴, 범위 스턴, 스킬 범위,단일 퍼센트 데미지, 끝딜 퍼센트 데미지, 전퍼, 현퍼, 잃퍼
     {
         int rand = UnityEngine.Random.Range(0, 1000);
-        if ((float)commonSkills[14] * 10 <= rand)
+        if ((float)commonSkills[14] * 10 >= rand)
         {
             actor.TakeDamageAll((float)commonSkills[16], (float)commonSkills[15], (float)commonSkills[21]
             , actor.armorType, true, Stats.neutralizeDefense, 0);
-            
+
             actor.TakeDamageAll((float)commonSkills[18], (float)commonSkills[17], (float)commonSkills[21]
             , actor.armorType, false, 0, 0);
+
+            actor.TakeStunAll((float)commonSkills[20], (float)commonSkills[19], (float)commonSkills[21]);
+
+            actor.TakeDamageAll((float)commonSkills[24], 0, (float)commonSkills[21], actor.armorType, false, 0, 1);
+            actor.TakeDamageAll((float)commonSkills[25], 0, (float)commonSkills[21], actor.armorType, false, 0, 2);
+            actor.TakeDamageAll((float)commonSkills[26], 0, (float)commonSkills[21], actor.armorType, false, 0, 3);
+
+            switch ((string)commonSkills[0])
+            {
+                case "좀비":
+                    if (actor.isDead)
+                        FindItem((string)commonSkills[0]).count++;
+                    break;
+            }
         }
+
+
     }
 }

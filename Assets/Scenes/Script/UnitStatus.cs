@@ -47,7 +47,7 @@ public class UnitStatus : MonoBehaviour
                 slider.gameObject.SetActive(false);
                 var Info = target.GetComponentInParent<Cannon>().GetDamageInfo();
                 text[0].text = $"공격력 : {Info.Item1}";
-                text[1].text = $"공격속도 : {Info.Item2}";
+                text[1].text = $"공격속도 : {(1/Info.Item2).ToString("F3")}";
                 text[2].text = $"공격 타입 : {Info.Item3}";
             }
             else

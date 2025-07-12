@@ -12,8 +12,9 @@ public class WalkForward : MonoBehaviour
     private GameObject begin;
     private List<Vector3> waypoints;
     private int currentIndex = 0;
+    public float StunTime = 0;
 
-    
+
     private float rotationSpeed = 5f;
     private float mapSize;
     public GameObject map;
@@ -61,8 +62,17 @@ public class WalkForward : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
+        if(StunTime > 0f)
+            StunTime -= Time.deltaTime;
 
-        Vector3 direction = (targetPosition - transform.position).normalized;
+
+
+    }
+    void FixedUpdate()
+    {
+        if (StunTime <= 0f)
+        {
+                    Vector3 direction = (targetPosition - transform.position).normalized;
 
         if (direction != Vector3.zero)
         {
@@ -83,6 +93,7 @@ public class WalkForward : MonoBehaviour
                 currentIndex = 0;
 
             targetPosition = waypoints[currentIndex];
+        }
         }
 
     }

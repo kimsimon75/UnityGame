@@ -13,16 +13,17 @@ public class EnemyStats : Actor
     [Tooltip("시작 시 현재 체력")]
     public float CurrentHealth;
     private PlayerStats player;
-    private bool isDead = false;
     private int armor = 0;
     private float moveSpeed = 4.84f;
+    private WalkForward walk;
+    private bool boss = false;
 
 
 
     [System.Obsolete]
     void Start()
     {
-
+        walk = GetComponent<WalkForward>();
         int round = GameManager.Instance.GetRound();
 
         SetStats(round);
@@ -98,9 +99,31 @@ public class EnemyStats : Actor
         DebugDrawCircleXZ(center, radius, Color.red);
     }
 
-    public override void TakeStun(float Time, float TimeAll, float radius, bool boss)
+    public void TakeStun(float Time)
     {
-        throw new NotImplementedException();
+        walk.StunTime = Mathf.Max(walk.StunTime, Time);
+    }
+
+    public override void TakeStunAll(float TimeAll, float Time, float radius)
+    {
+        Vector3 center = transform.position;
+
+        // 원하는 레이어만 필터링
+        LayerMask enemyLayer = LayerMask.GetMask("Enemy");
+        Collider[] hits = Physics.OverlapSphere(center, radius, enemyLayer);
+
+        foreach (Collider col in hits)
+        {
+            WalkForward walks = col.GetComponent<WalkForward>();
+            EnemyStats stats = col.GetComponent<EnemyStats>();
+            
+            if (stats != null && walks != null && col.transform != transform)
+            {
+                walks.StunTime = Mathf.Max(walks.StunTime, TimeAll * (stats.boss ? 0.3f : 1f));
+            }
+        }
+        float realTime = Mathf.Max(Time, TimeAll * (boss ? 0.3f : 1f));
+        TakeStun(realTime);
     }
 
 
@@ -141,5 +164,10 @@ public class EnemyStats : Actor
                 armor = 0;
                 break;
         }
+    }
+
+    public void SetBoss(bool boss)
+    {
+        this.boss = boss;
     }
 }
