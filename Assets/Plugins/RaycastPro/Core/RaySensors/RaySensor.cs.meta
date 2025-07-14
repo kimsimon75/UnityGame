@@ -1,0 +1,18 @@
+fileFormatVersion: 2
+guid: 39603879bd08f534caec62fb607da3f9
+MonoImporter:
+  externalObjects: {}
+  serializedVersion: 2
+  defaultReferences: []
+  executionOrder: 0
+  icon: {instanceID: 0}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 214714
+  packageName: RaycastPro
+  packageVersion: 1.1.4
+  assetPath: Assets/Plugins/RaycastPro/Core/RaySensors/RaySensor.cs
+  uploadId: 765053

@@ -1,0 +1,14 @@
+fileFormatVersion: 2
+guid: 8538ba3731dc9df44a0b2e1385192716
+PrefabImporter:
+  externalObjects: {}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 214714
+  packageName: RaycastPro
+  packageVersion: 1.1.4
+  assetPath: Assets/Plugins/RaycastPro/_Demo/_Prefabs/CubeAgent.prefab
+  uploadId: 765053

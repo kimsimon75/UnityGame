@@ -1,0 +1,18 @@
+fileFormatVersion: 2
+guid: cd592d8ea83661e4e859fc5c3ae18137
+MonoImporter:
+  externalObjects: {}
+  serializedVersion: 2
+  defaultReferences: []
+  executionOrder: 0
+  icon: {fileID: 2800000, guid: 6af479e1365fd4040852b1d3eedb4dd4, type: 3}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 214714
+  packageName: RaycastPro
+  packageVersion: 1.1.4
+  assetPath: Assets/Plugins/RaycastPro/Core/Bullets/PathBullet.cs
+  uploadId: 765053

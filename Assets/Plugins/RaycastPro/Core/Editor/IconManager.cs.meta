@@ -1,0 +1,10 @@
+﻿fileFormatVersion: 2
+guid: a2a51bede42d4892ab110d7307415921
+timeCreated: 1649123292
+AssetOrigin:
+  serializedVersion: 1
+  productId: 214714
+  packageName: RaycastPro
+  packageVersion: 1.1.4
+  assetPath: Assets/Plugins/RaycastPro/Core/Editor/IconManager.cs
+  uploadId: 765053

@@ -1,0 +1,14 @@
+fileFormatVersion: 2
+guid: 4fa4cf9181f56a74db82e06e479f0eca
+PrefabImporter:
+  externalObjects: {}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 214714
+  packageName: RaycastPro
+  packageVersion: 1.1.4
+  assetPath: Assets/Plugins/RaycastPro/_Demo/_Prefabs/PyroboxClassic.prefab
+  uploadId: 765053

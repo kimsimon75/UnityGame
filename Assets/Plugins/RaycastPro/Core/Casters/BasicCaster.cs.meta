@@ -1,0 +1,18 @@
+fileFormatVersion: 2
+guid: 90fafa4f9d674b0daef3e933c6cc6ac0
+MonoImporter:
+  externalObjects: {}
+  serializedVersion: 2
+  defaultReferences: []
+  executionOrder: 0
+  icon: {fileID: 2800000, guid: 4cedf759110e2d448ab17950d09f7eb1, type: 3}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 214714
+  packageName: RaycastPro
+  packageVersion: 1.1.4
+  assetPath: Assets/Plugins/RaycastPro/Core/Casters/BasicCaster.cs
+  uploadId: 765053

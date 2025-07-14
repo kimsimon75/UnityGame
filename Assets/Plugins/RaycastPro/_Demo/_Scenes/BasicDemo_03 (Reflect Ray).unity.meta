@@ -1,0 +1,14 @@
+fileFormatVersion: 2
+guid: 48640f67bc5ee9346adab87bf55b9d4f
+DefaultImporter:
+  externalObjects: {}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 214714
+  packageName: RaycastPro
+  packageVersion: 1.1.4
+  assetPath: Assets/Plugins/RaycastPro/_Demo/_Scenes/BasicDemo_03 (Reflect Ray).unity
+  uploadId: 765053

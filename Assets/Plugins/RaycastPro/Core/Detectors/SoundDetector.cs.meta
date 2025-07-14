@@ -1,0 +1,18 @@
+fileFormatVersion: 2
+guid: 05dbc8b5f36d51746a9e0250539f7c46
+MonoImporter:
+  externalObjects: {}
+  serializedVersion: 2
+  defaultReferences: []
+  executionOrder: 0
+  icon: {fileID: 2800000, guid: 49168942216e3d840b1585b13c5d61c5, type: 3}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 214714
+  packageName: RaycastPro
+  packageVersion: 1.1.4
+  assetPath: Assets/Plugins/RaycastPro/Core/Detectors/SoundDetector.cs
+  uploadId: 765053

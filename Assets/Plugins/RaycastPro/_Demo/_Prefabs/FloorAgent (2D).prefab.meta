@@ -1,0 +1,14 @@
+fileFormatVersion: 2
+guid: 545d3bc9c3894fe43b7cd5ee392d217c
+PrefabImporter:
+  externalObjects: {}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 214714
+  packageName: RaycastPro
+  packageVersion: 1.1.4
+  assetPath: Assets/Plugins/RaycastPro/_Demo/_Prefabs/FloorAgent (2D).prefab
+  uploadId: 765053

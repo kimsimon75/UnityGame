@@ -1,0 +1,18 @@
+fileFormatVersion: 2
+guid: 76eda7916117fce41945dd57346eea90
+MonoImporter:
+  externalObjects: {}
+  serializedVersion: 2
+  defaultReferences: []
+  executionOrder: 0
+  icon: {fileID: 2800000, guid: 774cb0b742a043a4fb82063434af0c49, type: 3}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 214714
+  packageName: RaycastPro
+  packageVersion: 1.1.4
+  assetPath: Assets/Plugins/RaycastPro/Core/Bullets/PhysicalBullet.cs
+  uploadId: 765053

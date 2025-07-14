@@ -1,0 +1,18 @@
+fileFormatVersion: 2
+guid: 44ff47bf35bc4df4d9ee344b3a1f6c58
+MonoImporter:
+  externalObjects: {}
+  serializedVersion: 2
+  defaultReferences: []
+  executionOrder: 0
+  icon: {instanceID: 0}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 214714
+  packageName: RaycastPro
+  packageVersion: 1.1.4
+  assetPath: Assets/Plugins/RaycastPro/_Demo/_Scripts/AgentData.cs
+  uploadId: 765053

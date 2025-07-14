@@ -1,0 +1,14 @@
+fileFormatVersion: 2
+guid: d53ea68e4d16f1a46b505918623c539b
+DefaultImporter:
+  externalObjects: {}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 214714
+  packageName: RaycastPro
+  packageVersion: 1.1.4
+  assetPath: Assets/Plugins/RaycastPro/_Demo/_Scenes/Showcase_3D.unity
+  uploadId: 765053

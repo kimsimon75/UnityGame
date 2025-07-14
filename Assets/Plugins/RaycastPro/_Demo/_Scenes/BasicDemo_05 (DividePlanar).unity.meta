@@ -1,0 +1,14 @@
+fileFormatVersion: 2
+guid: c85c641fcf228f14a9a3c513f6079085
+DefaultImporter:
+  externalObjects: {}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 214714
+  packageName: RaycastPro
+  packageVersion: 1.1.4
+  assetPath: Assets/Plugins/RaycastPro/_Demo/_Scenes/BasicDemo_05 (DividePlanar).unity
+  uploadId: 765053

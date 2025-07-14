@@ -1,0 +1,10 @@
+﻿fileFormatVersion: 2
+guid: 1780bae1ce13455ca6ef73126f6f52fe
+timeCreated: 1648990478
+AssetOrigin:
+  serializedVersion: 1
+  productId: 214714
+  packageName: RaycastPro
+  packageVersion: 1.1.4
+  assetPath: Assets/Plugins/RaycastPro/Core/Bullets2D/Bullet2D.cs
+  uploadId: 765053

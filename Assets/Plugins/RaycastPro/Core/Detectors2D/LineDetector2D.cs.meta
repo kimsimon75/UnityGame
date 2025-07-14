@@ -1,0 +1,18 @@
+fileFormatVersion: 2
+guid: 3814ab3e4ad22bb4daa2f00f543d7895
+MonoImporter:
+  externalObjects: {}
+  serializedVersion: 2
+  defaultReferences: []
+  executionOrder: 0
+  icon: {fileID: 2800000, guid: 8329151a74ccc6b4eb9b7d9e9224be31, type: 3}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 214714
+  packageName: RaycastPro
+  packageVersion: 1.1.4
+  assetPath: Assets/Plugins/RaycastPro/Core/Detectors2D/LineDetector2D.cs
+  uploadId: 765053

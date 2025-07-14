@@ -1,0 +1,18 @@
+fileFormatVersion: 2
+guid: 094ac53b10af1484aa2cdf2d2fe0a483
+MonoImporter:
+  externalObjects: {}
+  serializedVersion: 2
+  defaultReferences: []
+  executionOrder: 0
+  icon: {instanceID: 0}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 214714
+  packageName: RaycastPro
+  packageVersion: 1.1.4
+  assetPath: Assets/Plugins/RaycastPro/_Demo/_Scripts/DetectorControl.cs
+  uploadId: 765053

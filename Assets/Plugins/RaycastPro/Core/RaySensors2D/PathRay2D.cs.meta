@@ -1,0 +1,10 @@
+fileFormatVersion: 2
+guid: 4c8aa0ff9e6343268ecba1827dae254c
+timeCreated: 1648848684
+AssetOrigin:
+  serializedVersion: 1
+  productId: 214714
+  packageName: RaycastPro
+  packageVersion: 1.1.4
+  assetPath: Assets/Plugins/RaycastPro/Core/RaySensors2D/PathRay2D.cs
+  uploadId: 765053

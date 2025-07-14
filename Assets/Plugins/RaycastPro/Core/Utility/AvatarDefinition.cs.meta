@@ -1,0 +1,18 @@
+fileFormatVersion: 2
+guid: b828449eeb4ce75468927b8d45f7242c
+MonoImporter:
+  externalObjects: {}
+  serializedVersion: 2
+  defaultReferences: []
+  executionOrder: 0
+  icon: {fileID: 2800000, guid: 7e8a6a717b1d14f4cb9ae1f25b2df02b, type: 3}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 214714
+  packageName: RaycastPro
+  packageVersion: 1.1.4
+  assetPath: Assets/Plugins/RaycastPro/Core/Utility/AvatarDefinition.cs
+  uploadId: 765053

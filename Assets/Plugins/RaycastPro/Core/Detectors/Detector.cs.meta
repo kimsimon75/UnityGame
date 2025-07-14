@@ -1,0 +1,10 @@
+﻿fileFormatVersion: 2
+guid: 3873a370c26c4c1dbbefc4fe6b0fe06c
+timeCreated: 1647411117
+AssetOrigin:
+  serializedVersion: 1
+  productId: 214714
+  packageName: RaycastPro
+  packageVersion: 1.1.4
+  assetPath: Assets/Plugins/RaycastPro/Core/Detectors/Detector.cs
+  uploadId: 765053

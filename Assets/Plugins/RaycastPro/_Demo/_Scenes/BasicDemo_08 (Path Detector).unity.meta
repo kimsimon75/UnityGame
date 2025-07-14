@@ -1,0 +1,14 @@
+fileFormatVersion: 2
+guid: 8b3d1fb5374554348b88e61d1fc7aa1b
+DefaultImporter:
+  externalObjects: {}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 214714
+  packageName: RaycastPro
+  packageVersion: 1.1.4
+  assetPath: Assets/Plugins/RaycastPro/_Demo/_Scenes/BasicDemo_08 (Path Detector).unity
+  uploadId: 765053

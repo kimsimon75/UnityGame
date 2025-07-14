@@ -1,0 +1,14 @@
+fileFormatVersion: 2
+guid: c0a37fc8c4ed85e4c99edde86455a895
+PrefabImporter:
+  externalObjects: {}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 214714
+  packageName: RaycastPro
+  packageVersion: 1.1.4
+  assetPath: Assets/Plugins/RaycastPro/_Demo/_Prefabs/Gate.prefab
+  uploadId: 765053

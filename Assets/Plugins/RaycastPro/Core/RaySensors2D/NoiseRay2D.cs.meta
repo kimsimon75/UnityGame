@@ -1,0 +1,18 @@
+fileFormatVersion: 2
+guid: 865d95546c688524794b1fe8aee6f790
+MonoImporter:
+  externalObjects: {}
+  serializedVersion: 2
+  defaultReferences: []
+  executionOrder: 0
+  icon: {fileID: 2800000, guid: 48e5e4313469717499820a3a7e94d8b2, type: 3}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 214714
+  packageName: RaycastPro
+  packageVersion: 1.1.4
+  assetPath: Assets/Plugins/RaycastPro/Core/RaySensors2D/NoiseRay2D.cs
+  uploadId: 765053

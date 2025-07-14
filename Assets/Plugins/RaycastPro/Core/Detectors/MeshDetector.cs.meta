@@ -1,0 +1,18 @@
+fileFormatVersion: 2
+guid: 930fd6377f080334382d31389591ffb6
+MonoImporter:
+  externalObjects: {}
+  serializedVersion: 2
+  defaultReferences: []
+  executionOrder: 0
+  icon: {fileID: 2800000, guid: 22e4eac838572764488249cca03f9376, type: 3}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 214714
+  packageName: RaycastPro
+  packageVersion: 1.1.4
+  assetPath: Assets/Plugins/RaycastPro/Core/Detectors/MeshDetector.cs
+  uploadId: 765053

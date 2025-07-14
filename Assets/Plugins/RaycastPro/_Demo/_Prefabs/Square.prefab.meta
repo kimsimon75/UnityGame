@@ -1,0 +1,14 @@
+fileFormatVersion: 2
+guid: 34185824e020fef4b98e6bde47fd229c
+PrefabImporter:
+  externalObjects: {}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 214714
+  packageName: RaycastPro
+  packageVersion: 1.1.4
+  assetPath: Assets/Plugins/RaycastPro/_Demo/_Prefabs/Square.prefab
+  uploadId: 765053

@@ -1,0 +1,10 @@
+﻿fileFormatVersion: 2
+guid: f5aa307ff6254564910c51a5ef812a57
+timeCreated: 1648308898
+AssetOrigin:
+  serializedVersion: 1
+  productId: 214714
+  packageName: RaycastPro
+  packageVersion: 1.1.4
+  assetPath: Assets/Plugins/RaycastPro/Core/Base/BaseDetector.cs
+  uploadId: 765053

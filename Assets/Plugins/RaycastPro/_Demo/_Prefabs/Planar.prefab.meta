@@ -1,0 +1,14 @@
+fileFormatVersion: 2
+guid: 1004ba7626969a24c86f5db3ee66a75e
+PrefabImporter:
+  externalObjects: {}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 214714
+  packageName: RaycastPro
+  packageVersion: 1.1.4
+  assetPath: Assets/Plugins/RaycastPro/_Demo/_Prefabs/Planar.prefab
+  uploadId: 765053

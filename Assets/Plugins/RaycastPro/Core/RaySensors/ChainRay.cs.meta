@@ -1,0 +1,18 @@
+fileFormatVersion: 2
+guid: 669271b8ebe8239409f9e961b0c1e28e
+MonoImporter:
+  externalObjects: {}
+  serializedVersion: 2
+  defaultReferences: []
+  executionOrder: 0
+  icon: {fileID: 2800000, guid: 21022887cfe48b540b8c9a6fba0b068e, type: 3}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 214714
+  packageName: RaycastPro
+  packageVersion: 1.1.4
+  assetPath: Assets/Plugins/RaycastPro/Core/RaySensors/ChainRay.cs
+  uploadId: 765053

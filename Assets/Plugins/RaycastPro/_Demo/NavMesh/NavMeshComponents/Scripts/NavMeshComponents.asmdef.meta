@@ -1,0 +1,14 @@
+fileFormatVersion: 2
+guid: fbb609a8b58f4444296f1a67d2fb1b05
+AssemblyDefinitionImporter:
+  externalObjects: {}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 214714
+  packageName: RaycastPro
+  packageVersion: 1.1.4
+  assetPath: Assets/Plugins/RaycastPro/_Demo/NavMesh/NavMeshComponents/Scripts/NavMeshComponents.asmdef
+  uploadId: 765053

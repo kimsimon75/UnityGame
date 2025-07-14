@@ -1,0 +1,14 @@
+fileFormatVersion: 2
+guid: c4e8fb258c2765f46b5d1fcd00bc356f
+PrefabImporter:
+  externalObjects: {}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 214714
+  packageName: RaycastPro
+  packageVersion: 1.1.4
+  assetPath: Assets/Plugins/RaycastPro/_Demo/_Prefabs/HugeTileFBH.prefab
+  uploadId: 765053

@@ -1,0 +1,15 @@
+fileFormatVersion: 2
+guid: d30980eb415ef244a8ca8d845fa3cfd1
+NativeFormatImporter:
+  externalObjects: {}
+  mainObjectFileID: 9100000
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 214714
+  packageName: RaycastPro
+  packageVersion: 1.1.4
+  assetPath: Assets/Plugins/RaycastPro/_Demo/_Resources/_Animations/Pipe Ray 1.controller
+  uploadId: 765053

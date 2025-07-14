@@ -1,0 +1,15 @@
+fileFormatVersion: 2
+guid: f2af5504ce0675e4ab482de631509d75
+NativeFormatImporter:
+  externalObjects: {}
+  mainObjectFileID: 7400000
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 214714
+  packageName: RaycastPro
+  packageVersion: 1.1.4
+  assetPath: Assets/Plugins/RaycastPro/_Demo/_Resources/_Animations/Anim_Showcase_Reflect.anim
+  uploadId: 765053

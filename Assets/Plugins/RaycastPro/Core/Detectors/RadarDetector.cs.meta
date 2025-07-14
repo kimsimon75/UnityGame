@@ -1,0 +1,18 @@
+fileFormatVersion: 2
+guid: 6e0d21351c302e04d9b9c4aace4f0952
+MonoImporter:
+  externalObjects: {}
+  serializedVersion: 2
+  defaultReferences: []
+  executionOrder: 0
+  icon: {fileID: 2800000, guid: 9a4fe821e36567946a756844eaf1aea9, type: 3}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 214714
+  packageName: RaycastPro
+  packageVersion: 1.1.4
+  assetPath: Assets/Plugins/RaycastPro/Core/Detectors/RadarDetector.cs
+  uploadId: 765053

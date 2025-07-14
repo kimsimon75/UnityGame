@@ -1,0 +1,14 @@
+fileFormatVersion: 2
+guid: df1f55928e304bd4998685cde925d7ee
+PrefabImporter:
+  externalObjects: {}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 214714
+  packageName: RaycastPro
+  packageVersion: 1.1.4
+  assetPath: Assets/Plugins/RaycastPro/_Demo/_Prefabs/Bullet.prefab
+  uploadId: 765053

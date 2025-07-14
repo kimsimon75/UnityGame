@@ -1,0 +1,14 @@
+fileFormatVersion: 2
+guid: e5feda5177986d549adb53fcb1abca9a
+PrefabImporter:
+  externalObjects: {}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 214714
+  packageName: RaycastPro
+  packageVersion: 1.1.4
+  assetPath: Assets/Plugins/RaycastPro/_Demo/_Prefabs/HoverAgent (Sound).prefab
+  uploadId: 765053

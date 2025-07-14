@@ -1,0 +1,18 @@
+fileFormatVersion: 2
+guid: 4b90d1eb9374d5846ae6d029dba62ab7
+MonoImporter:
+  externalObjects: {}
+  serializedVersion: 2
+  defaultReferences: []
+  executionOrder: 0
+  icon: {fileID: 2800000, guid: b73350eeec30013418b404bf00e611d4, type: 3}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 214714
+  packageName: RaycastPro
+  packageVersion: 1.1.4
+  assetPath: Assets/Plugins/RaycastPro/Core/RaySensors2D/ArcRay2D.cs
+  uploadId: 765053

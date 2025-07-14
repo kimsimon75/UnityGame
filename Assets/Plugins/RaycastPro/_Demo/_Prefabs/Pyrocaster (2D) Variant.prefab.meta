@@ -1,0 +1,14 @@
+fileFormatVersion: 2
+guid: d7f41d62a0088a94fb503cc8c350b14f
+PrefabImporter:
+  externalObjects: {}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 214714
+  packageName: RaycastPro
+  packageVersion: 1.1.4
+  assetPath: Assets/Plugins/RaycastPro/_Demo/_Prefabs/Pyrocaster (2D) Variant.prefab
+  uploadId: 765053

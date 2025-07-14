@@ -1,0 +1,14 @@
+fileFormatVersion: 2
+guid: 8aaf5c6add7e8a44d9f772558bc82bfa
+AssemblyDefinitionImporter:
+  externalObjects: {}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 214714
+  packageName: RaycastPro
+  packageVersion: 1.1.4
+  assetPath: Assets/Plugins/RaycastPro/Core/RaycastPro.asmdef
+  uploadId: 765053

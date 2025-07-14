@@ -1,0 +1,18 @@
+fileFormatVersion: 2
+guid: d6a1be27fa4940309a526d3b9f903779
+MonoImporter:
+  externalObjects: {}
+  serializedVersion: 2
+  defaultReferences: []
+  executionOrder: 0
+  icon: {fileID: 2800000, guid: a87a0b2410d48814c8499850f9d85cc5, type: 3}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 214714
+  packageName: RaycastPro
+  packageVersion: 1.1.4
+  assetPath: Assets/Plugins/RaycastPro/Core/Detectors/LightDetector.cs
+  uploadId: 765053

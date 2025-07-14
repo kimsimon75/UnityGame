@@ -1,0 +1,15 @@
+fileFormatVersion: 2
+guid: 711557fe5cb8b8149b2fc0f27a30b2aa
+NativeFormatImporter:
+  externalObjects: {}
+  mainObjectFileID: 7400000
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 214714
+  packageName: RaycastPro
+  packageVersion: 1.1.4
+  assetPath: Assets/Plugins/RaycastPro/_Demo/_Resources/_Animations/Direction_1.anim
+  uploadId: 765053

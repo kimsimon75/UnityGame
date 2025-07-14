@@ -1,0 +1,15 @@
+fileFormatVersion: 2
+guid: 23cd0f315a621cb4198a9142e26adfe8
+NativeFormatImporter:
+  externalObjects: {}
+  mainObjectFileID: 23800000
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 214714
+  packageName: RaycastPro
+  packageVersion: 1.1.4
+  assetPath: Assets/Plugins/RaycastPro/_Demo/_Scenes/BasicDemo_06.3 (Light Detector)/NavMesh-HugeTileFBH.asset
+  uploadId: 765053

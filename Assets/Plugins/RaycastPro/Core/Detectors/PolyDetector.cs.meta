@@ -1,0 +1,18 @@
+fileFormatVersion: 2
+guid: f2ab50c7b83814e42a258b871078b0db
+MonoImporter:
+  externalObjects: {}
+  serializedVersion: 2
+  defaultReferences: []
+  executionOrder: 0
+  icon: {fileID: 2800000, guid: 0449ce3a8b624114b801ba04cc0d9093, type: 3}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 214714
+  packageName: RaycastPro
+  packageVersion: 1.1.4
+  assetPath: Assets/Plugins/RaycastPro/Core/Detectors/PolyDetector.cs
+  uploadId: 765053

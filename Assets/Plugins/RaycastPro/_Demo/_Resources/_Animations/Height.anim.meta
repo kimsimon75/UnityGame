@@ -1,0 +1,15 @@
+fileFormatVersion: 2
+guid: 60f67898b80fbb74ea946a2f3bfc0466
+NativeFormatImporter:
+  externalObjects: {}
+  mainObjectFileID: 7400000
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 214714
+  packageName: RaycastPro
+  packageVersion: 1.1.4
+  assetPath: Assets/Plugins/RaycastPro/_Demo/_Resources/_Animations/Height.anim
+  uploadId: 765053

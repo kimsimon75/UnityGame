@@ -1,0 +1,10 @@
+﻿fileFormatVersion: 2
+guid: 56b8d92053124d40a2be8b16913ace9a
+timeCreated: 1694884089
+AssetOrigin:
+  serializedVersion: 1
+  productId: 214714
+  packageName: RaycastPro
+  packageVersion: 1.1.4
+  assetPath: Assets/Plugins/RaycastPro/Core/Editor/RCProSettings.cs
+  uploadId: 765053

@@ -1,0 +1,18 @@
+fileFormatVersion: 2
+guid: f11a488cf7144352aea72f6714d8b70c
+MonoImporter:
+  externalObjects: {}
+  serializedVersion: 2
+  defaultReferences: []
+  executionOrder: 0
+  icon: {fileID: 2800000, guid: d7806a2ff5b4af44faaeceb62617ca7a, type: 3}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 214714
+  packageName: RaycastPro
+  packageVersion: 1.1.4
+  assetPath: Assets/Plugins/RaycastPro/Core/RaySensors2D/CloneRay2D.cs
+  uploadId: 765053

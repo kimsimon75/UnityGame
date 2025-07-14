@@ -1,0 +1,14 @@
+fileFormatVersion: 2
+guid: c056e07d8413f5547a9a9bf273790ec5
+PrefabImporter:
+  externalObjects: {}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 214714
+  packageName: RaycastPro
+  packageVersion: 1.1.4
+  assetPath: Assets/Plugins/RaycastPro/_Demo/_Bullets/Physical Bullet.prefab
+  uploadId: 765053

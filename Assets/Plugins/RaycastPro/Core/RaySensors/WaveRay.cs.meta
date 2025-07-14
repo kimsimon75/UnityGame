@@ -1,0 +1,18 @@
+fileFormatVersion: 2
+guid: 7c141f6826a660f4ab4464e12bda28fb
+MonoImporter:
+  externalObjects: {}
+  serializedVersion: 2
+  defaultReferences: []
+  executionOrder: 0
+  icon: {fileID: 2800000, guid: fd262bd37e03168438152413bc612664, type: 3}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 214714
+  packageName: RaycastPro
+  packageVersion: 1.1.4
+  assetPath: Assets/Plugins/RaycastPro/Core/RaySensors/WaveRay.cs
+  uploadId: 765053

@@ -1,0 +1,15 @@
+fileFormatVersion: 2
+guid: b7fa7a9b2bb5b7e4f9a0be45773d1880
+NativeFormatImporter:
+  externalObjects: {}
+  mainObjectFileID: 23800000
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 214714
+  packageName: RaycastPro
+  packageVersion: 1.1.4
+  assetPath: Assets/Plugins/RaycastPro/_Demo/_Scenes/BasicDemo_06.2 (Sound Detector)/NavMesh-HugeTileTS.asset
+  uploadId: 765053

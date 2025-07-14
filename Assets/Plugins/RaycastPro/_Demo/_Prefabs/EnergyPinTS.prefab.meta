@@ -1,0 +1,14 @@
+fileFormatVersion: 2
+guid: 14a7c0ccad7ce1a46a6213f4ba25043d
+PrefabImporter:
+  externalObjects: {}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 214714
+  packageName: RaycastPro
+  packageVersion: 1.1.4
+  assetPath: Assets/Plugins/RaycastPro/_Demo/_Prefabs/EnergyPinTS.prefab
+  uploadId: 765053

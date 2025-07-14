@@ -1,0 +1,15 @@
+fileFormatVersion: 2
+guid: 6774b67b49fda6148a8beff88b1b2cd5
+NativeFormatImporter:
+  externalObjects: {}
+  mainObjectFileID: 2100000
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 214714
+  packageName: RaycastPro
+  packageVersion: 1.1.4
+  assetPath: Assets/Plugins/RaycastPro/_Demo/_Resources/RCPMat_BaseParticle.mat
+  uploadId: 765053

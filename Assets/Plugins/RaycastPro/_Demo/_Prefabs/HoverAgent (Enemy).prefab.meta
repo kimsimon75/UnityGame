@@ -1,0 +1,14 @@
+fileFormatVersion: 2
+guid: 89eed4b92c5d940429c38f34c9cd673d
+PrefabImporter:
+  externalObjects: {}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 214714
+  packageName: RaycastPro
+  packageVersion: 1.1.4
+  assetPath: Assets/Plugins/RaycastPro/_Demo/_Prefabs/HoverAgent (Enemy).prefab
+  uploadId: 765053

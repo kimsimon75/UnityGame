@@ -1,0 +1,18 @@
+fileFormatVersion: 2
+guid: 8dced1f97001f9b4888f1367578f9755
+MonoImporter:
+  externalObjects: {}
+  serializedVersion: 2
+  defaultReferences: []
+  executionOrder: 0
+  icon: {fileID: 2800000, guid: 9050499522062d8489f2dcc092b3df7f, type: 3}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 214714
+  packageName: RaycastPro
+  packageVersion: 1.1.4
+  assetPath: Assets/Plugins/RaycastPro/Core/Detectors/SteeringDetector.cs
+  uploadId: 765053

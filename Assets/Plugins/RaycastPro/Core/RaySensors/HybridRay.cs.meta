@@ -1,0 +1,18 @@
+fileFormatVersion: 2
+guid: 93a1eaa4efa8e2442952ad38671bac69
+MonoImporter:
+  externalObjects: {}
+  serializedVersion: 2
+  defaultReferences: []
+  executionOrder: 0
+  icon: {fileID: 2800000, guid: 7bf79a672691b24439201ee6d2a4cd46, type: 3}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 214714
+  packageName: RaycastPro
+  packageVersion: 1.1.4
+  assetPath: Assets/Plugins/RaycastPro/Core/RaySensors/HybridRay.cs
+  uploadId: 765053

@@ -1,0 +1,18 @@
+fileFormatVersion: 2
+guid: e435ce14fe86b57418863178ee734088
+MonoImporter:
+  externalObjects: {}
+  serializedVersion: 2
+  defaultReferences: []
+  executionOrder: 0
+  icon: {fileID: 2800000, guid: 325d7c51ac767c742a28473fb3d63b0a, type: 3}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 214714
+  packageName: RaycastPro
+  packageVersion: 1.1.4
+  assetPath: Assets/Plugins/RaycastPro/Core/RaySensors/BounceRay.cs
+  uploadId: 765053

@@ -1,0 +1,14 @@
+fileFormatVersion: 2
+guid: 8af1ffc217c10e048bef36cd1df3a20d
+DefaultImporter:
+  externalObjects: {}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 214714
+  packageName: RaycastPro
+  packageVersion: 1.1.4
+  assetPath: Assets/Plugins/RaycastPro/_Demo/_Tutorial/1.Tutorial.unity
+  uploadId: 765053
