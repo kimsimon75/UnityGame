@@ -15,7 +15,7 @@ public class ItemScript : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        if (Input.GetKeyDown(KeyCode.I))
+        if (Input.GetKeyDown(KeyCode.R))
             obj.SetActive(!obj.activeSelf);
 
         if (!item.transform.gameObject.activeInHierarchy) return;

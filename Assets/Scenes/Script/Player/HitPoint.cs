@@ -59,7 +59,7 @@ public class HitPoint : StateMachineBehaviour
                 {
                     items.skill.Invoke(action.target.GetComponent<Actor>(), items);
                 }
-                item.Clear(item.editItem);
+                item.Clear(item.editItem, false);
 
                 Debug.Log("💥 타격 발생");
             }

@@ -93,12 +93,16 @@ public class RightClickButtonHandler : MonoBehaviour, IPointerClickHandler
 
         // 3) sprite가 할당되어 있는지 최종 확인
         if (img.sprite == null)
-            return; 
+            return;
+
+        Item editItem = item.GetEditItem();
+        if (editItem != null)
+            item.itemStack.Push(editItem);
 
         string s = img.sprite.name;
         Item findItem = item.list.FindItem(s);
 
-        if (item.GetEditItem() == findItem)
+        if (editItem == findItem)
         {
             GridLayoutGroup grid = GetComponentInParent<GridLayoutGroup>();
             Transform EditItemStatus = GetComponentInParent<ItemManager>().transform.Find("Panel");
@@ -107,6 +111,6 @@ public class RightClickButtonHandler : MonoBehaviour, IPointerClickHandler
             item.SetStatus();
         }
         else
-            item.Clear(findItem);
+            item.Clear(findItem, false);
     }
 }

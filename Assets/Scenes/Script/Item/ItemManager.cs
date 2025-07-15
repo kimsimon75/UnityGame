@@ -31,6 +31,9 @@ public class ItemManager : MonoBehaviour
     public TextMeshProUGUI editItemName;
     public TextMeshProUGUI[] ItemStatus;
     public TextMeshProUGUI ItemSkillExplanation;
+    public ChatManager chat;
+
+    public Stack<Item> itemStack = new Stack<Item>();
 
     void Awake()
     {
@@ -55,8 +58,6 @@ public class ItemManager : MonoBehaviour
 
         foreach (Image image in images)
         {
-
-
             for (int i = 1; i <= 2; i++)
             {
                 Image numberImage = new GameObject($"number{i}").AddComponent<Image>();
@@ -108,7 +109,99 @@ public class ItemManager : MonoBehaviour
 
     void Update()
     {
+        if (Input.GetKeyDown(KeyCode.Escape))
+        {
+            if (itemStack.Count == 0)
+                Clear(null, true);
+            else
+                Clear(itemStack.Pop(), true);
 
+        }
+        else if (Input.GetKeyDown(KeyCode.Q))
+        {
+            GetRankedItem(ItemRank.흔함);
+        }
+        else if (Input.GetKeyDown(KeyCode.W))
+        {
+            GetRankedItem(ItemRank.특별함);
+        }
+        else if (Input.GetKeyDown(KeyCode.E))
+        {
+            GetRankedItem(ItemRank.희귀함);
+        }
+        list.FindItem("기억 조각").count = 10;
+    }
+
+    private void GetRankedItem(ItemRank rank)
+    {
+        int neccesary = 0;
+        if (rank == ItemRank.흔함) neccesary = 1;
+        else if (rank == ItemRank.특별함) neccesary = 2;
+        else if (rank == ItemRank.희귀함) neccesary = 4;
+
+        if (list.FindItem("기억 조각").count >= neccesary)
+        {
+            int rand = UnityEngine.Random.Range(0, 100);
+            Color color = Color.black;
+            switch (rank)
+            {
+                case ItemRank.흔함:
+                case ItemRank.안흔함:
+                    if (rand < 85)
+                    {
+                        int count = list.itemList[1].Count + list.itemList[2].Count;
+                        rand = UnityEngine.Random.Range(0, count);
+                        Item item;
+
+                        if (rand >= list.itemList[1].Count)
+                        {
+                            item = list.itemList[2][rand - list.itemList[1].Count];
+                            color = Color.purple;
+                        }
+                        else
+                        {
+                            item = list.itemList[1][rand];
+                            color = Color.green;
+                        }
+
+                        item.count++;
+                        string hex = UnityEngine.ColorUtility.ToHtmlStringRGB(color);
+                        chat.Push($"초급 도박으로 <color=#{hex}>{item.Rank}</color> 등급의 {item.Name} 획득.");
+                    }
+                    else
+                    {
+                        chat.Push("<color=red>획득에 실패하였습니다</color>");
+                    }
+                    break;
+                case ItemRank.특별함:
+                    if (rand < 70)
+                    {
+                        Item item = list.GetRandomItem(ItemRank.특별함);
+
+                        chat.Push($"중급 도박으로 <color=Yellow>{item.Rank}</color> 등급의 {item.Name} 획득.");
+                    }
+                    else
+                        chat.Push("<color=red>획득에 실패하였습니다</color>");
+                    break;
+                case ItemRank.희귀함:
+                    if (rand < 30)
+                    {
+                        Item item = list.GetRandomItem(ItemRank.희귀함);
+
+                        chat.Push($"고급 도박으로 <color=#FF00FF>{item.Rank}</color> 등급의 {item.Name} 획득.");
+                    }
+                    else if (rand >= 30 && rand < 70)
+                    {
+                        Item item = list.GetRandomItem(ItemRank.특별함);
+
+                        chat.Push($"고급 도박으로 <color=Yellow>{item.Rank}</color> 등급의 {item.Name} 획득.");
+                    }
+                    else
+                        chat.Push("<color=red>획득에 실패하여 행운의 토큰을 얻습니다</color>");
+                    break;
+            }
+        }
+        else chat.Push("기억 조각이 부족합니다");
     }
 
     public Image[] GetImages() { return images; }
@@ -117,26 +210,29 @@ public class ItemManager : MonoBehaviour
     public void SetRank(int sRank)
     {
         rank = sRank;
-        if (!ItemList.activeSelf && editItemStatus.activeSelf)
-        {
-            editItemStatus.SetActive(false);
-            ItemList.SetActive(true);
-        }
-        Clear(null);
+        itemStack.Clear();
+
+        Clear(null, true);
     }
 
     public int GetRank() { return rank; }
 
-    public void Clear(Item item)
+    public void Clear(Item item, bool ClearStatus)
     {
         editItem = item;
         list.Clear();
 
-        if (item == null)
+        if (ClearStatus)
         {
-            string str = "row1";
+            editItemStatus.SetActive(false);
+            ItemList.SetActive(true);
+        }
 
-            Transform[] rankMenu = {
+        if (item == null)
+            {
+                string str = "row1";
+
+                Transform[] rankMenu = {
                 transform.Find($"{str}/흔함"),
                 transform.Find($"{str}/안흔함"),
                 transform.Find($"{str}/특별함"),
@@ -147,193 +243,191 @@ public class ItemManager : MonoBehaviour
                 transform.Find($"{str}/상위"), // 7번째
             };
 
-            foreach (Transform monoMenu in rankMenu)
-            {
-                monoMenu.GetComponent<Outline>().effectDistance = Vector2.zero;
-            }
-
-            rankMenu[rank].GetComponent<Outline>().effectDistance = new Vector2(4, 4);
-
-            if (rank <= (int)ItemRank.상위 + 1)
-            {
-                int commonStart = (int)ItemRank.흔함;
-                Item[] Items = list.itemList[rank + commonStart].ToArray();
-                string s = ((ItemRank)(rank + commonStart)).ToString();
-                for (int i = 0; i < list.itemList[rank + commonStart].Count; i++)
+                foreach (Transform monoMenu in rankMenu)
                 {
-                    images[i].transform.Find("number1").gameObject.SetActive(true);
-                    images[i].transform.Find("number2").gameObject.SetActive(true);
+                    monoMenu.GetComponent<Outline>().effectDistance = Vector2.zero;
+                }
 
-                    Sprite sprite = Resources.Load<Sprite>($"Image/Item/{s}/{Items[i].Name}");
-                    if (sprite == null)
-                        Debug.LogError($"Sprite not found : {Items[i].Name}");
-                    else
-                        images[i].sprite = sprite;
-                    TextMeshProUGUI[] countText = images[i].GetComponentsInChildren<TextMeshProUGUI>();
-                    Dictionary<string, int> dict = list.CombineAllItem(Items[i], false);
-                    int all = 0;
+                rankMenu[rank].GetComponent<Outline>().effectDistance = new Vector2(4, 4);
+
+                if (rank <= (int)ItemRank.상위 + 1)
+                {
+                    int commonStart = (int)ItemRank.흔함;
+                    Item[] Items = list.itemList[rank + commonStart].ToArray();
+                    string s = ((ItemRank)(rank + commonStart)).ToString();
+                    for (int i = 0; i < list.itemList[rank + commonStart].Count; i++)
+                    {
+                        images[i].transform.Find("number1").gameObject.SetActive(true);
+                        images[i].transform.Find("number2").gameObject.SetActive(true);
+
+                        Sprite sprite = Resources.Load<Sprite>($"Image/Item/{s}/{Items[i].Name}");
+                        if (sprite == null)
+                            Debug.LogError($"Sprite not found : {Items[i].Name}");
+                        else
+                            images[i].sprite = sprite;
+                        TextMeshProUGUI[] countText = images[i].GetComponentsInChildren<TextMeshProUGUI>();
+                        Dictionary<string, int> dict = list.CombineAllItem(Items[i], false);
+                        int all = 0;
+                        foreach (KeyValuePair<string, int> kvp in dict)
+                        {
+                            all += Mathf.Max(0, kvp.Value - list.FindItem(kvp.Key).count);
+                        }
+                        countText[1].text = all.ToString();
+
+                        countText[0].text = Items[i].count.ToString();
+                        Color c = images[i].color;
+                        if (Items[i].count == 0) c.a = blur;
+                        else c.a = 1f;
+                        images[i].color = c;
+                    }
+                    if (rank == 0)
+                    {
+                        int i = list.itemList[rank + commonStart].Count;
+                        images[i].transform.Find("number1").gameObject.SetActive(true);
+                        images[i].sprite = Resources.Load<Sprite>($"Image/Item/All/{list.itemList[0][0].Name}");
+                        images[i].GetComponentInChildren<TextMeshProUGUI>().text = list.itemList[0][0].count.ToString();
+
+                        Color c = images[i].color;
+                        if (list.itemList[0][0].count == 0) c.a = blur;
+                        else c.a = 1f;
+                        images[i].color = c;
+
+                        images[i + 1].transform.Find("number1").gameObject.SetActive(true);
+                        images[i + 1].sprite = Resources.Load<Sprite>($"Image/Item/All/{list.itemList[0][1].Name}");
+                        images[i + 1].GetComponentInChildren<TextMeshProUGUI>().text = list.itemList[0][1].count.ToString();
+
+                        c = images[i + 1].color;
+                        if (list.itemList[0][1].count == 0)
+                        {
+                            c.a = blur;
+                            buttons[i].GetComponent<Outline>().effectColor = Color.red;
+                        }
+                        else c.a = 1f;
+                        images[i + 1].color = c;
+                    }
+
+                }
+            }
+            else
+            {
+                Item targetItem = item;
+                List<Item> parentItems = targetItem.GetParent();
+                for (int i = 0; i < parentItems.Count; i++)
+                {
+                    images[i].sprite = parentItems[i].Resource;
+
+                    Outline line = buttons[i].GetComponent<Outline>();
+
+                    line.effectColor = GetColor(parentItems[i]);
+
+                    line.effectDistance = new Vector2(4, 4);
+                }
+
+                images[10 * 2].sprite = item.Resource;
+                Outline targetItemLine = buttons[10 * 2].GetComponent<Outline>();
+                targetItemLine.effectColor = GetColor(item);
+                targetItemLine.effectDistance = new Vector2(4f, 4f);
+                images[10 * 2 + 1].sprite = Resources.Load<Sprite>($"Image/등호");
+
+                ItemIngredient[] ingredient = item.NecessaryItem;
+                for (int i = 0; i < ingredient.Length; i++)
+                {
+                    images[10 * 2 + 1 + 1 + i].sprite = ingredient[i].Item.Resource;
+                    targetItemLine = buttons[10 * 2 + 1 + 1 + i].GetComponent<Outline>();
+                    targetItemLine.effectDistance = new Vector2(4f, 4f);
+
+                    switch (ingredient[i].Item.Rank)
+                    {
+                        case ItemRank.All:
+                            targetItemLine.effectColor = Color.skyBlue;
+                            break;
+                        case ItemRank.흔함:
+                            targetItemLine.effectColor = Color.green;
+                            break;
+                        case ItemRank.안흔함:
+                            targetItemLine.effectColor = Color.purple;
+                            break;
+                        case ItemRank.특별함:
+                            targetItemLine.effectColor = Color.yellow;
+                            break;
+                        case ItemRank.희귀함:
+                            targetItemLine.effectColor = Color.pink;
+                            break;
+                        case ItemRank.전설적인:
+                            targetItemLine.effectColor = Color.red;
+                            break;
+                        case ItemRank.히든:
+                            targetItemLine.effectColor = new Color32(233, 119, 157, 255);
+                            break;
+                        case ItemRank.변화된:
+                            targetItemLine.effectColor = new Color32(255, 0, 131, 255);
+                            break;
+                        case ItemRank.상위:
+                            targetItemLine.effectColor = new Color32(0, 248, 153, 255);
+                            break;
+
+                    }
+                }
+                if (item.Rank != 0)
+                {
+                    Dictionary<string, int> dict = list.DissolutionAll(targetItem);
+
                     foreach (KeyValuePair<string, int> kvp in dict)
                     {
-                        all += Mathf.Max(0, kvp.Value - list.FindItem(kvp.Key).count);
+                        Debug.Log($"{kvp.Key}, {kvp.Value}");
                     }
-                    countText[1].text = all.ToString();
-
-                    countText[0].text = Items[i].count.ToString();
-                    Color c = images[i].color;
-                    if (Items[i].count == 0) c.a = blur;
-                    else c.a = 1f;
-                    images[i].color = c;
-                }
-                if (rank == 0)
-                {
-                    int i = list.itemList[rank + commonStart].Count;
-                    images[i].transform.Find("number1").gameObject.SetActive(true);
-                    images[i].sprite = Resources.Load<Sprite>($"Image/Item/All/{list.itemList[0][0].Name}");
-                    images[i].GetComponentInChildren<TextMeshProUGUI>().text = list.itemList[0][0].count.ToString();
-
-                    Color c = images[i].color;
-                    if (list.itemList[0][0].count == 0) c.a = blur;
-                    else c.a = 1f;
-                    images[i].color = c;
-
-                    images[i + 1].transform.Find("number1").gameObject.SetActive(true);
-                    images[i + 1].sprite = Resources.Load<Sprite>($"Image/Item/All/{list.itemList[0][1].Name}");
-                    images[i + 1].GetComponentInChildren<TextMeshProUGUI>().text = list.itemList[0][1].count.ToString();
-
-                    c = images[i + 1].color;
-                    if (list.itemList[0][1].count == 0)
+                    object[,] common = list.table[(int)ItemRank.흔함];
+                    string[] names = Enumerable.Range(0, common.GetLength(0))   // 모든 행 인덱스
+                                    .Select(i => (string)common[i, 0])
+                                    .ToArray();
+                    int j = 0;
+                    foreach (string name in names)
                     {
-                        c.a = blur;
-                        buttons[i].GetComponent<Outline>().effectColor = Color.red;
+                        targetItem = list.FindItem(name);
+                        Transform tr = images[10 * 5 + j++].transform.Find("number1");
+                        tr.gameObject.SetActive(true);
+                        TextMeshProUGUI countText = tr.GetComponentInChildren<TextMeshProUGUI>();
+                        if (dict.ContainsKey(name))
+                        {
+                            Debug.Log(name);
+                            countText.text = dict[name].ToString();
+                        }
+                        else
+                            countText.text = "0";
                     }
-                    else c.a = 1f;
-                    images[i + 1].color = c;
-                }
-
-            }
-        }
-        else
-        {
-            Item targetItem = item;
-            List<Item> parentItems = targetItem.GetParent();
-            for (int i = 0; i < parentItems.Count; i++)
-            {
-                images[i].sprite = parentItems[i].Resource;
-
-                Outline line = buttons[i].GetComponent<Outline>();
-
-                line.effectColor = GetColor(parentItems[i]);
-
-                line.effectDistance = new Vector2(4, 4);
-            }
-
-            images[10 * 2].sprite = item.Resource;
-            Outline targetItemLine = buttons[10 * 2].GetComponent<Outline>();
-            targetItemLine.effectColor = GetColor(item);
-            targetItemLine.effectDistance = new Vector2(4f, 4f);
-            images[10 * 2 + 1].sprite = Resources.Load<Sprite>($"Image/등호");
-
-            ItemIngredient[] ingredient = item.NecessaryItem;
-            for (int i = 0; i < ingredient.Length; i++)
-            {
-                images[10 * 2 + 1 + 1 + i].sprite = ingredient[i].Item.Resource;
-                targetItemLine = buttons[10 * 2 + 1 + 1 + i].GetComponent<Outline>();
-                targetItemLine.effectDistance = new Vector2(4f, 4f);
-
-                switch (ingredient[i].Item.Rank)
-                {
-                    case ItemRank.All:
-                        targetItemLine.effectColor = Color.skyBlue;
-                        break;
-                    case ItemRank.흔함:
-                        targetItemLine.effectColor = Color.green;
-                        break;
-                    case ItemRank.안흔함:
-                        targetItemLine.effectColor = Color.purple;
-                        break;
-                    case ItemRank.특별함:
-                        targetItemLine.effectColor = Color.yellow;
-                        break;
-                    case ItemRank.희귀함:
-                        targetItemLine.effectColor = Color.pink;
-                        break;
-                    case ItemRank.전설적인:
-                        targetItemLine.effectColor = Color.red;
-                        break;
-                    case ItemRank.히든:
-                        targetItemLine.effectColor = new Color32(233, 119, 157, 255);
-                        break;
-                    case ItemRank.변화된:
-                        targetItemLine.effectColor = new Color32(255, 0, 131, 255);
-                        break;
-                    case ItemRank.상위:
-                        targetItemLine.effectColor = new Color32(0, 248, 153, 255);
-                        break;
-
-                }
-            }
-            if (item.Rank != 0)
-            {
-                Dictionary<string, int> dict = list.DissolutionAll(targetItem);
-
-                foreach (KeyValuePair<string, int> kvp in dict)
-                {
-                    Debug.Log($"{kvp.Key}, {kvp.Value}");
-                }
-                if (dict.ContainsKey("만물석"))
-                        Debug.Log("있음");
-                object[,] common = list.table[(int)ItemRank.흔함];
-                string[] names = Enumerable.Range(0, common.GetLength(0))   // 모든 행 인덱스
-                                .Select(i => (string)common[i, 0])
-                                .ToArray();
-                int j = 0;
-                foreach (string name in names)
-                {
-                    targetItem = list.FindItem(name);
-                    Transform tr = images[10 * 5 + j++].transform.Find("number1");
-                    tr.gameObject.SetActive(true);
-                    TextMeshProUGUI countText = tr.GetComponentInChildren<TextMeshProUGUI>();
-                    if (dict.ContainsKey(name))
+                    j = 0;
+                    int all = 0;
+                    foreach (string name in names)
                     {
-                        Debug.Log(name);
-                        countText.text = dict[name].ToString();
+                        targetItem = list.FindItem(name);
+                        images[10 * 5 + j].sprite = targetItem.Resource;
+                        Transform tr = images[10 * 5 + j++].transform.Find("number2");
+                        tr.gameObject.SetActive(true);
+                        TextMeshProUGUI countText = tr.GetComponentInChildren<TextMeshProUGUI>();
+                        if (dict.ContainsKey(name))
+                        {
+                            Debug.Log(name);
+                            int neccesary = Mathf.Max(dict[name] - targetItem.count, 0);
+                            countText.text = neccesary.ToString();
+                            all += neccesary;
+                        }
+                        else
+                            countText.text = "0";
                     }
+
+                    images[10 * 5 + j].sprite = list.FindItem("만물석").Resource;
+                    Transform allTr = images[10 * 5 + j].transform.Find("number2");
+                    allTr.gameObject.SetActive(true);
+                    TextMeshProUGUI allCountText = allTr.GetComponentInChildren<TextMeshProUGUI>();
+                    if ((int)item.Rank != 1)
+                        allCountText.text = all.ToString();
+                    else if ((int)item.Rank == 1)
+                        allCountText.text = "1";
                     else
-                        countText.text = "0";
-                }
-                j = 0;
-                int all = 0;
-                foreach (string name in names)
-                {
-                    targetItem = list.FindItem(name);
-                    images[10 * 5 + j].sprite = targetItem.Resource;
-                    Transform tr = images[10 * 5 + j++].transform.Find("number2");
-                    tr.gameObject.SetActive(true);
-                    TextMeshProUGUI countText = tr.GetComponentInChildren<TextMeshProUGUI>();
-                    if (dict.ContainsKey(name))
-                    {
-                        Debug.Log(name);
-                        int neccesary = Mathf.Max(dict[name] - targetItem.count, 0);
-                        countText.text = neccesary.ToString();
-                        all += neccesary;
-                    }
-                    else
-                        countText.text = "0";
+                        allCountText.text = "0";
                 }
 
-                images[10 * 5 + j].sprite = list.FindItem("만물석").Resource;
-                Transform allTr = images[10 * 5 + j].transform.Find("number2");
-                allTr.gameObject.SetActive(true);
-                TextMeshProUGUI allCountText = allTr.GetComponentInChildren<TextMeshProUGUI>();
-                if ((int)item.Rank != 1)
-                    allCountText.text = all.ToString();
-                else if ((int)item.Rank == 1)
-                    allCountText.text = "1";
-                else
-                    allCountText.text = "0";
             }
- 
-        }
 
     }
 
@@ -378,13 +472,6 @@ public class ItemManager : MonoBehaviour
             ItemStatus[10].text = $"공격속도 증가 : {editItem.AttackSpeed}%";
             ItemStatus[11].text = $"타워 공격력 증가 : {editItem.TowerDamage}";
             ItemStatus[12].text = $"타워 공격속도 증가: {editItem.TowerAttackSpeed}%";
-
-            if (Input.GetKeyDown(KeyCode.Escape))
-            {
-                editItemStatus.SetActive(false);
-                ItemList.SetActive(true);
-                Clear(editItem);
-            }
 
             StringBuilder s = new StringBuilder();
 

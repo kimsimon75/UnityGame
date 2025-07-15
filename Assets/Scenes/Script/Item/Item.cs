@@ -553,7 +553,7 @@ public class List
         return dict[s];
     }
 
-    public void GetRandomItem(ItemRank rank)
+    public Item GetRandomItem(ItemRank rank)
     {
         int rand = UnityEngine.Random.Range(0, itemList[(int)rank].Count);
 
@@ -564,7 +564,8 @@ public class List
         {
             StatsUp(item);
         }
-        ItemManager.Clear(ItemManager.GetEditItem());
+        ItemManager.Clear(ItemManager.GetEditItem(), false);
+        return item;
     }
 
     public bool CombineItem(Item item)
@@ -594,7 +595,7 @@ public class List
             {
                 StatsUp(item);
             }
-            ItemManager.Clear(null);
+            ItemManager.Clear(null, false);
         }
         return enough;
     }
@@ -655,7 +656,7 @@ public class List
                 {
                     StatsUp(item);
                 }
-                ItemManager.Clear(null);
+                ItemManager.Clear(null, false);
             }
         }
         return itemDict;
@@ -771,7 +772,7 @@ public class List
 
         float MultiPercentage = (1f - Mathf.Pow(1f - Percentage / 100f, item.count)) * 100;
 
-        if (Percentage * 10 >= rand)
+        if (Percentage * 10 > rand)
         {
             actor.TakeDamageAll(MultiPhysics, MonoPhysics, Range
             , actor.armorType, true, Stats.neutralizeDefense, 0);

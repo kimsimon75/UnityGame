@@ -40,7 +40,7 @@ public class Story : Actor
             {
                 case 1:
                     item.list.FindItem("만물석").count += 3;
-                    item.Clear(item.GetEditItem());
+                    item.Clear(item.GetEditItem(), false);
                     break;
             }
 
