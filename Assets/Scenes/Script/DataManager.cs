@@ -5,6 +5,8 @@ public class DataManager : MonoBehaviour
 {
     // Start is called once before the first execution of Update after the MonoBehaviour is created
 
+    public int bossRound = 0;
+
     public int[][] enemyStats = new int[76][]
     {
         new[] {0, 0 },
@@ -90,6 +92,15 @@ public class DataManager : MonoBehaviour
         new[] {101450248, 360 },
         new[] {106804500, 380 },
         new[] {112158752, 395 },
+    };
+
+    public int[] bossReword = new int[6]{
+        1,
+        2,
+        2,
+        3,
+        4,
+        3,
     };
     static public DataManager Instance = null;
     void Start()

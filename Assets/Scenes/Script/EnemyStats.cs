@@ -14,9 +14,10 @@ public class EnemyStats : Actor
     public float CurrentHealth;
     private PlayerStats player;
     private int armor = 0;
-    private float moveSpeed = 4.84f;
+    public float moveSpeed = 484f;
     private WalkForward walk;
     private bool boss = false;
+    private int round = 0;
 
 
 
@@ -25,8 +26,6 @@ public class EnemyStats : Actor
     {
         walk = GetComponent<WalkForward>();
         int round = GameManager.Instance.GetRound();
-
-        SetStats(round);
 
         MaxHealth = DataManager.Instance.enemyStats[round][0];
         armor = DataManager.Instance.enemyStats[round][1];
@@ -71,6 +70,10 @@ public class EnemyStats : Actor
         CurrentHealth = Mathf.Max(CurrentHealth - damage, 0f);
         if (CurrentHealth <= 0)
         {
+            if (boss && round <= 60)
+            {
+                GameManager.Instance.item.list.FindItem("기억 조각").count += DataManager.Instance.bossReword[DataManager.Instance.bossRound++];
+            }
             --player.UnitCount;
             Destroy(gameObject);
             isDead = true;
@@ -161,19 +164,7 @@ public class EnemyStats : Actor
         return (armor, moveSpeed, armorType);
     }
 
-    private void SetStats(int round)
-    {
-        switch (round)
-        {
-            case 1:
-                MaxHealth = 100f;
-                armor = 0;
-                break;
-        }
-    }
+    public void SetRound(int round) => this.round = round;
 
-    public void SetBoss(bool boss)
-    {
-        this.boss = boss;
-    }
+    public void SetBoss(bool boss) => this.boss = boss;
 }

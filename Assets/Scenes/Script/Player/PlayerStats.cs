@@ -59,6 +59,14 @@ public class PlayerStats : MonoBehaviour
 
         action = GetComponent<ActionScript>();
 
+ 
+    }
+
+    void Update()
+    {
+        text.text = $"{UnitCount}";
+        attackCooldown = attackDelay / (1 + attackSpeedBonus * 0.01f);
+
         Animator anim = GetComponent<Animator>();
         AnimationClip[] clips = anim.runtimeAnimatorController.animationClips;
 
@@ -70,12 +78,6 @@ public class PlayerStats : MonoBehaviour
                 anim.SetFloat("AttackSpeed", animationLength);
             }
         }
-    }
-
-    void Update()
-    {
-        text.text = $"{UnitCount}";
-        attackCooldown = attackDelay / (1 + attackSpeedBonus * 0.01f);
     }
 
 

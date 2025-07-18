@@ -1,6 +1,4 @@
-using Unity.VisualScripting.Antlr3.Runtime.Misc;
 using UnityEngine;
-using System.Collections.Generic;
 
 public class HitPoint : StateMachineBehaviour
 {
@@ -23,10 +21,6 @@ public class HitPoint : StateMachineBehaviour
         if(game == null)game = stats.GetComponentInParent<GameManager>();
         item = game.ItemManager;
 
-        float animDuration = stats.attackCooldown;
-
-        attackDelay = animDuration * (1 - hitTiming);
-
         action.attackDisableTime = Time.time + attackDelay;
     }
 
@@ -34,6 +28,10 @@ public class HitPoint : StateMachineBehaviour
     {
         if ( action.isAttack) return;
 
+        float animDuration = stats.attackCooldown;
+
+        attackDelay = animDuration * (1 - hitTiming);
+        
         float progress = stateInfo.normalizedTime % 1f;
         currentLoop = Mathf.FloorToInt(stateInfo.normalizedTime);
 

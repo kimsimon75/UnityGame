@@ -104,7 +104,7 @@ public class ItemManager : MonoBehaviour
             image.AddComponent<MyButtonTrigger>();
         }
         list.Clear();
-
+        list.FindItem("기억 조각").count += 10;
     }
 
     void Update()
@@ -129,13 +129,13 @@ public class ItemManager : MonoBehaviour
         {
             GetRankedItem(ItemRank.희귀함);
         }
-        list.FindItem("기억 조각").count = 10;
     }
 
     private void GetRankedItem(ItemRank rank)
     {
         int neccesary = 0;
         if (rank == ItemRank.흔함) neccesary = 1;
+        if (rank == ItemRank.안흔함) neccesary = 1;
         else if (rank == ItemRank.특별함) neccesary = 2;
         else if (rank == ItemRank.희귀함) neccesary = 4;
 
@@ -155,16 +155,14 @@ public class ItemManager : MonoBehaviour
 
                         if (rand >= list.itemList[1].Count)
                         {
-                            item = list.itemList[2][rand - list.itemList[1].Count];
+                            item = list.GetRandomItem(ItemRank.안흔함, false);
                             color = Color.purple;
                         }
                         else
                         {
-                            item = list.itemList[1][rand];
+                            item = list.GetRandomItem(ItemRank.흔함, false);
                             color = Color.green;
                         }
-
-                        item.count++;
                         string hex = UnityEngine.ColorUtility.ToHtmlStringRGB(color);
                         chat.Push($"초급 도박으로 <color=#{hex}>{item.Rank}</color> 등급의 {item.Name} 획득.");
                     }
@@ -176,7 +174,7 @@ public class ItemManager : MonoBehaviour
                 case ItemRank.특별함:
                     if (rand < 70)
                     {
-                        Item item = list.GetRandomItem(ItemRank.특별함);
+                        Item item = list.GetRandomItem(ItemRank.특별함, false);
 
                         chat.Push($"중급 도박으로 <color=Yellow>{item.Rank}</color> 등급의 {item.Name} 획득.");
                     }
@@ -186,13 +184,13 @@ public class ItemManager : MonoBehaviour
                 case ItemRank.희귀함:
                     if (rand < 30)
                     {
-                        Item item = list.GetRandomItem(ItemRank.희귀함);
+                        Item item = list.GetRandomItem(ItemRank.희귀함, false);
 
                         chat.Push($"고급 도박으로 <color=#FF00FF>{item.Rank}</color> 등급의 {item.Name} 획득.");
                     }
                     else if (rand >= 30 && rand < 70)
                     {
-                        Item item = list.GetRandomItem(ItemRank.특별함);
+                        Item item = list.GetRandomItem(ItemRank.특별함, false);
 
                         chat.Push($"고급 도박으로 <color=Yellow>{item.Rank}</color> 등급의 {item.Name} 획득.");
                     }
@@ -200,8 +198,11 @@ public class ItemManager : MonoBehaviour
                         chat.Push("<color=red>획득에 실패하여 행운의 토큰을 얻습니다</color>");
                     break;
             }
+            list.FindItem("기억 조각").count -= neccesary;
+            Clear(editItem, false);
         }
         else chat.Push("기억 조각이 부족합니다");
+        
     }
 
     public Image[] GetImages() { return images; }

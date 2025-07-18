@@ -14,8 +14,8 @@ public enum ItemRank
     안흔함,
     특별함,
     희귀함,
-    전설적인,
     히든,
+    전설적인,
     변화된,
     상위
 }
@@ -135,8 +135,10 @@ public class List
     private Dictionary<string, Item> dict;
     private Image[] images;
     private Button[] buttons;
+    private byte rankOn = 0b00000000;
 
     public List<Item> currentItem = new List<Item>(30);
+    
 
     public int[] number;
 
@@ -428,17 +430,20 @@ public class List
         table[(int)ItemRank.희귀함] = rare;
         SetItem(ItemRank.희귀함);
 
+        
+        hidden = new object[,]{
+
+        };
+        table[(int)ItemRank.히든] = hidden;
+        SetItem(ItemRank.히든);
+
+
         legendary = new object[,] {
 
         };
         table[(int)ItemRank.전설적인] = legendary;
         SetItem(ItemRank.전설적인);
 
-        hidden = new object[,]{
-
-        };
-        table[(int)ItemRank.히든] = hidden;
-        SetItem(ItemRank.히든);
 
         changed = new object[,]{
 
@@ -553,7 +558,7 @@ public class List
         return dict[s];
     }
 
-    public Item GetRandomItem(ItemRank rank)
+    public Item GetRandomItem(ItemRank rank, bool logOut = true)
     {
         int rand = UnityEngine.Random.Range(0, itemList[(int)rank].Count);
 
@@ -563,6 +568,26 @@ public class List
         if (item.count == 1)
         {
             StatsUp(item);
+        }
+        if (logOut)
+        {
+            string hex = ColorUtility.ToHtmlStringRGB(Color.black);
+            switch (rank)
+            {
+                case ItemRank.흔함:
+                    hex = ColorUtility.ToHtmlStringRGB(Color.green);
+                    break;
+                case ItemRank.안흔함:
+                    hex = ColorUtility.ToHtmlStringRGB(Color.purple);
+                    break;
+                case ItemRank.특별함:
+                    hex = ColorUtility.ToHtmlStringRGB(Color.yellow);
+                    break;
+                case ItemRank.희귀함:
+                    hex = "FF00FF";
+                    break;
+            }
+            ItemManager.chat.Push($"<color=#{hex}>{rank}</color> 등급의 {item.Name} 획득");
         }
         ItemManager.Clear(ItemManager.GetEditItem(), false);
         return item;
@@ -711,6 +736,53 @@ public class List
             Stats.manaRegen += item.ManaRegen;
             Stats.neutralizeDefense += item.NeutralizeDefense;
             Cannon.SetCannon(item.TowerDamage, item.TowerAttackSpeed);
+
+            if (item.Rank == ItemRank.희귀함 && !GameManager.Instance.RareGet)
+            {
+                FindItem("만물석").count++;
+                GameManager.Instance.RareGet = true;
+            }
+
+            if (item.Rank >= ItemRank.안흔함)
+                {
+                    int shift = item.Rank - ItemRank.안흔함;
+                    if (shift < 0 || shift >= 31)
+                    {
+                        Debug.LogError($"Rank shift 값이 비정상입니다: {shift}");
+                        return;
+                    }
+                    int bit = 1 << shift;
+
+                    for (int i = 1; i <= bit; i <<= 1)
+                    {
+                        if ((rankOn & i) == 0)
+                        {
+                            Debug.Log(Mathf.Log(i, 2));
+                            switch ((ItemRank)(Mathf.Log(i, 2) + (int)ItemRank.안흔함))
+                            {
+                                case ItemRank.안흔함:
+                                    Stats.damage += 100;
+                                    Stats.attackDelay = 0.95f;
+                                    Cannon.SetCannon(20, 5);
+                                    break;
+                                case ItemRank.특별함:
+                                    Stats.damage += 400;
+                                    Stats.attackDelay = 0.9f;
+                                    Stats.attackSpeedBonus += 25f;
+                                    Cannon.SetCannon(80, 10);
+                                    break;
+                                case ItemRank.희귀함:
+                                    Stats.damage += 4500;
+                                    Stats.attackDelay = 0.85f;
+                                    Stats.attackSpeedBonus += 45f;
+                                    Cannon.SetCannon(920, 20);
+                                    break;
+                            }
+                            rankOn |= (byte)i;
+                        }
+                    }
+
+                }
 
             currentItem.Add(item);
         }

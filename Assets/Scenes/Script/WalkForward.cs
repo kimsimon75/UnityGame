@@ -29,7 +29,7 @@ public class WalkForward : MonoBehaviour
     void Start()
     {
 
-        moveSpeed = GetComponent<EnemyStats>().GetDamageInfo().moveSpeed;
+        moveSpeed = GetComponent<EnemyStats>().GetDamageInfo().moveSpeed / 100;
 
         mapSize = map.GetComponent<Renderer>().bounds.size.x;
 
