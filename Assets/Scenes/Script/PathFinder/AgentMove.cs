@@ -36,7 +36,6 @@ public class AgentMove : MonoBehaviour
         }
         else
         {
-            Debug.Log(action.isAttack);
             agent.ResetPath();
             if (action.isAttack)
                 action.TriggerStop();

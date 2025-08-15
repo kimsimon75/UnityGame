@@ -33,4 +33,16 @@ public class SlideInSpawner : MonoBehaviour
 
         return newPanel;
     }
+
+    public void DeleteSlider(int targetNumber)
+    {
+        RectTransform target = panelA.GetChild(targetNumber) as RectTransform;
+
+        for (int i = panelA.childCount - 1; i >= targetNumber; i--)
+        {
+            panelA.GetChild(i).GetComponent<RectTransform>().localPosition = panelA.GetChild(i - 1).GetComponent<RectTransform>().localPosition;
+        }
+
+        Destroy(target.gameObject);
+    }
 }

@@ -1,17 +1,21 @@
 using UnityEngine;
 
-   public enum ArmorType
-    {
-        관통,
-        공성,
-        패기,
-        일반,
+public enum ArmorType
+{
+    관통,
+    공성,
+    패기,
+    일반,
+    영웅,
+    보스,
     }
 
 public abstract class Actor : MonoBehaviour
 {
     public ArmorType armorType = ArmorType.일반;
     public bool isDead = false;
+
+    public GameObject bar;
 
     protected float GetDamage(ArmorType damageType, ArmorType armorType)
     {

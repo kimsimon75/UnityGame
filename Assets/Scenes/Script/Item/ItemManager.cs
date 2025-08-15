@@ -104,7 +104,6 @@ public class ItemManager : MonoBehaviour
             image.AddComponent<MyButtonTrigger>();
         }
         list.Clear();
-        list.FindItem("기억 조각").count += 10;
     }
 
     void Update()
@@ -139,7 +138,7 @@ public class ItemManager : MonoBehaviour
         else if (rank == ItemRank.특별함) neccesary = 2;
         else if (rank == ItemRank.희귀함) neccesary = 4;
 
-        if (list.FindItem("기억 조각").count >= neccesary)
+        if (list.FindItem("기억 조각", ItemRank.All).count >= neccesary)
         {
             int rand = UnityEngine.Random.Range(0, 100);
             Color color = Color.black;
@@ -149,11 +148,18 @@ public class ItemManager : MonoBehaviour
                 case ItemRank.안흔함:
                     if (rand < 85)
                     {
+                        rand = UnityEngine.Random.Range(0, 100);
+                        if (rand < 2)
+                        {
+                            list.FindItem("함선", ItemRank.히든).count++;
+                            return;
+                        }
+                        
                         int count = list.itemList[1].Count + list.itemList[2].Count;
-                        rand = UnityEngine.Random.Range(0, count);
+                        rand = UnityEngine.Random.Range(0, 100);
                         Item item;
 
-                        if (rand >= list.itemList[1].Count)
+                        if (rand < 50)
                         {
                             item = list.GetRandomItem(ItemRank.안흔함, false);
                             color = Color.purple;
@@ -174,6 +180,13 @@ public class ItemManager : MonoBehaviour
                 case ItemRank.특별함:
                     if (rand < 70)
                     {
+                        rand = UnityEngine.Random.Range(0, 1000);
+                        if (rand < 35)
+                        {
+                            list.FindItem("함선", ItemRank.히든).count++;
+                            return;
+                        }
+
                         Item item = list.GetRandomItem(ItemRank.특별함, false);
 
                         chat.Push($"중급 도박으로 <color=Yellow>{item.Rank}</color> 등급의 {item.Name} 획득.");
@@ -184,21 +197,36 @@ public class ItemManager : MonoBehaviour
                 case ItemRank.희귀함:
                     if (rand < 30)
                     {
-                        Item item = list.GetRandomItem(ItemRank.희귀함, false);
-
-                        chat.Push($"고급 도박으로 <color=#FF00FF>{item.Rank}</color> 등급의 {item.Name} 획득.");
-                    }
-                    else if (rand >= 30 && rand < 70)
-                    {
-                        Item item = list.GetRandomItem(ItemRank.특별함, false);
-
-                        chat.Push($"고급 도박으로 <color=Yellow>{item.Rank}</color> 등급의 {item.Name} 획득.");
+                        list.FindItem("행운의 토큰", ItemRank.희귀함).count++;
+                        chat.Push("<color=red>획득에 실패하여 행운의 토큰을 얻습니다</color>");
                     }
                     else
-                        chat.Push("<color=red>획득에 실패하여 행운의 토큰을 얻습니다</color>");
+                    {
+                        if (UnityEngine.Random.Range(0, 100) < 4)
+                        {
+                            list.FindItem("이브", ItemRank.히든).count++;
+                            string hex = UnityEngine.ColorUtility.ToHtmlStringRGB(Color.skyBlue);
+                            chat.Push($"<color=#{hex}>히든</color> 등급의 이브 획득.");
+                        }
+                        else
+                        {
+                            if (UnityEngine.Random.Range(0, 100) < 50)
+                            {
+                                Item item = list.GetRandomItem(ItemRank.희귀함, false);
+
+                                chat.Push($"고급 도박으로 <color=#FF00FF>{item.Rank}</color> 등급의 {item.Name} 획득.");
+                            }
+                            else
+                            {
+                                Item item = list.GetRandomItem(ItemRank.특별함, false);
+
+                                chat.Push($"고급 도박으로 <color=Yellow>{item.Rank}</color> 등급의 {item.Name} 획득.");
+                            }
+                        }
+                    }
                     break;
             }
-            list.FindItem("기억 조각").count -= neccesary;
+            list.FindItem("기억 조각", ItemRank.All).count -= neccesary;
             Clear(editItem, false);
         }
         else chat.Push("기억 조각이 부족합니다");
@@ -246,10 +274,10 @@ public class ItemManager : MonoBehaviour
 
                 foreach (Transform monoMenu in rankMenu)
                 {
-                    monoMenu.GetComponent<Outline>().effectDistance = Vector2.zero;
+                    monoMenu.GetComponent<UnityEngine.UI.Outline>().effectDistance = Vector2.zero;
                 }
 
-                rankMenu[rank].GetComponent<Outline>().effectDistance = new Vector2(4, 4);
+                rankMenu[rank].GetComponent<UnityEngine.UI.Outline>().effectDistance = new Vector2(4, 4);
 
                 if (rank <= (int)ItemRank.상위 + 1)
                 {
@@ -267,11 +295,11 @@ public class ItemManager : MonoBehaviour
                         else
                             images[i].sprite = sprite;
                         TextMeshProUGUI[] countText = images[i].GetComponentsInChildren<TextMeshProUGUI>();
-                        Dictionary<string, int> dict = list.CombineAllItem(Items[i], false);
+                        Dictionary<(string, ItemRank), int> dict = list.CombineAllItem(Items[i], false);
                         int all = 0;
-                        foreach (KeyValuePair<string, int> kvp in dict)
+                        foreach (KeyValuePair<(string, ItemRank), int> kvp in dict)
                         {
-                            all += Mathf.Max(0, kvp.Value - list.FindItem(kvp.Key).count);
+                            all += Mathf.Max(0, kvp.Value - list.FindItem(kvp.Key.Item1, kvp.Key.Item2).count);
                         }
                         countText[1].text = all.ToString();
 
@@ -301,7 +329,7 @@ public class ItemManager : MonoBehaviour
                         if (list.itemList[0][1].count == 0)
                         {
                             c.a = blur;
-                            buttons[i].GetComponent<Outline>().effectColor = Color.red;
+                            buttons[i].GetComponent<UnityEngine.UI.Outline>().effectColor = Color.red;
                         }
                         else c.a = 1f;
                         images[i + 1].color = c;
@@ -317,7 +345,7 @@ public class ItemManager : MonoBehaviour
                 {
                     images[i].sprite = parentItems[i].Resource;
 
-                    Outline line = buttons[i].GetComponent<Outline>();
+                    UnityEngine.UI.Outline line = buttons[i].GetComponent<UnityEngine.UI.Outline>();
 
                     line.effectColor = GetColor(parentItems[i]);
 
@@ -325,58 +353,42 @@ public class ItemManager : MonoBehaviour
                 }
 
                 images[10 * 2].sprite = item.Resource;
-                Outline targetItemLine = buttons[10 * 2].GetComponent<Outline>();
-                targetItemLine.effectColor = GetColor(item);
+                UnityEngine.UI.Outline targetItemLine = buttons[10 * 2].GetComponent<UnityEngine.UI.Outline>();
+                Dictionary<(string,ItemRank), int> Colordict = list.CombineAllItem(targetItem, false);
+
+                int all = 0;
+                foreach (KeyValuePair<(string,ItemRank), int> kvp in Colordict)
+                {
+                    all += Mathf.Max(0, kvp.Value - list.FindItem(kvp.Key.Item1, kvp.Key.Item2).count);
+                }
+
+            if (all != 0)
+            {
+                if (all > list.FindItem("만물석", ItemRank.All).count) targetItemLine.effectColor = Color.red;
+                else targetItemLine.effectColor = Color.orange;
+            }
+            else targetItemLine.effectColor = Color.blue;
                 targetItemLine.effectDistance = new Vector2(4f, 4f);
                 images[10 * 2 + 1].sprite = Resources.Load<Sprite>($"Image/등호");
 
                 ItemIngredient[] ingredient = item.NecessaryItem;
-                for (int i = 0; i < ingredient.Length; i++)
-                {
-                    images[10 * 2 + 1 + 1 + i].sprite = ingredient[i].Item.Resource;
-                    targetItemLine = buttons[10 * 2 + 1 + 1 + i].GetComponent<Outline>();
-                    targetItemLine.effectDistance = new Vector2(4f, 4f);
+            for (int i = 0; i < ingredient.Length; i++)
+            {
+                images[10 * 2 + 1 + 1 + i].sprite = ingredient[i].Item.Resource;
+                targetItemLine = buttons[10 * 2 + 1 + 1 + i].GetComponent<UnityEngine.UI.Outline>();
+                targetItemLine.effectDistance = new Vector2(4f, 4f);
 
-                    switch (ingredient[i].Item.Rank)
-                    {
-                        case ItemRank.All:
-                            targetItemLine.effectColor = Color.skyBlue;
-                            break;
-                        case ItemRank.흔함:
-                            targetItemLine.effectColor = Color.green;
-                            break;
-                        case ItemRank.안흔함:
-                            targetItemLine.effectColor = Color.purple;
-                            break;
-                        case ItemRank.특별함:
-                            targetItemLine.effectColor = Color.yellow;
-                            break;
-                        case ItemRank.희귀함:
-                            targetItemLine.effectColor = Color.pink;
-                            break;
-                        case ItemRank.전설적인:
-                            targetItemLine.effectColor = Color.red;
-                            break;
-                        case ItemRank.히든:
-                            targetItemLine.effectColor = new Color32(233, 119, 157, 255);
-                            break;
-                        case ItemRank.변화된:
-                            targetItemLine.effectColor = new Color32(255, 0, 131, 255);
-                            break;
-                        case ItemRank.상위:
-                            targetItemLine.effectColor = new Color32(0, 248, 153, 255);
-                            break;
 
-                    }
+                images[10 * 2 + 1 + 1 + i].transform.Find("number1").gameObject.SetActive(true);
+
+                images[10 * 2 + 1 + 1 + i].GetComponentInChildren<TextMeshProUGUI>().text = ingredient[i].Count.ToString();
+
+                targetItemLine.effectColor = GetColor(ingredient[i].Item);
                 }
                 if (item.Rank != 0)
                 {
-                    Dictionary<string, int> dict = list.DissolutionAll(targetItem);
+                    Dictionary<(string,ItemRank), int> dict = list.DissolutionAll(targetItem);
 
-                    foreach (KeyValuePair<string, int> kvp in dict)
-                    {
-                        Debug.Log($"{kvp.Key}, {kvp.Value}");
-                    }
                     object[,] common = list.table[(int)ItemRank.흔함];
                     string[] names = Enumerable.Range(0, common.GetLength(0))   // 모든 행 인덱스
                                     .Select(i => (string)common[i, 0])
@@ -384,31 +396,29 @@ public class ItemManager : MonoBehaviour
                     int j = 0;
                     foreach (string name in names)
                     {
-                        targetItem = list.FindItem(name);
+                        targetItem = list.FindItem(name, ItemRank.흔함);
                         Transform tr = images[10 * 5 + j++].transform.Find("number1");
                         tr.gameObject.SetActive(true);
                         TextMeshProUGUI countText = tr.GetComponentInChildren<TextMeshProUGUI>();
-                        if (dict.ContainsKey(name))
+                        if (dict.ContainsKey((name,ItemRank.흔함)))
                         {
-                            Debug.Log(name);
-                            countText.text = dict[name].ToString();
+                            countText.text = dict[(name,ItemRank.흔함)].ToString();
                         }
                         else
                             countText.text = "0";
                     }
                     j = 0;
-                    int all = 0;
+                    all = 0;
                     foreach (string name in names)
                     {
-                        targetItem = list.FindItem(name);
+                        targetItem = list.FindItem(name,ItemRank.흔함);
                         images[10 * 5 + j].sprite = targetItem.Resource;
                         Transform tr = images[10 * 5 + j++].transform.Find("number2");
                         tr.gameObject.SetActive(true);
                         TextMeshProUGUI countText = tr.GetComponentInChildren<TextMeshProUGUI>();
-                        if (dict.ContainsKey(name))
+                        if (dict.ContainsKey((name,ItemRank.흔함)))
                         {
-                            Debug.Log(name);
-                            int neccesary = Mathf.Max(dict[name] - targetItem.count, 0);
+                            int neccesary = Mathf.Max(dict[(name,ItemRank.흔함)] - targetItem.count, 0);
                             countText.text = neccesary.ToString();
                             all += neccesary;
                         }
@@ -416,7 +426,7 @@ public class ItemManager : MonoBehaviour
                             countText.text = "0";
                     }
 
-                    images[10 * 5 + j].sprite = list.FindItem("만물석").Resource;
+                    images[10 * 5 + j].sprite = list.FindItem("만물석", ItemRank.All).Resource;
                     Transform allTr = images[10 * 5 + j].transform.Find("number2");
                     allTr.gameObject.SetActive(true);
                     TextMeshProUGUI allCountText = allTr.GetComponentInChildren<TextMeshProUGUI>();
@@ -436,20 +446,29 @@ public class ItemManager : MonoBehaviour
 
     private Color GetColor(Item targetItem)
     {
-        Dictionary<string, int> dict = list.CombineAllItem(targetItem, false);
-
-        int all = 0;
-        foreach (KeyValuePair<string, int> kvp in dict)
+        switch (targetItem.Rank)
         {
-            all += Mathf.Max(0, kvp.Value - list.FindItem(kvp.Key).count);
+            case ItemRank.All:
+                return Color.skyBlue;
+            case ItemRank.흔함:
+                return Color.green;
+            case ItemRank.안흔함:
+                return Color.purple;
+            case ItemRank.특별함:
+                return Color.yellow;
+            case ItemRank.희귀함:
+                return new Color32(255, 0, 255, 255);
+            case ItemRank.전설적인:
+                return Color.red;
+            case ItemRank.히든:
+                return new Color32(233, 119, 157, 255);
+            case ItemRank.변화된:
+                return new Color32(255, 0, 131, 255);
+            case ItemRank.상위:
+                return new Color32(0, 248, 153, 255);
+            default:
+                return Color.skyBlue;
         }
-
-        if (all != 0)
-        {
-            if(all > list.FindItem("만물석").count)return Color.red;
-            else return Color.orange;
-        }
-        else return Color.blue;
 
     }
 
@@ -467,8 +486,8 @@ public class ItemManager : MonoBehaviour
             ItemStatus[4].text = $"마법 증폭 : {editItem.MagicalBuffer}%";
             ItemStatus[5].text = $"마법방어력 감소 : {editItem.MagicalDebuffer}%";
             ItemStatus[6].text = $"방어무시 데미지 : {editItem.TrueDamage}%";
-            ItemStatus[7].text = $"체력 재생 : {editItem.HealthRegen}";
-            ItemStatus[8].text = $"마나 재생 : {editItem.ManaRegen}";
+            ItemStatus[7].text = $"체력 재생 : {DataManager.Instance.RoundX(editItem.HealthRegen,3)}";
+            ItemStatus[8].text = $"마나 재생 : {DataManager.Instance.RoundX(editItem.ManaRegen , 3)}";
             ItemStatus[9].text = $"이동속도 감소 : {editItem.MoveSpeed}";
             ItemStatus[10].text = $"공격속도 증가 : {editItem.AttackSpeed}%";
             ItemStatus[11].text = $"타워 공격력 증가 : {editItem.TowerDamage}";
@@ -506,6 +525,14 @@ public class ItemManager : MonoBehaviour
                 if (MaxPercent != 0) s.AppendLine($"범위 전체체력 비례 데미지 : {MaxPercent}%");
                 if (CurrPercent != 0) s.AppendLine($"범위 현재체력 비례 데미지 : {CurrPercent}%");
                 if (Max_CurrPercent != 0) s.AppendLine($"범위 잃은체력 비례 데미지 : {Max_CurrPercent}%");
+
+                switch ((editItem.Name, editItem.Rank))
+                {
+                    case ("좀비", ItemRank.안흔함):
+                        s.AppendLine($"스킬 발동시 적 유닛이 사망하면 좀비 아이템 1개 추가");
+                        break;
+                }
+
             }
             else
                 s.AppendLine("스킬이 없습니다");

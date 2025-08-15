@@ -31,7 +31,7 @@ public class HitPoint : StateMachineBehaviour
         float animDuration = stats.attackCooldown;
 
         attackDelay = animDuration * (1 - hitTiming);
-        
+
         float progress = stateInfo.normalizedTime % 1f;
         currentLoop = Mathf.FloorToInt(stateInfo.normalizedTime);
 
@@ -59,7 +59,6 @@ public class HitPoint : StateMachineBehaviour
                 }
                 item.Clear(item.editItem, false);
 
-                Debug.Log("💥 타격 발생");
             }
             
             hashitThisLoop = true;

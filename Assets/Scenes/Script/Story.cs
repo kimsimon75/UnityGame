@@ -39,7 +39,7 @@ public class Story : Actor
             switch (level)
             {
                 case 1:
-                    item.list.FindItem("만물석").count += 3;
+                    item.list.FindItem("만물석", ItemRank.All).count += 3;
                     item.Clear(item.GetEditItem(), false);
                     break;
             }
@@ -86,7 +86,7 @@ public class Story : Actor
 
     public override void TakeStunAll(float Time, float TimeAll, float radius)
     {
-        throw new System.NotImplementedException();
+        return;
     }
 
     public (int[][] story, byte level, ArmorType armorType) GetDamageInfo() { return (story, level, armorType); }

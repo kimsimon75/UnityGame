@@ -23,17 +23,27 @@ public class Summoner : MonoBehaviour
 
     }
 
-    public EnemyStats BossSummoner(GameObject Boss)
+    public EnemyStats BossSummoner(GameObject Boss, int round = 0, int maxHealth = 0, int armor = 0, bool specialBoss = false)
     {
         Vector3 spawnPos = transform.position;
 
         // 👇 뒤를 보게 회전 설정
         Quaternion rot = Quaternion.Euler(0, 180, 0);
 
-        GameObject enemy = Instantiate(Boss, spawnPos, rot, gameObject.transform);
-        enemy.transform.localScale = new Vector3(16 / 5f, 1, 16 / 5f) * 3;
+        GameObject target = Instantiate(Boss, spawnPos, rot, gameObject.transform);
+        target.transform.localScale = new Vector3(16 / 5f, 1, 16 / 5f) * 3;
         tmp.text = $"{++player.UnitCount}";
-        return enemy.GetComponent<EnemyStats>();
+
+        EnemyStats enemy = target.GetComponent<EnemyStats>();
+
+        enemy.SetBoss(true);
+        if(round != 0) enemy.SetRound(round);
+        if(maxHealth != 0) enemy.MaxHealth = enemy.CurrentHealth = maxHealth;
+        if(armor != 0) enemy.SetArmor(armor);
+        enemy.SetSpecialBoss(specialBoss);
+        enemy.armorType = ArmorType.보스;
+
+        return enemy;
     }
 
     public IEnumerator SummonLoop()

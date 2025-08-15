@@ -3,6 +3,7 @@ using UnityEngine.EventSystems;
 using System.Collections.Generic;
 using UnityEngine.UI;
 using Unity.Collections.LowLevel.Unsafe;
+using Unity.VisualScripting;
 
 public class RightClickButtonHandler : MonoBehaviour, IPointerClickHandler
 {
@@ -63,7 +64,7 @@ public class RightClickButtonHandler : MonoBehaviour, IPointerClickHandler
     {
         // 원하는 행동 수행
         Debug.Log("Right-click triggered!");
-        if (!item.list.CombineItem(item.list.FindItem(image.sprite.name)))
+        if (!item.list.CombineItem(item.list.FindItem(image.sprite.name, DataManager.Instance.imageDict[image.sprite])))
             Debug.LogError("아이템이 모자라거나 만물석임");
 
 
@@ -72,9 +73,9 @@ public class RightClickButtonHandler : MonoBehaviour, IPointerClickHandler
     }
     void CtrlRightClickTrigger(Image image)
     {
-        Dictionary<string, int> dict = item.list.CombineAllItem(item.list.FindItem(image.sprite.name), true);
+        Dictionary<(string, ItemRank), int> dict = item.list.CombineAllItem(item.list.FindItem(image.sprite.name, DataManager.Instance.imageDict[image.sprite]), true);
 
-        foreach (KeyValuePair<string, int> kvp in dict)
+        foreach (KeyValuePair<(string, ItemRank), int> kvp in dict)
         {
             Debug.Log($"{kvp.Key}, {kvp.Value}");
         }
@@ -100,7 +101,7 @@ public class RightClickButtonHandler : MonoBehaviour, IPointerClickHandler
             item.itemStack.Push(editItem);
 
         string s = img.sprite.name;
-        Item findItem = item.list.FindItem(s);
+        Item findItem = item.list.FindItem(s, DataManager.Instance.imageDict[img.sprite]);
 
         if (editItem == findItem)
         {

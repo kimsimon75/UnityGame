@@ -18,10 +18,11 @@ public class WalkForward : MonoBehaviour
     private float rotationSpeed = 5f;
     private float mapSize;
     public GameObject map;
+    private Animator anim;
 
     void Awake()
     {
-        Animator anim = GetComponent<Animator>();
+        anim = GetComponent<Animator>();
         map = GameManager.Instance.gameObject;
         anim.applyRootMotion = false;
     }
@@ -62,8 +63,16 @@ public class WalkForward : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        if(StunTime > 0f)
+        if (StunTime > 0f)
+        {
             StunTime -= Time.deltaTime;
+            anim.CrossFade("Idle", 0f);
+        }
+        else
+        {
+            anim.CrossFade("Walking", 0f);
+        }
+
 
 
 
@@ -72,28 +81,28 @@ public class WalkForward : MonoBehaviour
     {
         if (StunTime <= 0f)
         {
-                    Vector3 direction = (targetPosition - transform.position).normalized;
+            Vector3 direction = (targetPosition - transform.position).normalized;
 
-        if (direction != Vector3.zero)
-        {
-            Quaternion targetRotation = Quaternion.LookRotation(direction);
-            transform.rotation = Quaternion.Slerp(transform.rotation, targetRotation, Time.deltaTime * rotationSpeed);
-        }
+            if (direction != Vector3.zero)
+            {
+                Quaternion targetRotation = Quaternion.LookRotation(direction);
+                transform.rotation = Quaternion.Slerp(transform.rotation, targetRotation, Time.deltaTime * rotationSpeed);
+            }
 
-        transform.position = Vector3.MoveTowards(
-            transform.position,
-            targetPosition,
-            moveSpeed * Time.deltaTime
-        );
+            transform.position = Vector3.MoveTowards(
+                transform.position,
+                targetPosition,
+                moveSpeed * Time.deltaTime
+            );
 
-        if (Vector3.Distance(transform.position, targetPosition) < 0.01f)
-        {
-            currentIndex++;
-            if (currentIndex >= waypoints.Count)
-                currentIndex = 0;
+            if (Vector3.Distance(transform.position, targetPosition) < 0.01f)
+            {
+                currentIndex++;
+                if (currentIndex >= waypoints.Count)
+                    currentIndex = 0;
 
-            targetPosition = waypoints[currentIndex];
-        }
+                targetPosition = waypoints[currentIndex];
+            }
         }
 
     }

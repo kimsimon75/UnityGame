@@ -1,4 +1,6 @@
 using System;
+using System.Collections.Generic;
+using System.IO;
 using UnityEngine;
 
 public class DataManager : MonoBehaviour
@@ -6,6 +8,13 @@ public class DataManager : MonoBehaviour
     // Start is called once before the first execution of Update after the MonoBehaviour is created
 
     public int bossRound = 0;
+
+
+    public const int 삼십라운드 = 30;
+    public const int 사십라운드 = 41;
+    public const int 오십라운드 = 51;
+
+    public Dictionary<Sprite, ItemRank> imageDict;
 
     public int[][] enemyStats = new int[76][]
     {
@@ -94,6 +103,15 @@ public class DataManager : MonoBehaviour
         new[] {112158752, 395 },
     };
 
+    public int[][] bonusBossState = new int[][]{
+        new[] {18000, 10 },
+        new[] {418010, 10 },
+    };
+
+    public int[][] bonusBossState2 = new int[][]{
+        new[] {4875000, 140 },
+    };
+
     public int[] bossReword = new int[6]{
         1,
         2,
@@ -103,14 +121,20 @@ public class DataManager : MonoBehaviour
         3,
     };
     static public DataManager Instance = null;
-    void Start()
+    void Awake()
     {
         Instance = this;
+        imageDict = new Dictionary<Sprite, ItemRank>();
     }
 
     // Update is called once per frame
     void Update()
     {
-        
+
+    }
+
+    public double RoundX(float num, int x)
+    {
+        return Mathf.Round(num * Mathf.Pow(10f, x)) / Mathf.Pow(10f, x);
     }
 }

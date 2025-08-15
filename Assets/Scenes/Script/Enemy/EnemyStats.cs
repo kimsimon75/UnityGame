@@ -16,7 +16,8 @@ public class EnemyStats : Actor
     private int armor = 0;
     public float moveSpeed = 484f;
     private WalkForward walk;
-    private bool boss = false;
+    public bool boss = false;
+    private bool specialBoss = false;
     private int round = 0;
 
 
@@ -70,11 +71,32 @@ public class EnemyStats : Actor
         CurrentHealth = Mathf.Max(CurrentHealth - damage, 0f);
         if (CurrentHealth <= 0)
         {
-            if (boss && round <= 60)
+            if (boss)
             {
-                GameManager.Instance.item.list.FindItem("기억 조각").count += DataManager.Instance.bossReword[DataManager.Instance.bossRound++];
+                if (specialBoss)
+                {
+                    int parts = 0;
+                    switch (round)
+                    {
+                        case DataManager.삼십라운드:
+                            parts = 0;
+                            GameManager.Instance.item.list.GetRandomItem(ItemRank.안흔함);
+                            break;
+                        case DataManager.사십라운드:
+                            parts = 1;
+                            GameManager.Instance.item.list.GetRandomItem(ItemRank.특별함);
+                            break;
+                        case DataManager.오십라운드:
+                            parts = 1;
+                            break;
+                    }
+                    GameManager.Instance.item.list.GetMemoriesParts(parts);
+                }
+                else if (round <= 60)
+                        GameManager.Instance.item.list.GetMemoriesParts(DataManager.Instance.bossReword[DataManager.Instance.bossRound++]);
             }
             --player.UnitCount;
+            Destroy(bar);
             Destroy(gameObject);
             isDead = true;
         }
@@ -100,10 +122,10 @@ public class EnemyStats : Actor
                     stats.TakeDamage(damageAll, damageType, physics, armorDecrease);
                 }
             }
-        
-        DebugDrawCircleXZ(center, radius, Color.red);
+
+            DebugDrawCircleXZ(center, radius, Color.red);
         }
-        
+
         TakeDamage(damage + damageAll, damageType, physics, armorDecrease, percent);
 
     }
@@ -125,7 +147,7 @@ public class EnemyStats : Actor
         {
             WalkForward walks = col.GetComponent<WalkForward>();
             EnemyStats stats = col.GetComponent<EnemyStats>();
-            
+
             if (stats != null && walks != null && col.transform != transform)
             {
                 walks.StunTime = Mathf.Max(walks.StunTime, TimeAll * (stats.boss ? 0.3f : 1f));
@@ -167,4 +189,7 @@ public class EnemyStats : Actor
     public void SetRound(int round) => this.round = round;
 
     public void SetBoss(bool boss) => this.boss = boss;
+    public void SetSpecialBoss(bool specialBoss) => this.specialBoss = specialBoss;
+
+    public void SetArmor(int armor) => this.armor = armor;
 }

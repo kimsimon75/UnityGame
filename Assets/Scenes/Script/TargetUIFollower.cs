@@ -12,26 +12,26 @@ public class TargetUIFollower : MonoBehaviour
     }
 
     void LateUpdate()
-{
-    if (target != null)
     {
-        // 1. 유닛 머리 위 월드 위치 계산
-        Vector3 worldPos = target.position + Vector3.up * 2f;
+        if (target != null)
+        {
+            // 1. 유닛 머리 위 월드 위치 계산
+            Vector3 worldPos = target.position + Vector3.up * GetTargetHeight();
 
-        // 2. 화면 좌표로 변환
-        Vector3 screenPos = mainCam.WorldToScreenPoint(worldPos);
+            // 2. 화면 좌표로 변환
+            Vector3 screenPos = mainCam.WorldToScreenPoint(worldPos);
 
-        // 3. 화면 해상도 기반 오프셋 보정 (해상도 비례)
-        float verticalOffset = Screen.height * 0.05f;
-        screenPos.y += verticalOffset;
+            // 3. 화면 해상도 기반 오프셋 보정 (해상도 비례)
+            float verticalOffset = Screen.height * 0.05f;
+            screenPos.y += verticalOffset;
 
-        // 4. 추가 사용자 오프셋 적용 (X, Y)
-        screenPos += new Vector3(Screen.width * screenOffset.x, Screen.height * screenOffset.y, 0f);
+            // 4. 추가 사용자 오프셋 적용 (X, Y)
+            screenPos += new Vector3(Screen.width * screenOffset.x, Screen.height * screenOffset.y, 0f);
 
-        // 5. UI 위치 지정
-        transform.position = screenPos;
+            // 5. UI 위치 지정
+            transform.position = screenPos;
+        }
     }
-}
 
     public void Follow(Transform newTarget)
     {
@@ -53,5 +53,19 @@ public class TargetUIFollower : MonoBehaviour
         Vector3 screenPos = mainCam.WorldToScreenPoint(target.position);
         transform.position = screenPos + screenOffset;
     }
+    
+    float GetTargetHeight()
+{
+    // 유닛에 Collider가 있을 경우
+    if (target.TryGetComponent<Collider>(out var col))
+        return col.bounds.size.y;
+
+    // 없으면 Renderer 기준
+    if (target.TryGetComponent<Renderer>(out var rend))
+        return rend.bounds.size.y;
+
+    // 없으면 기본값
+    return 2f;
+}
 }
 

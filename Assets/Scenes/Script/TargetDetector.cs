@@ -16,7 +16,8 @@ public class TargetDetector : MonoBehaviour
     void Update()
     {
         Ray ray = mainCam.ScreenPointToRay(Input.mousePosition);
-        if (Physics.Raycast(ray, out RaycastHit hit, 100f) && !EventSystem.current.IsPointerOverGameObject())
+        if (Physics.Raycast(ray, out RaycastHit hit, 100f)&&
+    !UiRayUtil.IsPointerOverUIExcept(LayerMask.GetMask("Text")))
         {   
             if (hit.collider.CompareTag("Enemy"))
             {

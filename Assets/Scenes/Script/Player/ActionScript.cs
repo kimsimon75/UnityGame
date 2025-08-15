@@ -67,7 +67,8 @@ public class ActionScript : MonoBehaviour
         {
             isReady = true;
         }
-        else if (Input.GetMouseButtonDown(0) && !EventSystem.current.IsPointerOverGameObject())
+        else if (Input.GetMouseButtonDown(0) &&
+    !UiRayUtil.IsPointerOverUIExcept(LayerMask.GetMask("Text")))
         {
             if (isReady)
             {
@@ -97,7 +98,8 @@ public class ActionScript : MonoBehaviour
             }
 
         }
-        else if (Input.GetMouseButtonDown(1) && !EventSystem.current.IsPointerOverGameObject())
+        else if (Input.GetMouseButtonDown(1) &&
+    !UiRayUtil.IsPointerOverUIExcept(LayerMask.GetMask("Text")))
         {
             LayerMask enemyLayer = LayerMask.GetMask("Enemy");
             Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);

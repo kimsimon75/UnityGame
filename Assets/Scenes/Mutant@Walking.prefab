@@ -242,6 +242,9 @@ PrefabInstance:
     - targetCorrespondingSourceObject: {fileID: 919132149155446097, guid: 90ebd60b1c573e046b1fd0fe66b794ae, type: 3}
       insertIndex: -1
       addedObject: {fileID: 6713727998924019890}
+    - targetCorrespondingSourceObject: {fileID: 919132149155446097, guid: 90ebd60b1c573e046b1fd0fe66b794ae, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 3880489994116155420}
   m_SourcePrefab: {fileID: 100100000, guid: 90ebd60b1c573e046b1fd0fe66b794ae, type: 3}
 --- !u!1 &5931842725892409784 stripped
 GameObject:
@@ -332,8 +335,13 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 1c9233f029d69834ca39ed5821597912, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  armorType: 3
+  isDead: 0
+  bar: {fileID: 0}
   MaxHealth: 0
   CurrentHealth: 0
+  moveSpeed: 484
+  boss: 0
 --- !u!114 &-8450609783748451097
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -346,6 +354,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 3288266815db64a4bb2542cef1f5b610, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  StunTime: 0
   map: {fileID: 0}
 --- !u!114 &6713727998924019890
 MonoBehaviour:
@@ -359,3 +368,24 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: a09c95ffeaa3acf45ba6bb84958b3ace, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  worldBar: {fileID: 0}
+  _hpBarTrans: {fileID: 0}
+  _hpBarOffset: {x: 0, y: 0, z: 0}
+--- !u!114 &3880489994116155420
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5931842725892409784}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5fea29bb7c508c244a1f805a5fd3fc4d, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  outlineMode: 0
+  outlineColor: {r: 1, g: 0, b: 0, a: 1}
+  outlineWidth: 3
+  precomputeOutline: 1
+  bakeKeys: []
+  bakeValues: []

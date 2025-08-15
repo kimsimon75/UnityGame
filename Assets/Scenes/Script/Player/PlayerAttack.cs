@@ -35,7 +35,6 @@ public class PlayerAttack : MonoBehaviour
 
         if (dist > stats.detectRange - 0.1f && !action.isAttack)
         {
-            Debug.Log(dist);
             agent.isStopped = false;
             agent.SetDestination(target.position);
             if(!anim.GetCurrentAnimatorStateInfo(0).IsName("Walking") &&
