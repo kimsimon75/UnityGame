@@ -96,10 +96,15 @@ public class EnemyStats : Actor
                         GameManager.Instance.item.list.GetMemoriesParts(DataManager.Instance.bossReword[DataManager.Instance.bossRound++]);
             }
             --player.UnitCount;
-            Destroy(bar);
-            Destroy(gameObject);
+            DestroySelf();
             isDead = true;
         }
+    }
+
+    public void DestroySelf()
+    {
+        Destroy(bar);
+        Destroy(gameObject);
     }
 
     public override void TakeDamageAll(float damageAll, float damage, float radius, ArmorType damageType, bool physics, int armorDecrease, int percent = 0)

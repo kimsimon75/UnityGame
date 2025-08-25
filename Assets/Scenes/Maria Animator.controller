@@ -13,6 +13,9 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   hashitThisLoop: 0
+  autoAttack: {fileID: 4700063571031959167, guid: 3239a3b4a60079f4a9ff415367ebf115, type: 3}
+  hitTiming: 0.45
+  lightning: {fileID: 106988, guid: a9892f6a83fd8d4468ce0c8a3d09d3cd, type: 3}
 --- !u!1102 &-4078189216314261653
 AnimatorState:
   serializedVersion: 6

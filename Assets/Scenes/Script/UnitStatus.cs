@@ -33,7 +33,7 @@ public class UnitStatus : MonoBehaviour
                 float ratio = stats.CurrentHealth / stats.MaxHealth;
                 slider.value = ratio;
                 TextMeshProUGUI[] texts = slider.GetComponentsInChildren<TextMeshProUGUI>();
-                string s = $"{Mathf.Ceil(stats.CurrentHealth)}/ {stats.MaxHealth}";
+                string s = $"{Mathf.Ceil(stats.CurrentHealth):N0}/ {stats.MaxHealth:N0}";
                 texts[0].text = s;
                 texts[1].text = s;
 

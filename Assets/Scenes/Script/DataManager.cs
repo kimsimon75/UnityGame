@@ -15,6 +15,13 @@ public class DataManager : MonoBehaviour
     public const int 오십라운드 = 51;
 
     public Dictionary<Sprite, ItemRank> imageDict;
+    public const byte Q = 0;
+    public const byte W = 1;
+    public const byte E = 2;
+    public const byte Z = 3;
+    public const byte X = 4;
+    public const byte C = 5;
+    public const byte numMax = 6;
 
     public int[][] enemyStats = new int[76][]
     {
@@ -135,6 +142,6 @@ public class DataManager : MonoBehaviour
 
     public double RoundX(float num, int x)
     {
-        return Mathf.Round(num * Mathf.Pow(10f, x)) / Mathf.Pow(10f, x);
+        return Mathf.Round(num / Mathf.Pow(10f, x)) * Mathf.Pow(10f, x);
     }
 }

@@ -23,7 +23,7 @@ public class Cannon : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        attackDelay = attackCooldown * (attackCooldownBuff * 0.01f + 1);
+        attackDelay = attackCooldown / (attackCooldownBuff * 0.01f + 1);
         if (target == null || Vector3.Distance(target.position, transform.position) > detectRange)
         {
             FindClosestEnemy(transform.position, detectRange, LayerMask.GetMask("Enemy"));

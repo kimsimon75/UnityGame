@@ -25,8 +25,8 @@ public class StoryBar : MonoBehaviour
 
         StoryHealth.value = ratio;
 
-        healthBar.text = $"{Mathf.Ceil(currentHealth)}/ {maxHealth}";
-        backgroundBar.text = $"{Mathf.Ceil(currentHealth)}/ {maxHealth}";
+        healthBar.text = $"{(int)currentHealth:N0}/{(int)maxHealth:N0}";
+        backgroundBar.text = $"{(int)currentHealth:N0}/{(int)maxHealth:N0}";
         Level.text = target.level.ToString();
     }
 }

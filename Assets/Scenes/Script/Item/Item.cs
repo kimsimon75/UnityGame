@@ -1,10 +1,10 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using Unity.Collections.LowLevel.Unsafe;
+using Unity.IO.LowLevel.Unsafe;
 using UnityEngine;
 using UnityEngine.UI;
-
-public delegate void Skill(Actor actor, Item item);
 public enum ItemRank
 {
     All,
@@ -18,7 +18,7 @@ public enum ItemRank
     상위
 }
 
-public class Item
+public sealed class Item : IComparable<Item>
 {
     public string Name { get; private set; }
     public ItemIngredient[] NecessaryItem { get; private set; }
@@ -54,15 +54,14 @@ public class Item
     public int MaxPercent { get; private set; }
     public int CurrPercent { get; private set; }
     public int Max_CurrPercent { get; private set; }
+    public ArmorType AttackType { get; private set; }
+    public int BossAttack { get; private set; }
     public List<Item> parents { get; private set; }
-    public Skill skill { get; private set; }
-
 
     public Item(string name, ItemIngredient[] neccesaryItem, ItemRank rank, byte id, Sprite resource,
     int attackPower, int additionalAttackPower, int neutralizeDefense, int magicalBuffer, int magicalDebuffer, int trueDamage, float healthRegen, float manaRegen, int moveSpeed, int attackSpeed, int towerDamage, int towerAttackSpeed,
     int percentage, int monoPhysics, int multiPhysics, int monoMagic, int multiMagic, float monoStun, float multiStun, float range,
-    int monoPercent, int endPercent, int maxPercent, int currPercent, int max_CurrPercent
-    , Skill _skill)
+    int monoPercent, int endPercent, int maxPercent, int currPercent, int max_CurrPercent, ArmorType attackType, int bossAttack)
     {
         Name = name;
         NecessaryItem = neccesaryItem;
@@ -94,10 +93,12 @@ public class Item
         MonoPercent = monoPercent;
         EndPercent = endPercent;
         MaxPercent = maxPercent;
-        CurrPercent = CurrPercent;
+        CurrPercent = currPercent;
         Max_CurrPercent = max_CurrPercent;
 
-        skill = _skill;
+        AttackType = attackType;
+        BossAttack = bossAttack;
+
 
         parents = new List<Item>();
     }
@@ -107,6 +108,15 @@ public class Item
         parents.Add(parent);
     }
     public List<Item> GetParent() { return parents; }
+
+    public int CompareTo(Item other)
+    {
+        if (ReferenceEquals(this, other)) return 0;
+        if (other is null) return 1;                  // this > null
+
+        // 높은 랭크가 먼저(내림차순)
+        return other.Rank.CompareTo(this.Rank);
+    }
 
     public static implicit operator int(Item item) => (int)item.Rank;
     public static implicit operator string(Item item) => item.Name;
@@ -127,26 +137,31 @@ public class ItemIngredient
 
 public class List
 {
-    public List<Item>[] itemList = new List<Item>[9];
+    public List<Item>[] itemList = new List<Item>[(int)ItemRank.상위 + 1];
     public PlayerStats Stats;
     public CannonManager Cannon;
     public ItemManager ItemManager;
-    private Dictionary<(string,ItemRank), Item> dict;
+    private Dictionary<(string, ItemRank), Item> dict;
     private Image[] images;
     private Button[] buttons;
-    private byte rankOn = 0b00000000;
+    private int[] rankOn = new int[ActionScript.targetNumberMax];
 
-    public List<Item> currentItem = new List<Item>(30);
-    
+    public Dictionary<(string, ItemRank), Item>[] currentItem = new Dictionary<(string, ItemRank), Item>[ActionScript.targetNumberMax];
+
+    public const int gotItemCount = 15;
+    public PriorityQueue<Item> GotItem = new PriorityQueue<Item>(gotItemCount);
+
 
     public int[] number;
 
     object[,] all = { { "만물석", Array.Empty<ItemIngredient>(), 0, 0, 0, 0, 0, 0, 0f, 0f, 0, 0, 0, 0
         , 0, 0, 0, 0, 0, 0f, 0f,5f
-        ,0, 0, 0, 0, 0},
+        ,0, 0, 0, 0, 0, ArmorType.일반
+        ,0},
     { "기억 조각", Array.Empty<ItemIngredient>(), 0, 0, 0, 0, 0, 0, 0f, 0f, 0, 0, 0, 0
         , 0, 0, 0, 0, 0, 0f, 0f,5f
-        ,0, 0, 0, 0, 0},};
+        ,0, 0, 0, 0, 0, ArmorType.일반
+        ,0},};
 
     object[,] common;
     object[,] uncommon;
@@ -161,11 +176,15 @@ public class List
 
     public List(PlayerStats stats, CannonManager cannon, ItemManager itemManager)
     {
+        for(int i=0;i<currentItem.Length;i++)
+        {
+            currentItem[i] = new Dictionary<(string, ItemRank), Item>(30);
+        }
 
         for (int i = 0; i < itemList.Length; i++)
-        {
-            itemList[i] = new List<Item>();
-        }
+            {
+                itemList[i] = new List<Item>();
+            }
         dict = new Dictionary<(string, ItemRank), Item>();
         Stats = stats;
         Cannon = cannon;
@@ -187,39 +206,48 @@ public class List
         {"단검",new[]{new ItemIngredient(FindItem("만물석", ItemRank.All), 1)}
         , 10, 0, 0, 0, 0, 0, 0f, 0f, 0, 0, 0, 0// 공격력, 추가공격력, 방어력 감소, 마법증폭, 마법방어력 감소, 트루 데미지, 체젠, 마젠, 이동속도 감소, 공격속도, 타워 데미지, 타워 공속
         , 0, 0, 0, 0, 0, 0f, 0f, 5f//확률, 단일 물리 데미지, 범위 물리 데미지, 단일 마법데미지, 범위 마법 데미지, 단일 스턴, 범위 스턴, 스킬 범위
-        ,0, 0, 0, 0, 0},//단일 퍼센트 데미지, 끝딜 퍼센트 데미지, 전퍼, 현퍼, 잃퍼
+        ,0, 0, 0, 0, 0, ArmorType.일반//단일 퍼센트 데미지, 끝딜 퍼센트 데미지, 전퍼, 현퍼, 잃퍼, 공격 타입
+        ,0},//보잡
         {"마법봉",new[]{new ItemIngredient(FindItem("만물석", ItemRank.All), 1)}
         , 0, 0, 0, 1, 0, 0, 0f, 0f, 0, 0, 0, 0
         , 0, 0, 0, 0, 0, 0f, 0f,5f
-        ,0, 0, 0, 0, 0},
+        ,0, 0, 0, 0, 0, ArmorType.일반
+        ,0},
         {"소울스톤",new[]{new ItemIngredient(FindItem("만물석", ItemRank.All), 1)}
         , 0, 0, 0, 0, 0, 0, 0f, 0.01f, 0, 0, 0, 0
         , 0, 0, 0, 0, 0, 0f, 0f,5f
-        ,0, 0, 0, 0, 0},
+        ,0, 0, 0, 0, 0, ArmorType.일반
+        ,0},
         {"리버스스톤",new[]{new ItemIngredient(FindItem("만물석", ItemRank.All), 1)}
         , 0, 0, 0, 0, 0, 0, 0f, 0f, 0, 0, 0, 0
         , 0, 0, 0, 0, 0, 0f, 0f,5f
-        ,0, 0, 0, 0, 0},
+        ,0, 0, 0, 0, 0, ArmorType.일반
+        ,0},
         {"망토",new[]{new ItemIngredient(FindItem("만물석", ItemRank.All), 1)}
         , 5, 0, 0, 0, 0, 0, 0f, 0f, 0, 0, 1, 1
         , 0, 0, 0, 0, 0, 0f, 0f,5f
-        ,0, 0, 0, 0, 0},
+        ,0, 0, 0, 0, 0, ArmorType.일반
+        ,0},
         {"고기",new[]{new ItemIngredient(FindItem("만물석", ItemRank.All), 1)}
         , 0, 0, 0, 0, 0, 0, 0.01f, 0f, 0, 0, 0, 0
         , 0, 0, 0, 0, 0, 0f, 0f,5f
-        ,0, 0, 0, 0, 0},
+        ,0, 0, 0, 0, 0, ArmorType.일반
+        ,0},
         {"철퇴",new[]{new ItemIngredient(FindItem("만물석", ItemRank.All), 1)}
         , 20, 0, 0, 0, 0, 0, 0f, 0f, 0, -1, 0, 0
         , 0, 0, 0, 0, 0, 0f, 0f,5f
-        ,0, 0, 0, 0, 0},
+        ,0, 0, 0, 0, 0, ArmorType.일반
+        ,0},
         {"신발",new[]{new ItemIngredient(FindItem("만물석", ItemRank.All), 1)}
         , 0, 0, 0, 0, 0, 0, 0f, 0f, 0, 0, 0, 0
         , 0, 0, 0, 0, 0, 0f, 0f,5f
-        ,0, 0, 0, 0, 0},
+        ,0, 0, 0, 0, 0, ArmorType.일반
+        ,0},
         {"장갑",new[]{new ItemIngredient(FindItem("만물석", ItemRank.All), 1)}
         , 0, 0, 0, 0, 0, 0, 0f, 0f, 0, 1, 0, 0
         , 0, 0, 0, 0, 0, 0f, 0f,5f
-        ,0, 0, 0, 0, 0},};
+        ,0, 0, 0, 0, 0, ArmorType.일반
+        ,0},};
 
 
         table[(int)ItemRank.흔함] = common;
@@ -229,55 +257,68 @@ public class List
         {"꿰뚫는 창",new []{new ItemIngredient(FindItem("단검", ItemRank.흔함), 1), new ItemIngredient(FindItem("리버스스톤", ItemRank.흔함), 1)}
         , 15, 0, 1, 0, 0, 0, 0f, 0f, 0, 0, 0, 0// 공격력, 추가공격력, 방어력 감소, 마법증폭, 마법방어력 감소, 트루 데미지, 체젠, 마젠, 이동속도 감소, 공격속도, 타워 데미지, 타워 공속
         , 0, 0, 0, 0, 0, 0f, 0f,5f//확률, 단일 물리 데미지, 범위 물리 데미지, 단일 마법데미지, 범위 마법 데미지, 단일 스턴, 범위 스턴, 스킬 범위
-        ,0, 0, 0, 0, 0},//단일 퍼센트 데미지, 끝딜 퍼센트 데미지, 전퍼, 현퍼, 잃퍼
+        ,0, 0, 0, 0, 0, ArmorType.일반//단일 퍼센트 데미지, 끝딜 퍼센트 데미지, 전퍼, 현퍼, 잃퍼
+        ,0},//보잡
         {"생명의 샘물",new []{ new ItemIngredient(FindItem("마법봉", ItemRank.흔함),1), new ItemIngredient(FindItem("소울스톤", ItemRank.흔함), 1)}
         , 0, 0, 0, 2, 0, 0, 0f, 0.02f, 0, 0, 0, 0
         , 0, 0, 0, 0, 0, 0f, 0f,5f
-        ,0, 0, 0, 0, 0    },
+        ,0, 0, 0, 0, 0, ArmorType.일반 
+        ,0   },
         {"끈끈이",new [] {new ItemIngredient(FindItem("신발", ItemRank.흔함), 1), new ItemIngredient(FindItem("리버스스톤", ItemRank.흔함), 1)}
         , 0, 0, 0, 0, 0, 0, 0f, 0f, 1, 0, 0, 0
         , 0, 0, 0, 0, 0, 0f, 0f,5f
-        ,0, 0, 0, 0, 0   },
+        ,0, 0, 0, 0, 0, ArmorType.일반
+        ,0   },
         { "마법사",new [] {new ItemIngredient(FindItem("마법봉", ItemRank.흔함), 1), new ItemIngredient(FindItem("망토", ItemRank.흔함), 1)}
         , 0, 0, 0, 2, 2, 0, 0f, 0f, 0, 0, 0, 0
         , 0, 0, 0, 0, 0, 0f, 0f,5f
-        ,0, 0, 0, 0, 0},
+        ,0, 0, 0, 0, 0, ArmorType.일반
+        ,0},
         { "로봇 팔",new [] {new ItemIngredient(FindItem("장갑", ItemRank.흔함), 1), new ItemIngredient(FindItem("철퇴", ItemRank.흔함), 1)}
         , 50, 0, 0, 0, 0, 0, 0f, 0f, 0, 0, 0, 0
         , 0, 0, 0, 0, 0, 0f, 0f,5f
-        ,0, 0, 0, 0, 0    },
+        ,0, 0, 0, 0, 0, ArmorType.일반
+        ,0    },
         { "도적",new [] {new ItemIngredient(FindItem("단검", ItemRank.흔함), 1), new ItemIngredient(FindItem("장갑", ItemRank.흔함), 1)}
         , 20, 0, 0, 0, 0, 0, 0f, 0f, 0, 3, 0, 0
         , 0, 0, 0, 0, 0, 0f, 0f,5f
-        ,0, 0, 0, 0, 0   },
+        ,0, 0, 0, 0, 0, ArmorType.일반
+        ,0   },
         { "인간",new [] {new ItemIngredient(FindItem("고기", ItemRank.흔함), 1), new ItemIngredient(FindItem("소울스톤", ItemRank.흔함), 1)}
         , 0, 0, 0, 0, 0, 0, 0.02f, 0.02f, 0, 0, 0, 0
         , 0, 0, 0, 0, 0, 0f, 0f,5f
-        ,0, 0, 0, 0, 0   },
+        ,0, 0, 0, 0, 0, ArmorType.일반
+        ,0   },
         { "날개",new [] {new ItemIngredient(FindItem("신발", ItemRank.흔함), 1), new ItemIngredient(FindItem("망토", ItemRank.흔함), 1)}
         , 0, 0, 0, 0, 0, 0, 0f, 0f, 0, 0, 0, 0
         , 0, 0, 0, 0, 0, 0f, 0f,5f
-        ,0, 0, 0, 0, 0},
+        ,0, 0, 0, 0, 0, ArmorType.일반
+        ,0},
         { "전사",new [] {new ItemIngredient(FindItem("철퇴", ItemRank.흔함), 1), new ItemIngredient(FindItem("고기", ItemRank.흔함), 1)}
         , 100, 0, 0, 0, 0, 0, 0.03f, 0f, 0, -5, 0, 0
         , 0, 0, 0, 0, 0, 0f, 0f,5f
-        ,0, 0, 0, 0, 0},
+        ,0, 0, 0, 0, 0, ArmorType.일반
+        ,0},
         { "사신",new [] {new ItemIngredient(FindItem("망토", ItemRank.흔함), 1), new ItemIngredient(FindItem("소울스톤", ItemRank.흔함), 1)}
         , 70, 0, 0, 0, 0, 0, 0f, 0f, 0, 0, 0, 0
         , 0, 0, 0, 0, 0, 0f, 0f,5f
-        ,0, 0, 0, 0, 0},
+        ,0, 0, 0, 0, 0, ArmorType.일반
+        ,0},
         { "파이어볼",new [] {new ItemIngredient(FindItem("마법봉", ItemRank.흔함), 1), new ItemIngredient(FindItem("철퇴", ItemRank.흔함), 1)}
         , 0, 0, 0, 3, 0, 0, 0f, 0f, 0, 0, 0, 0
         , 0, 0, 0, 0, 0, 0f, 0f,5f
-        ,0, 0, 0, 0, 0    },
+        ,0, 0, 0, 0, 0, ArmorType.일반
+        ,0    },
         { "좀비",new [] {new ItemIngredient(FindItem("리버스스톤", ItemRank.흔함), 1), new ItemIngredient(FindItem("고기", ItemRank.흔함), 1)}
         , 0, 0, 0, 0, 0, 0, 0f, 0f, 0, 0, 0, 0
         , 5, 0, 0, 100, 0, 0f, 0f,0f
-        ,0, 0, 0, 0, 0   },
+        ,0, 0, 0, 0, 0, ArmorType.일반
+        ,0   },
         { "갑옷",new [] {new ItemIngredient(FindItem("신발", ItemRank.흔함), 1), new ItemIngredient(FindItem("장갑", ItemRank.흔함), 1)}
         , 30, 0, 0, 0, 0, 0, 0f, 0f, 0, 0, 0, 0
         , 0, 0, 0, 0, 0, 0f, 0f,5f
-        ,0, 0, 0, 0, 0},
+        ,0, 0, 0, 0, 0, ArmorType.일반
+        ,0},
         };
         table[(int)ItemRank.안흔함] = uncommon;
         SetItem(ItemRank.안흔함);
@@ -286,127 +327,158 @@ public class List
         {"롱소드",new []{new ItemIngredient(FindItem("단검", ItemRank.흔함), 3)},
         50, 0, 0, 0, 0, 0, 0f, 0f, 0, 0, 0, 0// 공격력, 추가공격력, 방어력 감소, 마법증폭, 마법방어력 감소, 트루 데미지, 체젠, 마젠, 이동속도 감소, 공격속도, 타워 데미지, 타워 공속
         , 0, 0, 0, 0, 0, 0f, 0f, 5f//확률, 단일 물리 데미지, 범위 물리 데미지, 단일 마법데미지, 범위 마법 데미지, 단일 스턴, 범위 스턴, 스킬 범위
-        ,0, 0, 0, 0, 0},//단일 퍼센트 데미지, 끝딜 퍼센트 데미지, 전퍼, 현퍼, 잃퍼
+        ,0, 0, 0, 0, 0, ArmorType.일반
+        ,0},//단일 퍼센트 데미지, 끝딜 퍼센트 데미지, 전퍼, 현퍼, 잃퍼
         {"블링크",new []{new ItemIngredient(FindItem("신발", ItemRank.흔함), 3)},
         0, 0, 0, 0, 0, 0, 0f, 0f, 0, 0, 0, 0
         , 0, 0, 0, 0, 0, 0f, 0f,5f
-        ,0, 0, 0, 0, 0},
+        ,0, 0, 0, 0, 0, ArmorType.일반
+        ,0},
         {"만찬",new []{new ItemIngredient(FindItem("고기", ItemRank.흔함), 3)},
         0, 0, 0, 0, 0, 0, 0.05f, 0f, 0, 0, 0, 0
         , 0, 0, 0, 0, 0, 0f, 0f,5f
-        ,0, 0, 0, 0, 0   },
+        ,0, 0, 0, 0, 0 , ArmorType.일반
+        ,0  },
         {"광선",new []{new ItemIngredient(FindItem("마법봉", ItemRank.흔함), 3)},
         0, 0, 0, 0, 0, 5, 0f, 0f, 0, 0, 0, 0
         , 0, 0, 0, 0, 0, 0f, 0f,5f
-        ,0, 0, 0, 0, 0},
+        ,0, 0, 0, 0, 0, ArmorType.일반
+        ,0},
         {"아담의 영혼",new []{new ItemIngredient(FindItem("소울스톤", ItemRank.흔함), 3)},
         0, 0, 0, 0, 0, 0, 0f, 0.05f, 0, 0, 0, 0
         , 0, 0, 0, 0, 0, 0f, 0f,5f
-        ,0, 0, 0, 0, 0},
+        ,0, 0, 0, 0, 0, ArmorType.일반
+        ,0},
         {"군단",new []{new ItemIngredient(FindItem("망토", ItemRank.흔함), 3)},
         10, 0, 0, 0, 0, 0, 0f, 0f, 0, 0, 0, 10
         , 0, 0, 0, 0, 0, 0f, 0f,5f
-        ,0, 0, 0, 0, 0},
+        ,0, 0, 0, 0, 0, ArmorType.일반
+        ,0},
         {"대포알",new []{new ItemIngredient(FindItem("철퇴", ItemRank.흔함), 3)},
         0, 0, 0, 0, 0, 0, 0f, 0f, 0, 0, 20, 0
         , 0, 0, 0, 0, 0, 0f, 0f,5f
-        ,0, 0, 0, 0, 0},
+        ,0, 0, 0, 0, 0, ArmorType.일반
+        ,0},
         { "빅뱅",new []{new ItemIngredient(FindItem("리버스스톤", ItemRank.흔함), 3)},
         -1, 0, -1, 3, 3, 3, -1f, -1f, 0, -1, 0, 0
         , 0, 0, 0, 0, 0, 0f, 0f,5f
-        ,0, 0, 0, 0, 0},
+        ,0, 0, 0, 0, 0, ArmorType.일반
+        ,0},
         { "민첩함",new []{new ItemIngredient(FindItem("장갑", ItemRank.흔함), 3)},
         0, 0, 0, 0, 0, 0, 0f, 0f, 0, 5, 0, 0
         , 0, 0, 0, 0, 0, 0f, 0f,5f
-        ,0, 0, 0, 0, 0},
+        ,0, 0, 0, 0, 0, ArmorType.일반
+        ,0},
         { "메카닉",new []{new ItemIngredient(FindItem("로봇 팔", ItemRank.안흔함), 2),new ItemIngredient(FindItem("철퇴", ItemRank.흔함), 1)},
         70, 0, 0, 0, 0, 0, 0f, 0.1f, 0, 0, 0, 0
         , 0, 0, 0, 0, 0, 0f, 0f,5f
-        ,0, 0, 0, 0, 0},
+        ,0, 0, 0, 0, 0, ArmorType.일반
+        ,0},
         { "사이보그",new []{new ItemIngredient(FindItem("로봇 팔", ItemRank.안흔함), 1),new ItemIngredient(FindItem("인간", ItemRank.안흔함), 1)},
         50, 0, 0, 0, 0, 0, 0.1f, 0.1f, 0, 0, 0, 0
         , 0, 0, 0, 0, 0, 0f, 0f,5f
-        ,0, 0, 0, 0, 0},
+        ,0, 0, 0, 0, 0, ArmorType.일반
+        ,0},
         { "헌터",new []{new ItemIngredient(FindItem("전사", ItemRank.안흔함), 1),new ItemIngredient(FindItem("인간", ItemRank.안흔함), 1),new ItemIngredient(FindItem("리버스스톤", ItemRank.흔함), 1)},
         200, 0, 0, 0, 0, 0, 0f, 0.3f, 5, -10, 0, 0
         , 0, 0, 0, 0, 0, 0f, 0f,5f
-        ,0, 0, 0, 0, 0},
+        ,0, 0, 0, 0, 0, ArmorType.일반
+        ,0},
         { "프로즌",new []{new ItemIngredient(FindItem("인간", ItemRank.안흔함), 1),new ItemIngredient(FindItem("마법사", ItemRank.안흔함), 1),new ItemIngredient(FindItem("소울스톤", ItemRank.흔함), 1)},
         -50, 0, 0, 5, 5, 0, 0.3f, 0f, 0, 0, 10, 0
         , 0, 0, 0, 0, 0, 0f, 0f,5f
-        ,0, 0, 0, 0, 0},
+        ,0, 0, 0, 0, 0, ArmorType.일반
+        ,0},
         { "전염병",new []{new ItemIngredient(FindItem("좀비", ItemRank.안흔함), 1),new ItemIngredient(FindItem("끈끈이", ItemRank.안흔함), 1),new ItemIngredient(FindItem("고기", ItemRank.흔함), 1)},
         0, 0, 3, 0, 0, 0, 0f, 0f, 5, 0, 10, 0
         , 0, 0, 0, 0, 0, 0f, 0f,5f
-        ,0, 0, 0, 0, 0},
+        ,0, 0, 0, 0, 0, ArmorType.일반
+        ,0},
         { "해독제",new []{new ItemIngredient(FindItem("좀비", ItemRank.안흔함), 1),new ItemIngredient(FindItem("생명의 샘물", ItemRank.안흔함), 1),new ItemIngredient(FindItem("리버스스톤", ItemRank.흔함), 1)},
         0, 0, 0, 0, 0, 0, 0f, 0.5f, 0, 0, 0, 0
         , 0, 0, 0, 0, 0, 0f, 0f,5f
-        ,0, 0, 0, 0, 0},
+        ,0, 0, 0, 0, 0, ArmorType.일반
+        ,0},
         { "앨리스",new []{new ItemIngredient(FindItem("사신", ItemRank.안흔함), 1),new ItemIngredient(FindItem("소울스톤", ItemRank.흔함), 1),new ItemIngredient(FindItem("리버스스톤", ItemRank.흔함), 1)},
         0, 0, 0, 0, 0, 10, 0.2f, 0.2f, 0, 0, 0, 0
         , 0, 0, 0, 0, 0, 0f, 0f,5f
-        ,0, 0, 0, 0, 0},
+        ,0, 0, 0, 0, 0, ArmorType.일반
+        ,0},
         { "용기병",new []{new ItemIngredient(FindItem("날개", ItemRank.안흔함), 1),new ItemIngredient(FindItem("갑옷", ItemRank.안흔함), 1),new ItemIngredient(FindItem("철퇴", ItemRank.흔함), 1)},
         0, 0, 0, 0, 0, 10, 0.2f, 0.2f, 0, 0, 0, 0
         , 0, 0, 0, 0, 0, 0f, 0f,5f
-        ,0, 0, 0, 0, 0},
+        ,0, 0, 0, 0, 0, ArmorType.일반
+        ,0},
         { "강철",new []{new ItemIngredient(FindItem("파이어볼", ItemRank.안흔함), 1),new ItemIngredient(FindItem("갑옷", ItemRank.안흔함), 1),new ItemIngredient(FindItem("장갑", ItemRank.흔함), 1)},
         0, 0, 0, 0, 0, 10, 0.2f, 0.2f, 0, 0, 0, 0
         , 0, 0, 0, 0, 0, 0f, 0f,5f
-        ,0, 0, 0, 0, 0},
+        ,0, 0, 0, 0, 0, ArmorType.일반
+        ,0},
         { "영혼 낫",new []{new ItemIngredient(FindItem("사신", ItemRank.안흔함), 1),new ItemIngredient(FindItem("도적", ItemRank.안흔함), 1),new ItemIngredient(FindItem("단검", ItemRank.흔함), 1)},
         0, 0, 0, 0, 0, 10, 0.2f, 0.2f, 0, 0, 0, 0
         , 0, 0, 0, 0, 0, 0f, 0f,5f
-        ,0, 0, 0, 0, 0 },
+        ,0, 0, 0, 0, 0, ArmorType.일반 
+        ,0},
         { "도끼",new []{new ItemIngredient(FindItem("꿰뚫는 창", ItemRank.안흔함), 1),new ItemIngredient(FindItem("마법사", ItemRank.안흔함), 1),new ItemIngredient(FindItem("마법봉", ItemRank.흔함), 1)},
         0, 0, 0, 0, 0, 10, 0.2f, 0.2f, 0, 0, 0, 0
         , 0, 0, 0, 0, 0, 0f, 0f,5f
-        ,0, 0, 0, 0, 0},
+        ,0, 0, 0, 0, 0, ArmorType.일반
+        ,0},
         { "죽음",new []{new ItemIngredient(FindItem("사신", ItemRank.안흔함), 1),new ItemIngredient(FindItem("인간", ItemRank.안흔함), 1),new ItemIngredient(FindItem("고기", ItemRank.흔함), 1)},
         0, 0, 0, 0, 0, 10, 0.2f, 0.2f, 0, 0, 0, 0
         , 0, 0, 0, 0, 0, 0f, 0f,5f
-        ,0, 0, 0, 0, 0},
+        ,0, 0, 0, 0, 0, ArmorType.일반
+        ,0},
         { "버서커",new []{new ItemIngredient(FindItem("날개", ItemRank.안흔함), 1),new ItemIngredient(FindItem("전사", ItemRank.안흔함), 1)},
         0, 0, 0, 0, 0, 10, 0.2f, 0.2f, 0, 0, 0, 0
         , 0, 0, 0, 0, 0, 0f, 0f,5f
-        ,0, 0, 0, 0, 0},
+        ,0, 0, 0, 0, 0, ArmorType.일반
+        ,0},
         { "레이저 포",new []{new ItemIngredient(FindItem("파이어볼", ItemRank.안흔함), 1),new ItemIngredient(FindItem("마법사", ItemRank.안흔함), 1),new ItemIngredient(FindItem("망토", ItemRank.흔함), 1)},
         0, 0, 0, 0, 0, 10, 0.2f, 0.2f, 0, 0, 0, 0
         , 0, 0, 0, 0, 0, 0f, 0f,5f
-        ,0, 0, 0, 0, 0},
+        ,0, 0, 0, 0, 0, ArmorType.일반
+        ,0},
         { "관통",new []{new ItemIngredient(FindItem("꿰뚫는 창", ItemRank.안흔함), 1),new ItemIngredient(FindItem("갑옷", ItemRank.안흔함), 1),new ItemIngredient(FindItem("단검", ItemRank.흔함), 1)},
         0, 0, 0, 0, 0, 10, 0.2f, 0.2f, 0, 0, 0, 0
         , 0, 0, 0, 0, 0, 0f, 0f,5f
-        ,0, 0, 0, 0, 0},
+        ,0, 0, 0, 0, 0, ArmorType.일반
+        ,0},
         { "미래",new []{new ItemIngredient(FindItem("생명의 샘물", ItemRank.안흔함), 1),new ItemIngredient(FindItem("로봇 팔", ItemRank.안흔함), 1),new ItemIngredient(FindItem("마법봉", ItemRank.흔함), 1)},
         0, 0, 0, 0, 0, 10, 0.2f, 0.2f, 0, 0, 0, 0
         , 0, 0, 0, 0, 0, 0f, 0f,5f
-        ,0, 0, 0, 0, 0},
+        ,0, 0, 0, 0, 0, ArmorType.일반
+        ,0},
         { "용접",new []{new ItemIngredient(FindItem("끈끈이", ItemRank.안흔함), 2),new ItemIngredient(FindItem("장갑", ItemRank.흔함), 1)},
         0, 0, 0, 0, 0, 10, 0.2f, 0.2f, 0, 0, 0, 0
         , 0, 0, 0, 0, 0, 0f, 0f,5f
-        ,0, 0, 0, 0, 0},
+        ,0, 0, 0, 0, 0, ArmorType.일반
+        ,0},
         { "마법 화살",new []{new ItemIngredient(FindItem("꿰뚫는 창", ItemRank.안흔함), 1),new ItemIngredient(FindItem("날개", ItemRank.안흔함), 1),new ItemIngredient(FindItem("망토", ItemRank.흔함), 1)},
         0, 0, 0, 0, 0, 10, 0.2f, 0.2f, 0, 0, 0, 0
         , 0, 0, 0, 0, 0, 0f, 0f,5f
-        ,0, 0, 0, 0, 0},
+        ,0, 0, 0, 0, 0, ArmorType.일반
+        ,0},
         { "금화",new []{new ItemIngredient(FindItem("도적", ItemRank.안흔함), 2),new ItemIngredient(FindItem("망토", ItemRank.흔함), 1)},
         0, 0, 0, 0, 0, 10, 0.2f, 0.2f, 0, 0, 0, 0
         , 0, 0, 0, 0, 0, 0f, 0f,5f
-        ,0, 0, 0, 0, 0},
+        ,0, 0, 0, 0, 0, ArmorType.일반
+        ,0},
         { "레이피어",new []{new ItemIngredient(FindItem("꿰뚫는 창", ItemRank.안흔함), 1),new ItemIngredient(FindItem("전사", ItemRank.안흔함), 1),new ItemIngredient(FindItem("신발", ItemRank.흔함), 1)},
         0, 0, 0, 0, 0, 10, 0.2f, 0.2f, 0, 0, 0, 0
         , 0, 0, 0, 0, 0, 0f, 0f,5f
-        ,0, 0, 0, 0, 0},
+        ,0, 0, 0, 0, 0, ArmorType.일반
+        ,0},
         { "화산",new []{new ItemIngredient(FindItem("날개", ItemRank.안흔함), 1),new ItemIngredient(FindItem("파이어볼", ItemRank.안흔함), 1),new ItemIngredient(FindItem("신발", ItemRank.흔함), 1)},
         0, 0, 0, 0, 0, 10, 0.2f, 0.2f, 0, 0, 0, 0
         , 0, 0, 0, 0, 0, 0f, 0f,5f
-        ,0, 0, 0, 0, 0},
+        ,0, 0, 0, 0, 0, ArmorType.일반
+        ,0},
         { "영생약",new []{new ItemIngredient(FindItem("생명의 샘물", ItemRank.안흔함), 1),new ItemIngredient(FindItem("좀비", ItemRank.안흔함), 1),new ItemIngredient(FindItem("단검", ItemRank.흔함), 1)},
         0, 0, 0, 0, 0, 10, 0.2f, 0.2f, 0, 0, 0, 0
         , 0, 0, 0, 0, 0, 0f, 0f,5f
-        ,0, 0, 0, 0, 0},
+        ,0, 0, 0, 0, 0, ArmorType.일반
+        ,0},
         };
         table[(int)ItemRank.특별함] = special;
         SetItem(ItemRank.특별함);
@@ -415,43 +487,53 @@ public class List
         { "행운의 토큰",Array.Empty<ItemIngredient>(),
         0, 0, 0, 0, 0, 0, 0f, 0f, 0, 0, 0, 0
         , 0, 0, 0, 0, 0, 0f, 0f,0f
-        ,0, 0, 0, 0, 0},
+        ,0, 0, 0, 0, 0, ArmorType.일반
+        ,0},
         { "전쟁",new []{new ItemIngredient(FindItem("헌터", ItemRank.특별함), 1),new ItemIngredient(FindItem("프로즌", ItemRank.특별함), 1),new ItemIngredient(FindItem("군단", ItemRank.특별함), 1)},
         1000, 0, 0, 0, 0, 20, 0.3f, 0.3f, 0, 0, 10, 0 // 공격력, 추가공격력, 방어력 감소, 마법증폭, 마법방어력 감소, 트루 데미지, 체젠, 마젠, 이동속도 감소, 공격속도, 타워 데미지, 타워 공속
         , 0, 0, 0, 0, 0, 0f, 0f,5f//확률, 단일 물리 데미지, 범위 물리 데미지, 단일 마법데미지, 범위 마법 데미지, 단일 스턴, 범위 스턴, 스킬 범위
-        ,0, 0, 0, 0, 0},//단일 퍼센트 데미지, 끝딜 퍼센트 데미지, 전퍼, 현퍼, 잃퍼
+        ,0, 0, 0, 0, 0, ArmorType.일반//단일 퍼센트 데미지, 끝딜 퍼센트 데미지, 전퍼, 현퍼, 잃퍼
+        ,0},//보잡
         { "차원 거울",new []{new ItemIngredient(FindItem("죽음", ItemRank.특별함), 1),new ItemIngredient(FindItem("아담의 영혼", ItemRank.특별함), 1),new ItemIngredient(FindItem("빅뱅", ItemRank.특별함), 1)},
         0, 0, 0, 0, 0, 20, 0.3f, 0.3f, 0, 0, 10, 0
         , 100, 0, 0, 0, 0, 0f, 10f,5f
-        ,0, 0, 0, 0, 0},
+        ,0, 0, 0, 0, 0, ArmorType.일반
+        ,0},
         { "타이탄",new []{new ItemIngredient(FindItem("메카닉", ItemRank.특별함), 1),new ItemIngredient(FindItem("강철", ItemRank.특별함), 1),new ItemIngredient(FindItem("사이보그", ItemRank.특별함), 1)},
         0, 0, 0, 0, 0, 20, 0.3f, 0.3f, 0, 0, 10, 0
         , 0, 0, 0, 0, 0, 0f, 0f,5f
-        ,0, 0, 0, 0, 0},
+        ,0, 0, 0, 0, 0, ArmorType.일반
+        ,0},
         { "전쟁 영웅",new []{new ItemIngredient(FindItem("롱소드", ItemRank.특별함), 1),new ItemIngredient(FindItem("버서커", ItemRank.특별함), 1),new ItemIngredient(FindItem("죽음", ItemRank.특별함), 1)},
         0, 0, 0, 0, 0, 20, 0.3f, 0.3f, 0, 0, 10, 0
         , 0, 0, 0, 0, 0, 0f, 0f,5f
-        ,0, 0, 0, 0, 0},
+        ,0, 0, 0, 0, 0, ArmorType.일반
+        ,0},
         { "탱크",new []{new ItemIngredient(FindItem("레이저 포", ItemRank.특별함), 1),new ItemIngredient(FindItem("대포알", ItemRank.특별함), 1),new ItemIngredient(FindItem("강철", ItemRank.특별함), 1)},
         0, 0, 0, 0, 0, 20, 0.3f, 0.3f, 0, 0, 10, 0
         , 0, 0, 0, 0, 0, 0f, 0f,5f
-        ,0, 0, 0, 0, 0},
+        ,0, 0, 0, 0, 0, ArmorType.일반
+        ,0},
         { "대마법사",new []{new ItemIngredient(FindItem("레이저 포", ItemRank.특별함), 1),new ItemIngredient(FindItem("마법 화살", ItemRank.특별함), 1),new ItemIngredient(FindItem("프로즌", ItemRank.특별함), 1)},
         0, 0, 0, 0, 0, 20, 0.3f, 0.3f, 0, 0, 10, 0
         , 0, 0, 0, 0, 0, 0f, 0f,5f
-        ,0, 0, 0, 0, 0},
+        ,0, 0, 0, 0, 0, ArmorType.일반
+        ,0},
         { "웜홀",new []{new ItemIngredient(FindItem("블링크", ItemRank.특별함), 1),new ItemIngredient(FindItem("민첩함", ItemRank.특별함), 1),new ItemIngredient(FindItem("버서커", ItemRank.특별함), 1)},
         0, 0, 0, 0, 0, 20, 0.3f, 0.3f, 0, 0, 10, 0
         , 0, 0, 0, 0, 0, 0f, 0f,5f
-        ,0, 0, 0, 0, 0 },
+        ,0, 0, 0, 0, 0, ArmorType.일반
+        ,0 },
         { "공돌이",new []{new ItemIngredient(FindItem("앨리스", ItemRank.특별함), 1),new ItemIngredient(FindItem("메카닉", ItemRank.특별함), 1),new ItemIngredient(FindItem("용기병", ItemRank.특별함), 1)},
         0, 0, 0, 0, 0, 20, 0.3f, 0.3f, 0, 0, 10, 0
         , 0, 0, 0, 0, 0, 0f, 0f,5f
-        ,0, 0, 0, 0, 0},
+        ,0, 0, 0, 0, 0, ArmorType.일반
+        ,0},
         { "플라즈마 광선",new []{new ItemIngredient(FindItem("관통", ItemRank.특별함), 1),new ItemIngredient(FindItem("레이저 포", ItemRank.특별함), 1),new ItemIngredient(FindItem("광선", ItemRank.특별함), 1)},
         0, 0, 0, 0, 0, 20, 0.3f, 0.3f, 0, 0, 10, 0
         , 0, 0, 0, 0, 0, 0f, 0f,5f
-        ,0, 0, 0, 0, 0},
+        ,0, 0, 0, 0, 0, ArmorType.일반
+        ,0},
         };
 
         table[(int)ItemRank.희귀함] = rare;
@@ -462,11 +544,13 @@ public class List
         { "함선",Array.Empty<ItemIngredient>(),
         0, 0, 0, 0, 0, 0, 0f, 0f, 0, 0, 0, 0
         , 0, 0, 0, 0, 0, 0f, 0f,0f
-        ,0, 0, 0, 0, 0},
+        ,0, 0, 0, 0, 0, ArmorType.일반
+        ,0},
         { "이브",Array.Empty<ItemIngredient>(),
         0, 0, 0, 0, 0, 20, 0.3f, 0.3f, 0, 0, 10, 0
         , 0, 0, 0, 0, 0, 0f, 0f,5f
-        ,0, 0, 0, 0, 0},
+        ,0, 0, 0, 0, 0, ArmorType.일반
+        ,0},
 
         };
         table[(int)ItemRank.히든] = hidden;
@@ -476,8 +560,9 @@ public class List
         legendary = new object[,] {
         { "이브",new []{new ItemIngredient(FindItem("이브", ItemRank.히든), 1), new ItemIngredient(FindItem("차원 거울", ItemRank.희귀함), 1),new ItemIngredient(FindItem("영혼 낫", ItemRank.특별함), 1),new ItemIngredient(FindItem("기억 조각", ItemRank.All), 5)},
         5000, 0, 0, 0, 0, 0, 0f, 0f, 0, 0, 10, 0// 공격력, 추가공격력, 방어력 감소, 마법증폭, 마법방어력 감소, 트루 데미지, 체젠, 마젠, 이동속도 감소, 공격속도, 타워 데미지, 타워 공속
-        , 0, 0, 0, 0, 0, 0f, 0f,5f//확률, 단일 물리 데미지, 범위 물리 데미지, 단일 마법데미지, 범위 마법 데미지, 단일 스턴, 범위 스턴, 스킬 범위
-        ,0, 0, 0, 0, 0},//단일 퍼센트 데미지, 끝딜 퍼센트 데미지, 전퍼, 현퍼, 잃퍼
+        , 100, 0, 0, 500000, 100000, 0f, 0f,5f//확률, 단일 물리 데미지, 범위 물리 데미지, 단일 마법데미지, 범위 마법 데미지, 단일 스턴, 범위 스턴, 스킬 범위
+        ,0, 0, 0, 0, 0, ArmorType.보스//단일 퍼센트 데미지, 끝딜 퍼센트 데미지, 전퍼, 현퍼, 잃퍼
+        ,0},//보잡
         };
         table[(int)ItemRank.전설적인] = legendary;
         SetItem(ItemRank.전설적인);
@@ -513,7 +598,7 @@ public class List
                 {
                     Debug.Log(sprite);
                 }
-                    
+
             }
         }
 
@@ -562,6 +647,9 @@ public class List
             int currPercent = (int)grade[j, 25];
             int max_CurrPercent = (int)grade[j, 26];
 
+            ArmorType armorType = (ArmorType)grade[j, 27];
+            int boss = (int)grade[j, 28];
+
 
             Sprite sprite = Resources.Load<Sprite>($"Image/Item/{rank}/{(string)grade[j, 0]}");
 
@@ -596,7 +684,8 @@ public class List
                 maxPercent,
                 currPercent,
                 max_CurrPercent,
-                SetSkill);
+                armorType,
+                boss);
 
             if (itemList == null)
                 Debug.LogError("Error");
@@ -627,8 +716,10 @@ public class List
         item.count++;
         if (item.count == 1)
         {
-            StatsUp(item);
-        }
+            GotItem.Enqueue(item);
+            SetUnity(item);
+        } 
+        SetCannon(item.Rank);
         if (logOut)
         {
             string hex = ColorUtility.ToHtmlStringRGB(Color.black);
@@ -655,6 +746,7 @@ public class List
 
     public void GetMemoriesParts(int count)
     {
+        if (count <= 0) return;
         FindItem("기억 조각", ItemRank.All).count += count;
         ItemManager.chat.Push($"<color=#Yellow>기억 조각</color> {count}개 획득.");
     }
@@ -678,14 +770,18 @@ public class List
                 nItem.Item.count -= nItem.Count;
                 if (nItem.Item.count == 0)
                 {
-                    StatsDown(nItem.Item);
+                    GotItem.Remove(nItem.Item);
+                    DeleteUnrankedItem(nItem.Item);
                 }
             }
+
             item.count++;
             if (item.count == 1)
             {
-                StatsUp(item);
-            }
+                GotItem.Enqueue(item);
+                SetUnity(item);
+            } 
+            SetCannon(item.Rank);
             ItemManager.Clear(null, false);
         }
         return enough;
@@ -713,8 +809,8 @@ public class List
                     isOkay = false;
                     string Key = kvp.Key.Item1;
                     ItemRank Key2 = kvp.Key.Item2;
-                    int necessaryCount = Mathf.Max(kvp.Value - dict[(Key,Key2)].count, 0);
-                    foreach (ItemIngredient nItem in dict[(Key,Key2)].NecessaryItem)
+                    int necessaryCount = Mathf.Max(kvp.Value - dict[(Key, Key2)].count, 0);
+                    foreach (ItemIngredient nItem in dict[(Key, Key2)].NecessaryItem)
                     {
                         if (itemDict.ContainsKey((nItem.Item.Name, nItem.Item.Rank)))
                         {
@@ -736,25 +832,30 @@ public class List
                 if (dict[(nItem.Key.Item1, nItem.Key.Item2)].count < nItem.Value) return itemDict;
             }
             if ((itemDict.ContainsKey(("만물석", ItemRank.All)) && itemDict[("만물석", ItemRank.All)] <= dict[("만물석", ItemRank.All)].count) || !itemDict.ContainsKey(("만물석", ItemRank.All)))
+            {
+                foreach (KeyValuePair<(string, ItemRank), int> nItem in itemDict)
                 {
-                    foreach (KeyValuePair<(string, ItemRank), int> nItem in itemDict)
-                    {
-                        Item items = dict[nItem.Key];
+                    Item items = dict[nItem.Key];
 
-                        items.count -= nItem.Value;
-                        if (items.count <= 0)
-                        {
-                            StatsDown(items);
-                        }
-                    }
-
-                    item.count++;
-                    if (item.count == 1)
+                    items.count -= nItem.Value;
+                    if (items.count == 0)
                     {
-                        StatsUp(item);
+                        GotItem.Remove(items);
+                        DeleteUnrankedItem(items);
                     }
-                    ItemManager.Clear(null, false);
                 }
+
+                item.count++;
+                
+                if (item.count == 1)
+                {
+                    GotItem.Enqueue(item);
+                    SetUnity(item);
+                } 
+                SetCannon(item.Rank);
+
+                ItemManager.Clear(null, false);
+            }
         }
         return itemDict;
     }
@@ -767,7 +868,7 @@ public class List
         foreach (ItemIngredient nItem in item.NecessaryItem)
         {
             if (nItem.Item.Name != "기억 조각")
-            itemDict.Add((nItem.Item.Name,nItem.Item.Rank), nItem.Count);
+                itemDict.Add((nItem.Item.Name, nItem.Item.Rank), nItem.Count);
         }
 
         while (!isOkay)
@@ -801,92 +902,194 @@ public class List
         }
         return itemDict;
     }
-    private void StatsUp(Item item)
+    public void SetCannon(ItemRank rank)
+    {
+        switch (rank)
+        {
+            case ItemRank.안흔함:
+                Cannon.SetCannon(20, 5);
+                break;
+            case ItemRank.특별함:
+                Cannon.SetCannon(80, 10);
+                break;
+            case ItemRank.희귀함:
+                Cannon.SetCannon(920, 20);
+                break;
+            case ItemRank.전설적인:
+                Cannon.SetCannon(3000, 30);
+                break;
+
+        }
+    }
+
+    public void SetUnity(Item item)
+    {
+        Debug.Log($"{item.Name}, {item.Rank}");
+        if (item.Rank != ItemRank.상위 && item.BossAttack == 0 && item.MonoPercent != 0)
+        {
+            currentItem[0].Add((item.Name, item.Rank), item);
+            SetRankedItem(item, 0);
+            StatsUp(item, 0);
+        }
+        if (item.Rank != ItemRank.상위 && item.BossAttack != 0)
+        {
+            currentItem[1].Add((item.Name, item.Rank), item);
+            SetRankedItem(item, 1);
+            StatsUp(item, 1);
+        }
+        if (item.Rank != ItemRank.상위 && item.MultiStun != 0)
+        {
+            currentItem[2].Add((item.Name, item.Rank), item);
+            SetRankedItem(item, 2);
+            StatsUp(item, 2);
+        }
+        if (item.Rank != ItemRank.상위 && item.EndPercent != 0)
+        {
+            currentItem[3].Add((item.Name, item.Rank), item);
+            SetRankedItem(item, 3);
+            StatsUp(item, 3);
+        }
+        if (item.Rank == ItemRank.상위)
+        {
+            currentItem[4].Add((item.Name, item.Rank), item);
+            SetRankedItem(item, 4);
+            StatsUp(item, 4);
+        }
+        if (item.Rank != ItemRank.상위 && !(
+            item.MonoPercent != 0 ||
+            item.BossAttack != 0 ||
+            item.MultiStun != 0 ||
+            item.EndPercent != 0))
+        {
+            currentItem[5].Add((item.Name, item.Rank), item);
+            SetRankedItem(item, 5);
+            StatsUp(item, 5);
+        }
+    }
+
+    public void SetRankedItem(Item item, int number)
+    {
+        if (item.Rank <= ItemRank.흔함) return;
+        int shift = item.Rank - ItemRank.안흔함;
+        if (shift < 0 || shift >= 31)
+        {
+            Debug.LogError($"Rank shift 값이 비정상입니다: {shift}");
+            return;
+        }
+        int bit = 1 << shift;
+
+        for (int i = 1; i <= bit; i <<= 1)
+        {
+            if ((rankOn[number] & i) == 0)
+            {
+                switch ((ItemRank)(Mathf.Log(i, 2) + (int)ItemRank.안흔함))
+                {
+                    case ItemRank.안흔함:
+                        Stats.damage[number] += 100;
+                        Stats.attackDelay[number] = 0.95f;
+                        break;
+                    case ItemRank.특별함:
+                        Stats.damage[number] += 400;
+                        Stats.attackDelay[number] = 0.9f;
+                        Stats.attackSpeedBonus[number] += 25f;
+                        break;
+                    case ItemRank.희귀함:
+                        Stats.damage[number] += 4500;
+                        Stats.attackDelay[number] = 0.85f;
+                        Stats.attackSpeedBonus[number] += 45f;
+                        break;
+                    case ItemRank.전설적인:
+                        Stats.damage[number] += 9000;
+                        Stats.attackDelay[number] = 0.70f;
+                        Stats.attackSpeedBonus[number] += 215f;
+                        break;
+
+                }
+                rankOn[number] |= (byte)i;
+            }
+        }
+    }
+    
+        public void DeleteRankedItem(Item item, int number)
+    {
+        if (item.Rank <= ItemRank.흔함) return;
+        int shift = item.Rank - ItemRank.안흔함;
+        if (shift < 0 || shift >= 31)
+        {
+            Debug.LogError($"Rank shift 값이 비정상입니다: {shift}");
+            return;
+        }
+        int bit = 1 << shift;
+
+        for (int i = (int)ItemRank.상위; i >= bit; i >>= 1)
+        {
+            if ((rankOn[number] & i) == 1)
+            {
+                switch ((ItemRank)(Mathf.Log(i, 2) + (int)ItemRank.안흔함))
+                {
+                    case ItemRank.안흔함:
+                        Stats.damage[number] -= 100;
+                        Stats.attackDelay[number] = 1f;
+                        break;
+                    case ItemRank.특별함:
+                        Stats.damage[number] -= 400;
+                        Stats.attackSpeedBonus[number] -= 25f;
+                        break;
+                    case ItemRank.희귀함:
+                        Stats.damage[number] -= 4500;
+                        Stats.attackSpeedBonus[number] -= 45f;
+                        break;
+                    case ItemRank.전설적인:
+                        Stats.damage[number] -= 9000;
+                        Stats.attackSpeedBonus[number] -= 215f;
+                        break;
+                    case ItemRank.상위:
+                        break;
+
+                }
+                rankOn[number] |= (byte)i;
+            }
+        }
+    }
+
+    private void DeleteUnrankedItem(Item item)
+    {
+        for (int i = 0; i < ActionScript.targetNumberMax; i++)
+        {
+            bool t = currentItem[i].Remove((item.Name, item.Rank));
+            if (t) StatsDown(item, i);
+        }
+    }
+
+    public void StatsUp(Item item, int number)
     {
         if (Stats != null)
         {
-            Stats.damage += item.AttackPower;
-            Stats.attackSpeedBonus += item.AttackSpeed;
-            Stats.HealthRegen += item.HealthRegen;
-            Stats.manaRegen += item.ManaRegen;
+            Stats.damage[number] += item.AttackPower;
+            Stats.attackSpeedBonus[number] += item.AttackSpeed;
+            Stats.HealthRegen[number] += item.HealthRegen;
+            Stats.manaRegen[number] += item.ManaRegen;
             Stats.neutralizeDefense += item.NeutralizeDefense;
             Cannon.SetCannon(item.TowerDamage, item.TowerAttackSpeed);
-
-            if (item.Name == "행운의 토큰" || item.Name == "함선")
-            {
-                Stats.damage += 400;
-                Stats.attackDelay = 0.9f;
-                Stats.attackSpeedBonus += 25f;
-                Cannon.SetCannon(80, 10);
+            if (item.NecessaryItem.Count() == 0)
                 return;
-            }
-            else if (item.Name == "이브")
-            {
-                Stats.damage += 4500;
-                Stats.attackDelay = 0.85f;
-                Stats.attackSpeedBonus += 45f;
-                Cannon.SetCannon(920, 20);
-            }
 
             if (item.Rank == ItemRank.희귀함 && !GameManager.Instance.RareGet && GameManager.Instance.GetRound() <= 7)
-                {
-                    FindItem("만물석", ItemRank.All).count++;
-                    GameManager.Instance.RareGet = true;
-                }
-
-            if (item.Rank >= ItemRank.안흔함)
-                {
-                    int shift = item.Rank - ItemRank.안흔함;
-                    if (shift < 0 || shift >= 31)
-                    {
-                        Debug.LogError($"Rank shift 값이 비정상입니다: {shift}");
-                        return;
-                    }
-                    int bit = 1 << shift;
-
-                    for (int i = 1; i <= bit; i <<= 1)
-                    {
-                        if ((rankOn & i) == 0)
-                        {
-                            switch ((ItemRank)(Mathf.Log(i, 2) + (int)ItemRank.안흔함))
-                            {
-                                case ItemRank.안흔함:
-                                    Stats.damage += 100;
-                                    Stats.attackDelay = 0.95f;
-                                    Cannon.SetCannon(20, 5);
-                                    break;
-                                case ItemRank.특별함:
-                                    Stats.damage += 400;
-                                    Stats.attackDelay = 0.9f;
-                                    Stats.attackSpeedBonus += 25f;
-                                    Cannon.SetCannon(80, 10);
-                                    break;
-                                case ItemRank.희귀함:
-                                    Stats.damage += 4500;
-                                    Stats.attackDelay = 0.85f;
-                                    Stats.attackSpeedBonus += 45f;
-                                    Cannon.SetCannon(920, 20);
-                                    break;
-                            }
-                            rankOn |= (byte)i;
-                        }
-                    }
-
-                }
-
-            currentItem.Add(item);
+            {
+                FindItem("만물석", ItemRank.All).count++;
+                GameManager.Instance.RareGet = true;
+            }
         }
     }
-    private void StatsDown(Item item)
+    public void StatsDown(Item item, int number)
     {
-        Stats.damage -= item.AttackPower;
-        Stats.attackSpeedBonus -= item.AttackSpeed;
-        Stats.HealthRegen -= item.HealthRegen;
-        Stats.manaRegen -= item.ManaRegen;
+        Stats.damage[number] -= item.AttackPower;
+        Stats.attackSpeedBonus[number] -= item.AttackSpeed;
+        Stats.HealthRegen[number] -= item.HealthRegen;
+        Stats.manaRegen[number] -= item.ManaRegen;
         Stats.neutralizeDefense -= item.NeutralizeDefense;
         Cannon.SetCannon(-item.TowerDamage, -item.TowerAttackSpeed);
-        
-        currentItem.Remove(item);
+
     }
 
     public void Clear()
@@ -910,8 +1113,8 @@ public class List
 
         }
     }
-
-    private void SetSkill(Actor actor, Item item)//확률, 단일 물리 데미지, 범위 물리 데미지, 단일 마법데미지, 범위 마법 데미지, 단일 스턴, 범위 스턴, 스킬 범위,단일 퍼센트 데미지, 끝딜 퍼센트 데미지, 전퍼, 현퍼, 잃퍼
+    
+    public void SetSkill(Actor actor, Item item)//확률, 단일 물리 데미지, 범위 물리 데미지, 단일 마법데미지, 범위 마법 데미지, 단일 스턴, 범위 스턴, 스킬 범위,단일 퍼센트 데미지, 끝딜 퍼센트 데미지, 전퍼, 현퍼, 잃퍼
     {
         string name = item.Name;
 
@@ -939,19 +1142,19 @@ public class List
         if (Percentage * 100 > rand)
         {
             actor.TakeDamageAll(MultiPhysics, MonoPhysics, Range
-            , actor.armorType, true, Stats.neutralizeDefense, 0);
+            , item.AttackType, true, Stats.neutralizeDefense, 0);
 
             actor.TakeDamageAll(MultiMagic, MonoMagic, Range
-            , actor.armorType, false, 0, 0);
+            , item.AttackType, false, 0, 0);
 
             actor.TakeStunAll(MultiStun, MonoStun, Range);
 
-            actor.TakeDamageAll(0, MonoPercent, Range, actor.armorType, false, 0, 2);
-            actor.TakeDamageAll(0, EndPercent, Range, actor.armorType, false, 0, 1);
+            actor.TakeDamageAll(0, MonoPercent, Range, item.AttackType, false, 0, 2);
+            actor.TakeDamageAll(0, EndPercent, Range, item.AttackType, false, 0, 1);
 
-            actor.TakeDamageAll(MaxPercent, 0, Range, actor.armorType, false, 0, 1);
-            actor.TakeDamageAll(CurrPercent, 0, Range, actor.armorType, false, 0, 2);
-            actor.TakeDamageAll(Max_CurrPercent, 0, Range, actor.armorType, false, 0, 3);
+            actor.TakeDamageAll(MaxPercent, 0, Range, item.AttackType, false, 0, 1);
+            actor.TakeDamageAll(CurrPercent, 0, Range, item.AttackType, false, 0, 2);
+            actor.TakeDamageAll(Max_CurrPercent, 0, Range, item.AttackType, false, 0, 3);
         }
 
         if (MultiPercentage * 100 >= rand)

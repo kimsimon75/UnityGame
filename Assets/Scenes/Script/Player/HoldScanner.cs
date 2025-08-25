@@ -17,24 +17,22 @@ public class HoldScanner : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        
         // 타깃 재검색
-        if (action.target == null ||
-            Vector3.Distance(action.target.position, transform.position) > stats.detectRange)
-        {
-            FindClosestEnemy(transform.position, stats.detectRange, LayerMask.GetMask("Enemy"));
-        }
+            if (action.target[action.targetNumber] == null || Vector3.Distance(action.target[action.targetNumber].position, transform.position) > stats.detectRange)
+            {
+                FindClosestEnemy(transform.position, stats.detectRange, LayerMask.GetMask("Enemy"), action.targetNumber);
+            }
 
-        if (action.target != null)
+        if (action.target[action.targetNumber] != null)
         {
             
-            Vector3 dir = (action.target.position - transform.position).normalized;
+            Vector3 dir = (action.target[action.targetNumber].position - transform.position).normalized;
             Quaternion rot = Quaternion.LookRotation(new Vector3(dir.x, 0, dir.z));
             transform.rotation = Quaternion.Slerp(transform.rotation, rot, Time.deltaTime * 10f);
         }
 
-        if (action.isAttack) return;   // 쿨다운 중이면 대기
-        if (action.target != null)
+        if (action.IsAttackDisabledFor(action.targetNumber)) return;   // 쿨다운 중이면 대기
+        if (action.target[action.targetNumber] != null)
         {
             // 바라보기
 
@@ -53,7 +51,7 @@ public class HoldScanner : MonoBehaviour
         }
     }
 
-    public void FindClosestEnemy(Vector3 origin, float range, LayerMask enemyLayer)
+    public void FindClosestEnemy(Vector3 origin, float range, LayerMask enemyLayer, int targetNum)
     {
         Collider[] hits = Physics.OverlapSphere(origin, range, enemyLayer);
 
@@ -69,8 +67,6 @@ public class HoldScanner : MonoBehaviour
                 closest = hit.transform;
             }
         }
-        action.target = closest;
-        if (closest != null)
-        action.SetFunction(closest);
+        action.target[targetNum] = closest;
     }
 }

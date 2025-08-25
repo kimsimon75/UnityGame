@@ -1,27 +1,26 @@
-using System.Collections;
+using System;
 using UnityEngine;
 using UnityEngine.AI;
-using UnityEngine.EventSystems;
-using UnityEngine.Playables;
-using UnityEngine.UIElements;
 
 public class ActionScript : MonoBehaviour
 {
     Animator anim;
     private bool isReady = false;
+    private bool isAllReady = false;
     private PlayerAttack attack;
     private HoldScanner hold;
     private NavMeshAgent agent;
     private AgentMove move;
     private PlayerStats stats;
-    public Transform target = null;
+    public ItemManager item;
+    public const int targetNumberMax = 6;
+    [NonSerialized] public Transform[] target = new Transform[targetNumberMax];
+    [NonSerialized] public int targetNumber = 5;
     public NavMeshHit point;
-    public float attackDisableTime = 0f;
-    public bool isAttack => Time.time < attackDisableTime;    // 기존 플래그
+    [NonSerialized] public float[] attackDisableTime = new float[targetNumberMax];
     public Actor targetParent = null;
     private bool OnTheStory = false;
     public Transform statsTarget = null;
-    [SerializeField] private Vector3 offset = new Vector3(0f, 11f, -11f);
     public Camera mainCamera;
 
     public Transform StoryCannon;
@@ -48,6 +47,11 @@ public class ActionScript : MonoBehaviour
         TriggerHold();
         targetDistance = mainCamera.fieldOfView;
         mainCamera.transform.position = new Vector3(transform.position.x, transform.position.y + 12f, transform.position.z - 6f);
+
+        for (int i = 0; i < target.Length; i++)
+        {
+            target[i] = null;
+        }
 
     }
 
@@ -76,13 +80,29 @@ public class ActionScript : MonoBehaviour
                 Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
                 if (Physics.Raycast(ray, out RaycastHit hitInfo, 100f, enemyLayer))
                 {
-                    SetFunction(hitInfo.transform);
+                    target[targetNumber] = hitInfo.transform;
                     TriggerAttack();
                 }
                 else
                 {
                     TriggerHold();
                     isReady = false;
+                }
+            }
+            else if (isAllReady)
+            {
+                LayerMask enemyLayer = LayerMask.GetMask("Enemy");
+                Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
+                if (Physics.Raycast(ray, out RaycastHit hitInfo, 100f, enemyLayer))
+                {
+                    for(int i=0;i<targetNumberMax;i++)
+                    target[i] = hitInfo.transform;
+                    TriggerAttack();
+                }
+                else
+                {
+                    TriggerHold();
+                    isAllReady = false;
                 }
             }
             else
@@ -106,7 +126,7 @@ public class ActionScript : MonoBehaviour
 
             if (Physics.Raycast(ray, out RaycastHit hitInfo, 100f, enemyLayer))
             {
-                SetFunction(hitInfo.transform);
+                target[targetNumber] = hitInfo.transform;
                 TriggerAttack();
             }
             else if (Physics.Raycast(ray, out RaycastHit groundHit, 100f))
@@ -150,6 +170,30 @@ public class ActionScript : MonoBehaviour
         {
             mainCamera.transform.position = new Vector3(transform.position.x, transform.position.y, transform.position.z) + camOffset;
         }
+        
+        else if (Input.GetKey(KeyCode.LeftControl) || Input.GetKey(KeyCode.RightControl))
+        {
+            if (Input.GetKeyDown(KeyCode.A))
+            {
+                isAllReady = true;
+            }
+        }
+
+        if (!item.gameObject.activeInHierarchy)
+            for (int i = 0; i < targetNumberMax; i++)
+            {
+                if (Input.GetKeyDown(KeyCode.Alpha0 + i + 1))
+                {
+                    targetNumber = i;
+                    TriggerHold();
+                }
+
+                if (Input.GetKeyDown(KeyCode.Keypad0 + i + 1))
+                {
+                    targetNumber = i;
+                    TriggerHold();
+                }
+            }
 
         float scroll = -Input.GetAxis("Mouse ScrollWheel");
         if (Mathf.Abs(scroll) > 0.0001f)
@@ -201,7 +245,7 @@ public class ActionScript : MonoBehaviour
         agent.isStopped = false;
         move.enabled = true;
 
-        target = null;
+        target[0] = null;
         anim.CrossFade("Walking", stats.blendingTime);
 
     }
@@ -211,16 +255,14 @@ public class ActionScript : MonoBehaviour
         attack.enabled = false;
         hold.enabled = false;
         agent.isStopped = true;
-        target = null;
+        target[0] = null;
         anim.CrossFade("Idle", stats.blendingTime);
     }
-
-    public void SetFunction(Transform hitInfo)
+    
+    
+    public bool IsAttackDisabledFor(int target)
     {
-        target = hitInfo;
-        if (target.GetComponent<EnemyStats>() != null)
-            targetParent = target.GetComponent<EnemyStats>();
-        else if (target.GetComponent<Story>() != null)
-            targetParent = target.GetComponent<Story>();
+        return Time.time < attackDisableTime[target];
     }
+
 }

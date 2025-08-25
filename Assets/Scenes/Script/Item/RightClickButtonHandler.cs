@@ -2,8 +2,6 @@ using UnityEngine;
 using UnityEngine.EventSystems;
 using System.Collections.Generic;
 using UnityEngine.UI;
-using Unity.Collections.LowLevel.Unsafe;
-using Unity.VisualScripting;
 
 public class RightClickButtonHandler : MonoBehaviour, IPointerClickHandler
 {
@@ -27,7 +25,9 @@ public class RightClickButtonHandler : MonoBehaviour, IPointerClickHandler
             Debug.LogWarning($"{gameObject.name} 에 Button 컴포넌트가 없습니다.");
         }
     }
+    
     public void OnPointerClick(PointerEventData eventData)
+    
     {
 
         Transform imgTf = transform.Find("Image");
@@ -41,7 +41,7 @@ public class RightClickButtonHandler : MonoBehaviour, IPointerClickHandler
 
         // 3) sprite가 할당되어 있는지 최종 확인
         if (img.sprite == null)
-            return; 
+            return;
 
         // 마우스 오른쪽 버튼 클릭 시
         if (eventData.button == PointerEventData.InputButton.Right)

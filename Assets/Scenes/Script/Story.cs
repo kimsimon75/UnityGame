@@ -56,7 +56,7 @@ public class Story : Actor
         if (physics)
         {
             damageAll = damageAll * ArmorCalculate(story[level][1], armorDecrease);
-            damage = damage * GetDamage(damageType, armorType);
+            damage = damage * ArmorCalculate(story[level][1], armorDecrease);
         }
         switch (percent)
         {

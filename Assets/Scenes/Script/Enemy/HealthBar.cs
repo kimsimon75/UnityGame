@@ -71,7 +71,7 @@ public class HealthBar : MonoBehaviour
         sliderGO = new GameObject("HP_Bar", typeof(Slider));
         sliderGO.transform.SetParent(worldBar, false);
         RectTransform sliderRT = sliderGO.GetComponent<RectTransform>();
-        sliderRT.sizeDelta = new Vector2(100f, 10f); // 가로 100, 세로 10
+        sliderRT.sizeDelta = new Vector2(100f, 12f); // 가로 100, 세로 10
         slider = sliderGO.GetComponent<Slider>();
         slider.minValue = 0;
         slider.maxValue = 1;
@@ -131,6 +131,7 @@ public class HealthBar : MonoBehaviour
         fillImage.color = Color.green;
         fillImage.type = Image.Type.Sliced;
         fillImage.fillMethod = Image.FillMethod.Horizontal;
+        fillImage.material = Resources.Load<Material>("Material/MPGlossMat");
 
         slider.fillRect = fillRT;         // ✅ 필수
         slider.handleRect = null;         // ✅ 없으면 null 명시

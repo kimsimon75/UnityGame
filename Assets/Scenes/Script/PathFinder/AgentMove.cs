@@ -37,7 +37,7 @@ public class AgentMove : MonoBehaviour
         else
         {
             agent.ResetPath();
-            if (action.isAttack)
+            if (action.IsAttackDisabledFor(action.targetNumber))
                 action.TriggerStop();
             else
                 action.TriggerHold();

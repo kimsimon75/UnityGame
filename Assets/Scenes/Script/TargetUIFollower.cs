@@ -31,6 +31,10 @@ public class TargetUIFollower : MonoBehaviour
             // 5. UI 위치 지정
             transform.position = screenPos;
         }
+        else if (!target || !target.gameObject.activeInHierarchy)
+        {
+            gameObject.SetActive(false);
+        }
     }
 
     public void Follow(Transform newTarget)

@@ -6,30 +6,30 @@ using UnityEngine;
 public class PlayerStats : MonoBehaviour
 {
     public int UnitCount;
-    private float CurrentHealth;
-    private float MaxHealth;
-    private float CurrentMana;
-    private float MaxMana;
+    [NonSerialized] public float[] CurrentHealth = new float[ActionScript.targetNumberMax];
+    [NonSerialized] public float[] MaxHealth = new float[ActionScript.targetNumberMax];
+    [NonSerialized] public float[] CurrentMana = new float[ActionScript.targetNumberMax];
+    [NonSerialized] public float[] MaxMana = new float[ActionScript.targetNumberMax];
 
-    [NonSerialized] public float HealthRegen;
-    [NonSerialized] public float manaRegen;
+    [NonSerialized] public float[] HealthRegen = new float[ActionScript.targetNumberMax];
+    [NonSerialized] public float[] manaRegen = new float[ActionScript.targetNumberMax];
 
-    private float hpRegenBuffer = 0f;
-    private float mpRegenBuffer = 0f;
-    [NonSerialized] public float attackSpeedBonus;
-    [NonSerialized] public float blendingTime;
-    [NonSerialized] public float attackCooldown;
-    [NonSerialized] public float attackDelay;
+    private float[] hpRegenBuffer =  new float[ActionScript.targetNumberMax];
+    private float[] mpRegenBuffer = new float[ActionScript.targetNumberMax];
+    [NonSerialized] public float[] attackSpeedBonus = new float[ActionScript.targetNumberMax];
+    [NonSerialized] public float blendingTime = 0.1f;
+    [NonSerialized] public float[] attackCooldown = new float[ActionScript.targetNumberMax];
+    [NonSerialized] public float[] attackDelay = new float[ActionScript.targetNumberMax];
     [NonSerialized] public float lastAttackTime = float.MinValue;
-    [NonSerialized] public float damage = 10f;
+    [NonSerialized] public float[] damage = new float[ActionScript.targetNumberMax];
     [NonSerialized] public float MoveSpeed;
     public int player = 1;
-    [NonSerialized] public float detectRange = 2f;
+    [NonSerialized] public float detectRange = 4f;
 
     public int neutralizeDefense = 0;
     public int MagicalBuffer;
     public int MagicalDebuffer;
-    public int TrueDamage;
+    private int[] TrueDamage = new int[ActionScript.targetNumberMax];
     public int MoveSpeeDebuff;
     public int TowerDamage;
     public int TowerAttackSpeed;
@@ -42,22 +42,30 @@ public class PlayerStats : MonoBehaviour
     void Awake()
     {
         UnitCount = 0;
-        MaxHealth = 100f;        // ➕ 추가
-        CurrentHealth = 0;
+        for (int i = 0; i < ActionScript.targetNumberMax; i++)
+        {
+            MaxHealth[i] = 100f;
+            CurrentHealth[i] = 0;
+            
+            MaxMana[i] = 100f;          // ➕ 추가
+            CurrentMana[i] = 0;
 
-        MaxMana = 100f;          // ➕ 추가
-        CurrentMana = 0;
+            HealthRegen[i] = 0f;
+            manaRegen[i] = 0f;
+        }        // ➕ 추가
 
-        HealthRegen = 0f;
-        manaRegen = 0f;
-        attackDelay = 1f;
-        attackCooldown = 1f;
-        attackSpeedBonus = 0f;
-        blendingTime = 0.1f;
         MoveSpeed = 6f;
 
 
         action = GetComponent<ActionScript>();
+
+        for (int i = 0; i < damage.Length; i++)
+        {
+            damage[i] = 10;
+            attackDelay[i] = 1f;
+            attackSpeedBonus[i] = 0f;
+            attackCooldown[i] = 1f;
+        }
 
  
     }
@@ -65,7 +73,7 @@ public class PlayerStats : MonoBehaviour
     void Update()
     {
         text.text = $"{UnitCount}";
-        attackCooldown = attackDelay / (1 + attackSpeedBonus * 0.01f);
+        attackCooldown[action.targetNumber] = attackDelay[action.targetNumber] / (1 + attackSpeedBonus[action.targetNumber] * 0.01f);
 
         Animator anim = GetComponent<Animator>();
         AnimationClip[] clips = anim.runtimeAnimatorController.animationClips;
@@ -74,7 +82,7 @@ public class PlayerStats : MonoBehaviour
         {
             if (clip.name == "Attack") // 원하는 클립 이름
             {
-                float animationLength = clip.length / attackCooldown;
+                float animationLength = clip.length / attackCooldown[action.targetNumber];
                 anim.SetFloat("AttackSpeed", animationLength);
             }
         }
@@ -84,59 +92,67 @@ public class PlayerStats : MonoBehaviour
     void FixedUpdate()
     {
         // 1. 매 프레임마다 누적
-        hpRegenBuffer += HealthRegen * Time.fixedDeltaTime;
+        int targetNum = action.targetNumber;
+        hpRegenBuffer[targetNum] += HealthRegen[targetNum] * Time.fixedDeltaTime;
 
         // 2. 누적값이 1 이상이면 정수만큼 회복
-        if (hpRegenBuffer >= 1f)
+        if (hpRegenBuffer[targetNum] >= 1f)
         {
-            int regenAmount = Mathf.FloorToInt(hpRegenBuffer);  // 정수만큼 회복
-            CurrentHealth += regenAmount;
-            CurrentHealth = Mathf.Min(CurrentHealth, MaxHealth);
+            int regenAmount = Mathf.FloorToInt(hpRegenBuffer[targetNum]);  // 정수만큼 회복
+            CurrentHealth[targetNum] += regenAmount;
+            CurrentHealth[targetNum] = Mathf.Min(CurrentHealth[targetNum], MaxHealth[targetNum]);
 
-            hpRegenBuffer -= regenAmount;  // 버퍼에서 소모한 만큼 빼기 (소수점 유지됨)
+            hpRegenBuffer[targetNum] -= regenAmount;  // 버퍼에서 소모한 만큼 빼기 (소수점 유지됨)
         }
 
-        mpRegenBuffer += manaRegen * Time.fixedDeltaTime;
+        mpRegenBuffer[targetNum] += manaRegen[targetNum] * Time.fixedDeltaTime;
 
         // 2. 누적값이 1 이상이면 정수만큼 회복
-        if (mpRegenBuffer >= 1f)
+        if (mpRegenBuffer[targetNum] >= 1f)
         {
-            int regenAmount = Mathf.FloorToInt(mpRegenBuffer);  // 정수만큼 회복
-            CurrentMana += regenAmount;
-            CurrentMana = Mathf.Min(CurrentMana, MaxMana);
+            int regenAmount = Mathf.FloorToInt(mpRegenBuffer[targetNum]);  // 정수만큼 회복
+            CurrentMana[targetNum] += regenAmount;
+            CurrentMana[targetNum] = Mathf.Min(CurrentMana[targetNum], MaxMana[targetNum]);
 
-            mpRegenBuffer -= regenAmount;  // 버퍼에서 소모한 만큼 빼기 (소수점 유지됨)
+            mpRegenBuffer[targetNum] -= regenAmount;  // 버퍼에서 소모한 만큼 빼기 (소수점 유지됨)
         }
     }
 
     public void HealthTrigger()
     {
-        if (CurrentHealth == MaxHealth)
+        int targetNum = action.targetNumber;
+        if (CurrentHealth[targetNum] == MaxHealth[targetNum])
         {
-            CurrentHealth = 0;
+            CurrentHealth[targetNum] = 0;
         }
     }
 
     public void ManaTrigger()
     {
-        if (CurrentMana == MaxMana)
+        int targetNum = action.targetNumber;
+        if (CurrentMana[targetNum] == MaxMana[targetNum])
         {
-            CurrentMana = 0;
+            CurrentMana[targetNum] = 0;
 
         }
     }
     public Vector2 GetHP()
     {
-        return new Vector2(CurrentHealth, MaxHealth);
+        return new Vector2(CurrentHealth[action.targetNumber], MaxHealth[action.targetNumber]);
     }
     public Vector2 GetMP()
     {
-        return new Vector2(CurrentMana, MaxMana);
+        return new Vector2(CurrentMana[action.targetNumber], MaxMana[action.targetNumber]);
     }
 
-    public (float damage, float attackCooldown,float attackSpeedBonus,
-     int neutralizeDefense,float HealthRegen, float manaRegen, int MagicalBuffer, int MagicalDebuffer,
-    int TrueDamage, int MoveSpeeDebuff ) GetStats(){ return (damage, attackCooldown, attackSpeedBonus, neutralizeDefense
-    ,HealthRegen,manaRegen, MagicalBuffer, MagicalDebuffer, TrueDamage, MoveSpeeDebuff); }
+    public (float[] damage, float attackCooldown, float[] attackSpeedBonus,
+     int neutralizeDefense, float HealthRegen, float manaRegen,
+      int MagicalBuffer, int MagicalDebuffer, int TrueDamage, int MoveSpeeDebuff)
+      GetStats()
+    {
+        return (damage, attackCooldown[action.targetNumber], attackSpeedBonus, neutralizeDefense
+    , HealthRegen[action.targetNumber], manaRegen[action.targetNumber],
+     MagicalBuffer, MagicalDebuffer, TrueDamage[action.targetNumber], MoveSpeeDebuff);
+    }
 
 }

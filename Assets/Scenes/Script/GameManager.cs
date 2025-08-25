@@ -1,8 +1,8 @@
 
 using UnityEngine;
 using TMPro;
-using Unity.VisualScripting.Antlr3.Runtime.Misc;
 using Unity.VisualScripting;
+using UnityEngine.UI;
 
 public class GameManager : MonoBehaviour
 {
@@ -30,7 +30,6 @@ public class GameManager : MonoBehaviour
     public ItemManager item;
 
     public ItemManager ItemManager => item;
-
     public SlideInSpawner slider;
     public GameObject CrossPrefab;
 
@@ -56,7 +55,18 @@ public class GameManager : MonoBehaviour
     EnemyStats 사십적 = null;
     EnemyStats 오십적 = null;
 
-    byte enemyCount = 3;
+    public Energy energy = null;
+
+    public ChatManager chat = null;
+
+    int enemyCount = 3;
+
+    bool isDelete = false;
+
+    [SerializeField] private Image[] keyValueImages;
+    public Image[] Images => keyValueImages;
+
+    int absorb = 90;
 
 
     void Awake()
@@ -68,7 +78,6 @@ public class GameManager : MonoBehaviour
     {
         timeLeft = 0f;
         roundText.text = "라운드 시작 전";
-        item = GetComponentInChildren<ItemManager>();
         item.list.GetMemoriesParts(1);
         for (int i = 0; i < 3; i++)
             item.list.GetRandomItem(ItemRank.흔함);
@@ -78,6 +87,13 @@ public class GameManager : MonoBehaviour
         slider.SpawnPanelsSequentially();
         slider.SpawnPanelsSequentially();
 
+        item.willBeGet = UnityEngine.Random.Range(0, item.list.itemList[(int)ItemRank.특별함].Count);
+
+        for (int i=0;i<DataManager.numMax;i++)
+        {
+            Images[i].AddComponent<KeyButton>();
+            Images[i].GetComponent<KeyButton>().number = i;
+        }
     }
 
     void Update()
@@ -91,6 +107,43 @@ public class GameManager : MonoBehaviour
         삼십타임 -= Time.deltaTime;
         사십타임 -= Time.deltaTime;
         오십타임 -= Time.deltaTime;
+
+        if (item.isActiveAndEnabled)
+        {
+            
+        }
+        else
+        {
+            if (isDelete == true && Input.anyKeyDown)
+            {
+                if (Input.GetMouseButtonDown(0))
+                {
+                    LayerMask enemyLayer = LayerMask.GetMask("Enemy");
+                    Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
+                    if (Physics.Raycast(ray, out RaycastHit hitInfo, 100f, enemyLayer))
+                    {
+                        if (hitInfo.transform.GetComponent<EnemyStats>() != null)
+                        {
+                            hitInfo.transform.GetComponent<EnemyStats>().DestroySelf();
+                            energy.currentEnergy -= absorb;
+                        }
+
+                    }
+                }
+                Images[DataManager.Z].GetComponentInParent<UnityEngine.UI.Outline>().enabled = false;
+                isDelete = false;
+            }
+            if (Input.GetKeyDown(KeyCode.Z))
+            {
+                if (energy.currentEnergy >= absorb)
+                {
+                    isDelete = true;
+                    Images[DataManager.Z].GetComponentInParent<UnityEngine.UI.Outline>().enabled = true;
+                }
+                else chat.Push($"에너지가 모자랍니다");
+            }
+
+        }
 
         item.list.FindItem("기억 조각", ItemRank.All).count = 10;
 
@@ -120,7 +173,8 @@ public class GameManager : MonoBehaviour
 
             if (round == 3) item.list.GetRandomItem(ItemRank.안흔함);
             if (round == 5) item.list.GetRandomItem(ItemRank.안흔함);
-            if (round == 6) item.list.GetRandomItem(ItemRank.특별함);
+            if (round == 6) item.list.itemList[(int)ItemRank.특별함][item.willBeGet].count++;
+            if (round == 6) item.willBeGet = -1;
             if (round == 15) item.list.GetRandomItem(ItemRank.희귀함);
             if (round == 41)
             {

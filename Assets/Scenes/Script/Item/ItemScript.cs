@@ -1,22 +1,49 @@
-using UnityEngine;
 
+using UnityEngine;
+using UnityEngine.UI;
 public class ItemScript : MonoBehaviour
 {
     GameObject obj;
     ItemManager item;
+    private Image[] keyValueImages;
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
     {
         item = GetComponentInChildren<ItemManager>();
         obj = item.gameObject;
         obj.SetActive(!obj.activeSelf);
+
+        keyValueImages = GameManager.Instance.Images;
+        SetKey();
+    }
+
+    void SetKey()
+    {
+
+        keyValueImages[DataManager.Z].sprite = Resources.Load<Sprite>("Key/영혼 흡수");
     }
 
     // Update is called once per frame
     void Update()
     {
         if (Input.GetKeyDown(KeyCode.R))
+        {
             obj.SetActive(!obj.activeSelf);
+            if (obj.activeSelf)
+            {
+                keyValueImages[DataManager.Q].sprite = Resources.Load<Sprite>("Key/초급 도박");
+                keyValueImages[DataManager.W].sprite = Resources.Load<Sprite>("Key/중급 도박");
+                keyValueImages[DataManager.E].sprite = Resources.Load<Sprite>("Key/고급 도박");
+                keyValueImages[DataManager.Z].sprite = Resources.Load<Sprite>("Key/흔함");
+                keyValueImages[DataManager.X].sprite = Resources.Load<Sprite>("Key/기억 조각");
+                keyValueImages[DataManager.C].sprite = Resources.Load<Sprite>("Key/에너지 탱크");
+            }
+            else
+            {
+                SetKey();
+            }
+        }
+
 
         if (!item.transform.gameObject.activeInHierarchy) return;
 
@@ -32,7 +59,7 @@ public class ItemScript : MonoBehaviour
             rank -= 1;
             if (rank < 0) rank = 7;
             item.SetRank(rank);
-            
+
         }
 
         else if (Input.GetKeyDown(KeyCode.RightArrow))
@@ -69,4 +96,5 @@ public class ItemScript : MonoBehaviour
         number = -1;
         return false;        // 이번 프레임엔 숫자키 입력 없음
     }
+    
 }
