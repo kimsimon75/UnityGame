@@ -8,6 +8,8 @@ public enum ArmorType
     일반,
     영웅,
     보스,
+    마법,
+    고정,
     }
 
 public abstract class Actor : MonoBehaviour

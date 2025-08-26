@@ -924,7 +924,6 @@ public class List
 
     public void SetUnity(Item item)
     {
-        Debug.Log($"{item.Name}, {item.Rank}");
         if (item.Rank != ItemRank.상위 && item.BossAttack == 0 && item.MonoPercent != 0)
         {
             currentItem[0].Add((item.Name, item.Rank), item);

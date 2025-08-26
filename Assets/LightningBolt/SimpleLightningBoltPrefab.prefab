@@ -164,7 +164,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   StartObject: {fileID: 163122}
   StartPosition: {x: 0, y: 0, z: 0}
-  EndObject: {fileID: 171180}
+  EndObject: {fileID: 0}
   EndPosition: {x: 0, y: 0, z: 0}
   Generations: 6
   Duration: 0.03
@@ -185,6 +185,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 8f8c314e7e21d6f43a75bfa30de186ab, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  info: 0
 --- !u!1 &163122
 GameObject:
   m_ObjectHideFlags: 0

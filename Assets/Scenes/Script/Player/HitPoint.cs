@@ -18,8 +18,6 @@ public class HitPoint : StateMachineBehaviour
     private float attackDelay;
     public float hitTiming = .45f;
     private float duration = .15f;
-    public GameObject lightning;
-    GameObject Clone;
     public override void OnStateEnter(Animator animator, AnimatorStateInfo stateInfo, int layerIndex)
     {
         lastLoop = -1;
@@ -34,7 +32,6 @@ public class HitPoint : StateMachineBehaviour
         attackDelay = animDuration * (1 - hitTiming);
 
         action.attackDisableTime[action.targetNumber] = Time.time + attackDelay;
-
 
     }
 
@@ -68,18 +65,16 @@ public class HitPoint : StateMachineBehaviour
 
             // ⚠ LightningBoltScript 사용법 수정: Start/EndObject를 '대상 오브젝트'로 지정하고
             // 오프셋은 Start/EndPosition으로 줘야 null 에러가 안 납니다.
-            Clone = Instantiate(lightning, action.transform);
-            var lb = Clone.GetComponent<LightningBoltScript>();
-            lb.StartObject   = action.gameObject;
-            lb.StartPosition = new Vector3(0, 1, 0);
-            lb.EndObject     = action.target[action.targetNumber].gameObject;
-            lb.EndPosition   = new Vector3(0, 1, 0);
+            var lb = action.Clone.GetComponent<LightningBoltScript>();
+            lb.EndPosition   = new Vector3(0, 1, 0) + action.target[action.targetNumber].transform.position;
 
             // 수명은 타이머로 처리 (애니메이터와 독립, 지연 없음)
-            var killer = Clone.GetComponent<KillMyself>();
-            if (killer == null) killer = Clone.AddComponent<KillMyself>();
+            var killer = action.Clone.GetComponent<KillMyself>();
+            if (killer == null) killer = action.Clone.AddComponent<KillMyself>();
             killer.Init(duration);   // duration = 0.15f 등
 
+            action.Clone.SetActive(true);
+            action.Clone.GetComponent<KillMyself>().info = 0;
             // 데미지/스킬
             if (action.target[action.targetNumber].gameObject.activeInHierarchy)
             {
@@ -106,6 +101,6 @@ public class HitPoint : StateMachineBehaviour
             action.attackDisableTime[action.targetNumber] = Time.time + stats.attackCooldown[action.targetNumber] * (1 - stateInfo.normalizedTime % 1f);
         else
             action.attackDisableTime[action.targetNumber] = 0;
-        Destroy(Clone);
+        action.Clone.SetActive(false);
     }
 }

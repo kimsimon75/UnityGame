@@ -20,7 +20,7 @@ public class GameManager : MonoBehaviour
     private float 사십타임 = float.MinValue;// 타이머 시작 시간 (초)
     private float 오십타임 = float.MinValue;
     private int round = 0;
-    
+
 
     public bool RareGet = false;
 
@@ -62,11 +62,13 @@ public class GameManager : MonoBehaviour
     int enemyCount = 3;
 
     bool isDelete = false;
+    bool isLightning = false;
 
     [SerializeField] private Image[] keyValueImages;
     public Image[] Images => keyValueImages;
 
     int absorb = 90;
+    int lightning = 100;
 
 
     void Awake()
@@ -89,7 +91,7 @@ public class GameManager : MonoBehaviour
 
         item.willBeGet = UnityEngine.Random.Range(0, item.list.itemList[(int)ItemRank.특별함].Count);
 
-        for (int i=0;i<DataManager.numMax;i++)
+        for (int i = 0; i < DataManager.numMax; i++)
         {
             Images[i].AddComponent<KeyButton>();
             Images[i].GetComponent<KeyButton>().number = i;
@@ -110,7 +112,7 @@ public class GameManager : MonoBehaviour
 
         if (item.isActiveAndEnabled)
         {
-            
+
         }
         else
         {
@@ -133,14 +135,33 @@ public class GameManager : MonoBehaviour
                 Images[DataManager.Z].GetComponentInParent<UnityEngine.UI.Outline>().enabled = false;
                 isDelete = false;
             }
+            if (isLightning == true && Input.anyKeyDown)
+            {
+                if (Input.GetMouseButtonDown(0))
+                {
+                    LayerMask enemyLayer = LayerMask.GetMask("Enemy");
+                    Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
+                    if (Physics.Raycast(ray, out RaycastHit hitInfo, 100f, enemyLayer))
+                    {
+                        if (hitInfo.transform.GetComponent<Actor>() != null)
+                        {
+                            hitInfo.transform.GetComponent<Actor>().TakeStunAll(0, 2, 0);
+                            hitInfo.transform.GetComponent<Actor>().TakeDamageAll(0, 10, 0, ArmorType.마법, false, 0, 0);
+                            energy.currentEnergy -= lightning;
+                        }
+
+                    }
+                }
+                Images[DataManager.W].GetComponentInParent<UnityEngine.UI.Outline>().enabled = false;
+                isLightning = false;
+            }
             if (Input.GetKeyDown(KeyCode.Z))
             {
-                if (energy.currentEnergy >= absorb)
-                {
-                    isDelete = true;
-                    Images[DataManager.Z].GetComponentInParent<UnityEngine.UI.Outline>().enabled = true;
-                }
-                else chat.Push($"에너지가 모자랍니다");
+                TriggerZ();
+            }
+            if (Input.GetKeyDown(KeyCode.W))
+            {
+                TriggerW();
             }
 
         }
@@ -225,7 +246,7 @@ public class GameManager : MonoBehaviour
         OnceUponATime(round, DataManager.삼십라운드, 삼십적);
         OnceUponATime(round, DataManager.사십라운드, 사십적);
         OnceUponATime(round, DataManager.오십라운드, 오십적);
-        
+
         timerText.text = $"{Mathf.Max(Mathf.Floor((timeLeft + 1) / 60), 0)}:{Mathf.Ceil(timeLeft) - 60 * Mathf.Max(Mathf.Floor((timeLeft + 1) / 60), 0)}";
     }
 
@@ -248,10 +269,10 @@ public class GameManager : MonoBehaviour
         {
             if (cooltime <= -1)
             {
-                if (condition == 15) targetObject = pawnEnemy = summoner.BossSummoner(Pawn, round, DataManager.Instance.bonusBossState[PawnCount][0],DataManager.Instance.bonusBossState[PawnCount++][1]);
+                if (condition == 15) targetObject = pawnEnemy = summoner.BossSummoner(Pawn, round, DataManager.Instance.bonusBossState[PawnCount][0], DataManager.Instance.bonusBossState[PawnCount++][1]);
                 else
                 {
-                    targetObject = go_pawnEnemy = summoner.BossSummoner(Go_Pawn,round,DataManager.Instance.bonusBossState2[Go_PawnCount][0], DataManager.Instance.bonusBossState2[Go_PawnCount++][1]);
+                    targetObject = go_pawnEnemy = summoner.BossSummoner(Go_Pawn, round, DataManager.Instance.bonusBossState2[Go_PawnCount][0], DataManager.Instance.bonusBossState2[Go_PawnCount++][1]);
                     Transform targetTransform = targetObject.GetComponent<Transform>();
                     targetTransform.localScale = targetTransform.localScale / 2;
                 }
@@ -349,7 +370,7 @@ public class GameManager : MonoBehaviour
 
                 CrossInstance = Instantiate(CrossPrefab, spawnPos, rot, PlayerZone.transform);
             }
-            
+
             if (target.IsDestroyed())
             {
                 slider.DeleteSlider(panelNumber);
@@ -361,5 +382,47 @@ public class GameManager : MonoBehaviour
                 text[1].text = $"{Mathf.Max(Mathf.Floor((time + 1) / 60), 0)}:{Mathf.Ceil(time) - 60 * Mathf.Max(Mathf.Floor((time + 1) / 60), 0)}";
             }
         }
+    }
+
+    public void TriggerZ()
+    {
+        if (energy.currentEnergy >= absorb)
+        {
+            isDelete = true;
+            Images[DataManager.Z].GetComponentInParent<UnityEngine.UI.Outline>().enabled = true;
+        }
+        else chat.Push($"에너지가 모자랍니다");
+    }
+
+    public void TriggerX()
+    {
+        
+    }
+    public void TriggerC()
+    {
+
+    }
+    public void TriggerQ()
+    {
+
+    }
+    public void TriggerW()
+    {
+        if (energy.currentEnergy >= absorb)
+        {
+            isLightning = true;
+            Images[DataManager.W].GetComponentInParent<UnityEngine.UI.Outline>().enabled = true;
+        }
+        else chat.Push($"에너지가 모자랍니다");
+    }
+
+    public void TriggerE()
+    {
+
+    }
+
+    public void TriggerD()
+    {
+
     }
 }

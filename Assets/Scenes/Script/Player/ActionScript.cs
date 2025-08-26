@@ -1,4 +1,5 @@
 using System;
+using DigitalRuby.LightningBolt;
 using UnityEngine;
 using UnityEngine.AI;
 
@@ -18,6 +19,7 @@ public class ActionScript : MonoBehaviour
     [NonSerialized] public int targetNumber = 5;
     public NavMeshHit point;
     [NonSerialized] public float[] attackDisableTime = new float[targetNumberMax];
+    [NonSerialized] public bool[] isStop = new bool[targetNumberMax];
     public Actor targetParent = null;
     private bool OnTheStory = false;
     public Transform statsTarget = null;
@@ -33,6 +35,8 @@ public class ActionScript : MonoBehaviour
     private float targetDistance;
     private float zoomVelocity;
     private float smoothTimeZoom = 0.10f;
+    public GameObject Lightning;
+    [NonSerialized] public GameObject Clone;
 
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
@@ -52,6 +56,9 @@ public class ActionScript : MonoBehaviour
         {
             target[i] = null;
         }
+        Clone = Instantiate(Lightning, transform);
+        Clone.GetComponent<LightningBoltScript>().StartObject = gameObject;
+        Clone.SetActive(false);
 
     }
 
@@ -86,8 +93,8 @@ public class ActionScript : MonoBehaviour
                 else
                 {
                     TriggerHold();
-                    isReady = false;
                 }
+                isReady = false;
             }
             else if (isAllReady)
             {
@@ -102,8 +109,8 @@ public class ActionScript : MonoBehaviour
                 else
                 {
                     TriggerHold();
-                    isAllReady = false;
                 }
+                isAllReady = false;
             }
             else
             {
@@ -224,8 +231,8 @@ public class ActionScript : MonoBehaviour
 
         agent.isStopped = false;
         move.enabled = false;
+        isStop[targetNumber] = false;
 
-        isReady = false;
     }
 
     public void TriggerHold()
@@ -235,6 +242,7 @@ public class ActionScript : MonoBehaviour
         agent.isStopped = true;
         move.enabled = false;
 
+        isStop[targetNumber] = false;
         anim.CrossFade("Idle", stats.blendingTime);
     }
 
@@ -245,7 +253,8 @@ public class ActionScript : MonoBehaviour
         agent.isStopped = false;
         move.enabled = true;
 
-        target[0] = null;
+        target[targetNumber] = null;
+        isStop[targetNumber] = false;
         anim.CrossFade("Walking", stats.blendingTime);
 
     }
@@ -255,7 +264,8 @@ public class ActionScript : MonoBehaviour
         attack.enabled = false;
         hold.enabled = false;
         agent.isStopped = true;
-        target[0] = null;
+        target[targetNumber] = null;
+        isStop[targetNumber] = true;
         anim.CrossFade("Idle", stats.blendingTime);
     }
     

@@ -49,6 +49,7 @@ public class AutoAttack : MonoBehaviour
         for (int i = 0; i < ActionScript.targetNumberMax; i++)
         {
             if (i == action.targetNumber) continue;
+            if (action.isStop[i]) continue;
             
             Cycle = stats.attackCooldown[i];
             attackDelay = stats.attackCooldown[i] * (1 - hitTiming);

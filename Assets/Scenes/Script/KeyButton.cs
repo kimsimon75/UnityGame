@@ -13,7 +13,7 @@ public class KeyButton : MonoBehaviour, IPointerClickHandler
     void Start()
     {
         item = GameManager.Instance.item;
-        button = GetComponentInParent<Button>();
+        button = GetComponentInParent<Button>(true);
 
         if (button != null)
         {
@@ -30,42 +30,23 @@ public class KeyButton : MonoBehaviour, IPointerClickHandler
     {
 
     }
+    
     public void OnPointerClick(PointerEventData eventData)
     {
-        throw new System.NotImplementedException();
+        // 디버그: 현재 포인터 아래 UI들 출력
+        // 우선 여긴 비워두고, onClick(LeftButtonTrigger)로 처리
     }
-    
+
     void LeftButtonTrigger()
     {
-        Transform imgTf = transform.Find("Image");
-        if (imgTf == null)
-            return;  // 자식이 없으면 종료
-
-        // 2) 해당 오브젝트에서 Image 컴포넌트를 가져오고
-        Image img = imgTf.GetComponent<Image>();
-        if (img == null)
-            return;  // Image 컴포넌트가 없으면 종료
-
-        // 3) sprite가 할당되어 있는지 최종 확인
-        if (img.sprite == null)
-            return;
-
-        Item editItem = item.GetEditItem();
-        if (editItem != null)
-            item.itemStack.Push(editItem);
-
-        string s = img.sprite.name;
-        Item findItem = item.list.FindItem(s, DataManager.Instance.imageDict[img.sprite]);
-
-        if (editItem == findItem)
+        switch (number)
         {
-            GridLayoutGroup grid = GetComponentInParent<GridLayoutGroup>();
-            Transform EditItemStatus = GetComponentInParent<ItemManager>().transform.Find("Panel");
-            EditItemStatus.gameObject.SetActive(true);
-            grid.gameObject.SetActive(false);
-            item.SetStatus();
+            case DataManager.Z:
+                GameManager.Instance.TriggerZ();
+                break;
+            case DataManager.W:
+                GameManager.Instance.TriggerW();
+                break;
         }
-        else
-            item.Clear(findItem, false);
     }
 }

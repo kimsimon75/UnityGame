@@ -21,6 +21,7 @@ public class ItemScript : MonoBehaviour
     {
 
         keyValueImages[DataManager.Z].sprite = Resources.Load<Sprite>("Key/영혼 흡수");
+        keyValueImages[DataManager.W].sprite = Resources.Load<Sprite>("Key/낙뢰");
     }
 
     // Update is called once per frame
@@ -31,10 +32,10 @@ public class ItemScript : MonoBehaviour
             obj.SetActive(!obj.activeSelf);
             if (obj.activeSelf)
             {
-                keyValueImages[DataManager.Q].sprite = Resources.Load<Sprite>("Key/초급 도박");
+                keyValueImages[DataManager.Q].sprite = Resources.Load<Sprite>("Key/흔함");
                 keyValueImages[DataManager.W].sprite = Resources.Load<Sprite>("Key/중급 도박");
                 keyValueImages[DataManager.E].sprite = Resources.Load<Sprite>("Key/고급 도박");
-                keyValueImages[DataManager.Z].sprite = Resources.Load<Sprite>("Key/흔함");
+                keyValueImages[DataManager.Z].sprite = Resources.Load<Sprite>("Key/초급 도박");
                 keyValueImages[DataManager.X].sprite = Resources.Load<Sprite>("Key/기억 조각");
                 keyValueImages[DataManager.C].sprite = Resources.Load<Sprite>("Key/에너지 탱크");
             }
