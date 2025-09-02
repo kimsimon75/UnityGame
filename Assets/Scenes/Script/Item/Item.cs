@@ -234,7 +234,7 @@ public class List
         ,0, 0, 0, 0, 0, ArmorType.일반
         ,0},
         {"철퇴",new[]{new ItemIngredient(FindItem("만물석", ItemRank.All), 1)}
-        , 20, 0, 0, 0, 0, 0, 0f, 0f, 0, -1, 0, 0
+        , 20, 0, 0, 0, 0, 0, 0f, 0f, 0, 0, 0, 0
         , 0, 0, 0, 0, 0, 0f, 0f,5f
         ,0, 0, 0, 0, 0, ArmorType.일반
         ,0},
@@ -244,7 +244,7 @@ public class List
         ,0, 0, 0, 0, 0, ArmorType.일반
         ,0},
         {"장갑",new[]{new ItemIngredient(FindItem("만물석", ItemRank.All), 1)}
-        , 0, 0, 0, 0, 0, 0, 0f, 0f, 0, 1, 0, 0
+        , 0, 0, 0, 0, 0, 0, 0f, 0f, 0, 0, 0, 0
         , 0, 0, 0, 0, 0, 0f, 0f,5f
         ,0, 0, 0, 0, 0, ArmorType.일반
         ,0},};

@@ -64,6 +64,7 @@ public abstract class Actor : MonoBehaviour
                     return 1f;
             }
         }
+        else if (damageType == ArmorType.고정) return 1f;
         else return 1.05f;
     }
 

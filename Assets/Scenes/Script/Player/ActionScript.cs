@@ -30,7 +30,7 @@ public class ActionScript : MonoBehaviour
 
     private float zoomSpeed = 10f;
     private float minDistance = 30f;
-    private float maxDistance = 80f;
+    private float maxDistance = 110f;
     private Vector3 camOffset = new Vector3(0, 12f, -6f);
     private float targetDistance;
     private float zoomVelocity;
@@ -133,6 +133,7 @@ public class ActionScript : MonoBehaviour
 
             if (Physics.Raycast(ray, out RaycastHit hitInfo, 100f, enemyLayer))
             {
+                Debug.Log("here");
                 target[targetNumber] = hitInfo.transform;
                 TriggerAttack();
             }

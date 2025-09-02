@@ -4,7 +4,6 @@ using UnityEngine.UI;
 
 public class KeyButton : MonoBehaviour, IPointerClickHandler
 {
-    ItemManager item;
     Button button;
     public int number;
 
@@ -12,7 +11,6 @@ public class KeyButton : MonoBehaviour, IPointerClickHandler
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
     {
-        item = GameManager.Instance.item;
         button = GetComponentInParent<Button>(true);
 
         if (button != null)
@@ -39,14 +37,6 @@ public class KeyButton : MonoBehaviour, IPointerClickHandler
 
     void LeftButtonTrigger()
     {
-        switch (number)
-        {
-            case DataManager.Z:
-                GameManager.Instance.TriggerZ();
-                break;
-            case DataManager.W:
-                GameManager.Instance.TriggerW();
-                break;
-        }
+        GameManager.Instance.Trigger(number);
     }
 }

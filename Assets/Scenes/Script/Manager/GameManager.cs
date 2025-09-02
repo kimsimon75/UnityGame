@@ -3,6 +3,8 @@ using UnityEngine;
 using TMPro;
 using Unity.VisualScripting;
 using UnityEngine.UI;
+using System.Linq;
+using UnityGLTF.Interactivity.VisualScripting.Export;
 
 public class GameManager : MonoBehaviour
 {
@@ -28,6 +30,7 @@ public class GameManager : MonoBehaviour
     public TextMeshProUGUI roundText;
     public Summoner summoner;
     public ItemManager item;
+    AoeIndicatorLite ring;
 
     public ItemManager ItemManager => item;
     public SlideInSpawner slider;
@@ -61,14 +64,15 @@ public class GameManager : MonoBehaviour
 
     int enemyCount = 3;
 
-    bool isDelete = false;
-    bool isLightning = false;
-
-    [SerializeField] private Image[] keyValueImages;
+    bool[] isSkill = new bool[ActionScript.targetNumberMax];
+    [SerializeField] private GameObject keyValue;
+    private Image[] keyValueImages;
     public Image[] Images => keyValueImages;
 
-    int absorb = 90;
-    int lightning = 100;
+    int[] skillEnergy = new int[ActionScript.targetNumberMax];
+    public float[] skillCoolInit = new float[ActionScript.targetNumberMax];
+    public float[] skillCooldown = new float[ActionScript.targetNumberMax];
+    public float[] skillIndicate = new float[ActionScript.targetNumberMax];
 
 
     void Awake()
@@ -78,6 +82,7 @@ public class GameManager : MonoBehaviour
 
     void Start()
     {
+        ring = GetComponent<AoeIndicatorLite>();
         timeLeft = 0f;
         roundText.text = "라운드 시작 전";
         item.list.GetMemoriesParts(1);
@@ -91,11 +96,37 @@ public class GameManager : MonoBehaviour
 
         item.willBeGet = UnityEngine.Random.Range(0, item.list.itemList[(int)ItemRank.특별함].Count);
 
-        for (int i = 0; i < DataManager.numMax; i++)
+        keyValueImages =
+           keyValue.GetComponentsInChildren<Image>(includeInactive: true)
+                   .Where(img => img.GetComponent<Cooldown>() != null)
+                   .ToArray();
+
+        for (int i = 0; i < DataManager.NumCount; i++)
         {
-            Images[i].AddComponent<KeyButton>();
-            Images[i].GetComponent<KeyButton>().number = i;
+            keyValueImages[i].AddComponent<KeyButton>();
+            keyValueImages[i].GetComponent<KeyButton>().number = i;
+            skillCooldown[i] = 0;
         }
+        skillEnergy[(int)DataManager.Num.Q] = 700;
+        skillEnergy[(int)DataManager.Num.W] = 100;
+        skillEnergy[(int)DataManager.Num.E] = 500;
+        skillEnergy[(int)DataManager.Num.Z] = 90;
+        skillEnergy[(int)DataManager.Num.X] = 200;
+        skillEnergy[(int)DataManager.Num.C] = 620;
+
+        skillCoolInit[(int)DataManager.Num.Q] = 3f;
+        skillCoolInit[(int)DataManager.Num.W] = 17f;
+        skillCoolInit[(int)DataManager.Num.E] = 100f;
+        skillCoolInit[(int)DataManager.Num.Z] = 4.5f;
+        skillCoolInit[(int)DataManager.Num.X] = 40f;
+        skillCoolInit[(int)DataManager.Num.C] = 170f;
+
+        skillIndicate[(int)DataManager.Num.Q] = 0f;
+        skillIndicate[(int)DataManager.Num.W] = 0f;
+        skillIndicate[(int)DataManager.Num.E] = 6f;
+        skillIndicate[(int)DataManager.Num.Z] = 0f;
+        skillIndicate[(int)DataManager.Num.X] = 6f;
+        skillIndicate[(int)DataManager.Num.C] = 0f;
     }
 
     void Update()
@@ -110,59 +141,51 @@ public class GameManager : MonoBehaviour
         사십타임 -= Time.deltaTime;
         오십타임 -= Time.deltaTime;
 
+        for (int i = 0; i < skillCooldown.Length; i++)
+        {
+            if (skillCooldown[i] > 0)
+                skillCooldown[i] = Mathf.Max(skillCooldown[i] - Time.deltaTime, 0);
+            GameObject CooldownTimer = keyValueImages[i].transform.Find("CooldownBG").gameObject;
+
+            if (skillCooldown[i] <= 0) SetActiveRecursively(CooldownTimer, false);
+            else CooldownTimer.GetComponentInChildren<TextMeshProUGUI>().text = ((int)skillCooldown[i]).ToString();
+
+        }
+
         if (item.isActiveAndEnabled)
         {
 
         }
         else
         {
-            if (isDelete == true && Input.anyKeyDown)
-            {
-                if (Input.GetMouseButtonDown(0))
-                {
-                    LayerMask enemyLayer = LayerMask.GetMask("Enemy");
-                    Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
-                    if (Physics.Raycast(ray, out RaycastHit hitInfo, 100f, enemyLayer))
-                    {
-                        if (hitInfo.transform.GetComponent<EnemyStats>() != null)
-                        {
-                            hitInfo.transform.GetComponent<EnemyStats>().DestroySelf();
-                            energy.currentEnergy -= absorb;
-                        }
+            for (int i = 0; i < DataManager.NumCount; i++)
+                SkillApply(i);
 
-                    }
-                }
-                Images[DataManager.Z].GetComponentInParent<UnityEngine.UI.Outline>().enabled = false;
-                isDelete = false;
-            }
-            if (isLightning == true && Input.anyKeyDown)
+            if (Input.GetKeyDown(KeyCode.Q))
             {
-                if (Input.GetMouseButtonDown(0))
-                {
-                    LayerMask enemyLayer = LayerMask.GetMask("Enemy");
-                    Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
-                    if (Physics.Raycast(ray, out RaycastHit hitInfo, 100f, enemyLayer))
-                    {
-                        if (hitInfo.transform.GetComponent<Actor>() != null)
-                        {
-                            hitInfo.transform.GetComponent<Actor>().TakeStunAll(0, 2, 0);
-                            hitInfo.transform.GetComponent<Actor>().TakeDamageAll(0, 10, 0, ArmorType.마법, false, 0, 0);
-                            energy.currentEnergy -= lightning;
-                        }
-
-                    }
-                }
-                Images[DataManager.W].GetComponentInParent<UnityEngine.UI.Outline>().enabled = false;
-                isLightning = false;
-            }
-            if (Input.GetKeyDown(KeyCode.Z))
-            {
-                TriggerZ();
+                Trigger((int)DataManager.Num.Q);
             }
             if (Input.GetKeyDown(KeyCode.W))
             {
-                TriggerW();
+                Trigger((int)DataManager.Num.W);
+            }           
+            if (Input.GetKeyDown(KeyCode.E))
+            {
+                Trigger((int)DataManager.Num.E);
             }
+            if (Input.GetKeyDown(KeyCode.Z))
+            {
+                Trigger((int)DataManager.Num.Z);
+            }
+            if (Input.GetKeyDown(KeyCode.X))
+            {
+                Trigger((int)DataManager.Num.X);
+            }
+            if (Input.GetKeyDown(KeyCode.C))
+            {
+                Trigger((int)DataManager.Num.C);
+            }
+
 
         }
 
@@ -384,45 +407,105 @@ public class GameManager : MonoBehaviour
         }
     }
 
-    public void TriggerZ()
+    public void Trigger(int target)
     {
-        if (energy.currentEnergy >= absorb)
+        if (energy.currentEnergy >= skillEnergy[target] && skillCooldown[target] <= 0)
         {
-            isDelete = true;
-            Images[DataManager.Z].GetComponentInParent<UnityEngine.UI.Outline>().enabled = true;
+            isSkill[target] = true;
+            keyValueImages[target].GetComponentInParent<UnityEngine.UI.Outline>().enabled = true;
+            if (skillIndicate[target] > 0)
+                ring.SetRing(skillIndicate[target], true);
         }
+        else if (skillCooldown[target] > 0) chat.Push($"스킬이 준비중입니다");
         else chat.Push($"에너지가 모자랍니다");
     }
 
-    public void TriggerX()
+    public void SkillApply(int target)
     {
-        
-    }
-    public void TriggerC()
-    {
-
-    }
-    public void TriggerQ()
-    {
-
-    }
-    public void TriggerW()
-    {
-        if (energy.currentEnergy >= absorb)
+        if (isSkill[target] == true && Input.anyKeyDown)
         {
-            isLightning = true;
-            Images[DataManager.W].GetComponentInParent<UnityEngine.UI.Outline>().enabled = true;
+            if (Input.GetMouseButtonDown(0))
+            {
+                if (skillIndicate[target] > 0)
+                {                   
+                    Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
+                    if (Physics.Raycast(ray, out RaycastHit hitInfo, 100f))
+                    {
+                        SkillDetail(target, hitInfo);
+                        energy.currentEnergy -= skillEnergy[target];
+                        skillCooldown[target] = skillCoolInit[target];
+                        SetActiveRecursively(keyValueImages[target].transform.Find("CooldownBG").gameObject, true);
+                    }
+
+                }
+                else
+                {
+                    LayerMask enemyLayer = LayerMask.GetMask("Enemy");
+                    Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
+                    if (Physics.Raycast(ray, out RaycastHit hitInfo, 100f, enemyLayer))
+                    {
+                        if (hitInfo.transform.GetComponent<Actor>() != null)
+                        {
+                            SkillDetail(target, hitInfo);
+                            energy.currentEnergy -= skillEnergy[target];
+                            skillCooldown[target] = skillCoolInit[target];
+                            SetActiveRecursively(keyValueImages[target].transform.Find("CooldownBG").gameObject, true);
+                        }
+
+                    }
+                }
+
+            }
+            ring.SetRing(0f, false);
+            keyValueImages[target].GetComponentInParent<UnityEngine.UI.Outline>().enabled = false;
+            isSkill[target] = false;
         }
-        else chat.Push($"에너지가 모자랍니다");
     }
 
-    public void TriggerE()
+    public void SkillDetail(int target, RaycastHit hitInfo)
     {
+        switch ((DataManager.Num)target)
+        {
+            case DataManager.Num.Q:
+                hitInfo.transform.GetComponent<Actor>().TakeStunAll(0, 5, 0);
+                hitInfo.transform.GetComponent<Actor>().TakeDamageAll(0, 12500000, 0, ArmorType.마법, false, 0, 0);
+                hitInfo.transform.GetComponent<Actor>().TakeDamageAll(0, 7, 0, ArmorType.마법, false, 0, 1);
+                break;
+            case DataManager.Num.W:
+                hitInfo.transform.GetComponent<Actor>().TakeStunAll(0, 2, 0);
+                hitInfo.transform.GetComponent<Actor>().TakeDamageAll(0, 10, 0, ArmorType.마법, false, 0, 0);
+                break;
+            case DataManager.Num.E:
+                {
+                    Highlightable[] highlightables = ring.ring.GetComponent<AOEBlueHighlighter>()._inside.ToArray();
+                    foreach (Highlightable highlightable in highlightables)
+                    {
+                        highlightable.GetComponent<Actor>().TakeDamageAll(0, 7000000, 0, ArmorType.고정, false, 0, 0);
+                    }
+                }
 
+                break;
+            case DataManager.Num.Z:
+                hitInfo.transform.GetComponent<EnemyStats>().DestroySelf();
+                break;
+            case DataManager.Num.X:
+                {
+                    Highlightable[] highlightables = ring.ring.GetComponent<AOEBlueHighlighter>()._inside.ToArray();
+                    foreach (Highlightable highlightable in highlightables)
+                    {
+                        highlightable.GetComponent<Actor>().TakeStunAll(0, 3, 0);
+                    }
+                }
+
+                break;
+            case DataManager.Num.C:
+                break;
+        }
     }
-
-    public void TriggerD()
+    public void SetActiveRecursively(GameObject root, bool on)
     {
-
+        // 비활성 포함 전부 가져와서 activeSelf를 직접 세팅
+        foreach (var t in root.GetComponentsInChildren<Transform>(true))
+            t.gameObject.SetActive(on);
     }
 }

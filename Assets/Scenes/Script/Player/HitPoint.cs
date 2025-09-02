@@ -27,7 +27,7 @@ public class HitPoint : StateMachineBehaviour
         if (game == null) game = stats.GetComponentInParent<GameManager>();
         item = game.ItemManager;
 
-        float animDuration = stats.attackCooldown[action.targetNumber];
+        float animDuration = stateInfo.length;
 
         attackDelay = animDuration * (1 - hitTiming);
 

@@ -73,7 +73,8 @@ public class PlayerStats : MonoBehaviour
     void Update()
     {
         text.text = $"{UnitCount}";
-        attackCooldown[action.targetNumber] = attackDelay[action.targetNumber] / (1 + attackSpeedBonus[action.targetNumber] * 0.01f);
+        for(int i=0;i<ActionScript.targetNumberMax;i++)
+        attackCooldown[i] = attackDelay[i] / (1 + attackSpeedBonus[i] * 0.01f);
 
         Animator anim = GetComponent<Animator>();
         AnimationClip[] clips = anim.runtimeAnimatorController.animationClips;

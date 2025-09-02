@@ -2824,6 +2824,7 @@ GameObject:
   - component: {fileID: 1778523383449982076}
   - component: {fileID: 2408570990248573624}
   - component: {fileID: -5713291617361971065}
+  - component: {fileID: -1677901088190523749}
   m_Layer: 6
   m_Name: Remy@Walking(Clone)
   m_TagString: Enemy
@@ -2942,6 +2943,18 @@ MonoBehaviour:
   precomputeOutline: 0
   bakeKeys: []
   bakeValues: []
+--- !u!114 &-1677901088190523749
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 9116230094194289795}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 67dd814c4c998f64ba456623b9ea6524, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &9141778370405148892
 GameObject:
   m_ObjectHideFlags: 0
