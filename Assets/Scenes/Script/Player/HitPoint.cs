@@ -66,7 +66,8 @@ public class HitPoint : StateMachineBehaviour
             // ⚠ LightningBoltScript 사용법 수정: Start/EndObject를 '대상 오브젝트'로 지정하고
             // 오프셋은 Start/EndPosition으로 줘야 null 에러가 안 납니다.
             var lb = action.Clone.GetComponent<LightningBoltScript>();
-            lb.EndPosition   = new Vector3(0, 1, 0) + action.target[action.targetNumber].transform.position;
+            lb.EndObject = action.target[action.targetNumber].gameObject;
+            lb.EndPosition = new Vector3(0, 1, 0);
 
             // 수명은 타이머로 처리 (애니메이터와 독립, 지연 없음)
             var killer = action.Clone.GetComponent<KillMyself>();

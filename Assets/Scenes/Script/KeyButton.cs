@@ -2,7 +2,7 @@ using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.UI;
 
-public class KeyButton : MonoBehaviour, IPointerClickHandler
+public class KeyButton : MonoBehaviour, IPointerClickHandler, IPointerEnterHandler, IPointerExitHandler 
 {
     Button button;
     public int number;
@@ -28,6 +28,15 @@ public class KeyButton : MonoBehaviour, IPointerClickHandler
     {
 
     }
+
+    public void OnPointerEnter(PointerEventData eventData)
+    {
+        GameManager.Instance.KeyValueNumber = number;
+    }   
+    public void OnPointerExit(PointerEventData eventData)
+    {
+        GameManager.Instance.KeyValueNumber = DataManager.NumCount;
+    }
     
     public void OnPointerClick(PointerEventData eventData)
     {
@@ -37,6 +46,9 @@ public class KeyButton : MonoBehaviour, IPointerClickHandler
 
     void LeftButtonTrigger()
     {
-        GameManager.Instance.Trigger(number);
+        if (GameManager.Instance.ItemManager.isActiveAndEnabled) { GameManager.Instance.ItemManager.Trigger(number); }
+        else GameManager.Instance.Trigger(number);
     }
+
+
 }

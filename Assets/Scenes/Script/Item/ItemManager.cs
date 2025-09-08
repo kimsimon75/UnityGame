@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -5,16 +6,25 @@ using TMPro;
 using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.UI;
+using static MyMathf;
 
 public class ItemManager : MonoBehaviour
 {
+    enum SetSoul
+    {
+        Z = 1 << 0,
+        X = 1 << 1,
+        C = 1 << 2,
+    }
     public List list;
 
     public Item editItem;
 
     private Image[] images;
-    Image[] menu;
+    private Image[] menu;
     private Button[] buttons;
+    private UnityEngine.UI.Outline[] outlines;
+
     private float blur;
     [Range(4, 128)] public int segments = 64;
     [Range(1, 256)] public int radius = 64;
@@ -32,6 +42,9 @@ public class ItemManager : MonoBehaviour
     public TextMeshProUGUI[] ItemStatus;
     public TextMeshProUGUI ItemSkillExplanation;
     public ChatManager chat;
+    [NonSerialized] public bool isAllToggle = true;
+
+    [NonSerialized] public float SetSoulParts = 1;
 
     public int willBeGet = -1;
 
@@ -42,6 +55,10 @@ public class ItemManager : MonoBehaviour
 
         images = GetComponentsInChildren<Image>().Where(img => img.gameObject.name.ToLower().Contains("image")).ToArray();
         buttons = GetComponentsInChildren<Button>().Where(img => img.gameObject.name.ToLower().Contains("button")).ToArray();
+        outlines = buttons
+            .Select(b => b.GetComponent<UnityEngine.UI.Outline>())
+            .Where(o => o != null)
+            .ToArray();
 
         list = new List(stats, cannon, this);
         blur = 0.5f;
@@ -120,16 +137,100 @@ public class ItemManager : MonoBehaviour
         }
         else if (Input.GetKeyDown(KeyCode.Q))
         {
-            GetRankedItem(ItemRank.흔함);
+            Trigger((int)DataManager.Num.Q);
         }
         else if (Input.GetKeyDown(KeyCode.W))
         {
-            GetRankedItem(ItemRank.특별함);
+            Trigger((int)DataManager.Num.W);
         }
         else if (Input.GetKeyDown(KeyCode.E))
         {
-            GetRankedItem(ItemRank.희귀함);
+            Trigger((int)DataManager.Num.E);
         }
+        else if (Input.GetKeyDown(KeyCode.D))
+        {
+            Trigger((int)DataManager.Num.D);
+        }
+        else if (Input.GetKeyDown(KeyCode.Z))
+        {
+            Trigger((int)DataManager.Num.Z);
+        }
+        else if (Input.GetKeyDown(KeyCode.X))
+        {
+            Trigger((int)DataManager.Num.X);
+        }
+        else if (Input.GetKeyDown(KeyCode.C))
+        {
+            Trigger((int)DataManager.Num.C);
+        }
+    }
+    
+    public void Trigger(int target)
+    {
+        switch (target)
+        {
+            case 0:
+                GetRankedItem(ItemRank.흔함);
+                break;
+            case 1:
+                GetRankedItem(ItemRank.특별함);
+                break;
+            case 2:
+                GetRankedItem(ItemRank.희귀함);
+                break;
+            case 3:
+            case 4:
+            case 5:
+                if (isAllToggle)
+                {
+                    SetSoulParts = 1 << (target - (int)DataManager.Num.Z);
+                    SetSouls(true);
+                }
+                else
+                {
+                    Item item = list.FindItem("영혼 파편", ItemRank.All);
+                    if (item.count > 0)
+                    {
+                        item.count -= 1;
+                        switch (target)
+                        {
+                            case 3:
+                                list.GetRandomItem(ItemRank.흔함);
+                                break;
+                            case 4:
+                                int rand = UnityEngine.Random.Range(0, 100);
+                                if (rand < 66)
+                                    list.GetMemoriesParts(1);
+                                else
+                                    chat.Push($"<color=Yellow>기억 조각</color> 획득에 실패했습니다.");
+                                break;
+                        }
+                    }
+                    else
+                    {
+                        chat.Push($"영혼 파편이 없습니다.");
+                    }
+                }
+
+                break;
+            case 6:
+                isAllToggle = !isAllToggle;
+                if(isAllToggle == true ) list.ChangeSouls();
+                GameManager.Instance.Images[(int)DataManager.Num.D].GetComponent<UnityEngine.UI.Outline>().enabled = isAllToggle;
+                SetSouls(isAllToggle);
+                break;
+        }
+    }
+
+    private void SetSouls(bool Set)
+    {
+        for (int i = (int)DataManager.Num.Z; i <= (int)DataManager.Num.C; i++)
+        {
+            GameManager.Instance.Images[i].GetComponent<UnityEngine.UI.Outline>().enabled = false;
+        }
+        if (Set == false) return;
+        GameManager.Instance.Images[(int)Log2(SetSoulParts) + (int)DataManager.Num.Z].GetComponent<UnityEngine.UI.Outline>().enabled = true;
+        GameManager.Instance.Images[(int)DataManager.Num.D].GetComponent<UnityEngine.UI.Outline>().enabled = isAllToggle;
     }
 
     private void GetRankedItem(ItemRank rank)
@@ -158,7 +259,7 @@ public class ItemManager : MonoBehaviour
                             chat.Push($"<color=#{hex}>히든</color> 등급의 함선 획득.");
                             return;
                         }
-                        
+
                         int count = list.itemList[1].Count + list.itemList[2].Count;
                         rand = UnityEngine.Random.Range(0, 100);
                         Item item;
@@ -236,16 +337,18 @@ public class ItemManager : MonoBehaviour
             Clear(editItem, false);
         }
         else chat.Push("기억 조각이 부족합니다");
-        
+
     }
 
     private void SetUpState(Item item)
     {
         item.count++;
+        if(item.count == 1) list.GotItem.Enqueue(item);
     }
 
     public Image[] GetImages() { return images; }
     public Button[] GetButtons() { return buttons; }
+    public UnityEngine.UI.Outline[] GetOutlines() { return outlines; }
 
     public void SetRank(int sRank)
     {
@@ -280,7 +383,8 @@ public class ItemManager : MonoBehaviour
                     transform.Find($"{str}/전설적인"),
                     transform.Find($"{str}/히든"),
                     transform.Find($"{str}/변화된"),
-                    transform.Find($"{str}/상위"), // 7번째
+                    transform.Find($"{str}/상위"),
+                    transform.Find($"{str}/획득"),
                 };
 
             foreach (Transform monoMenu in rankMenu)
@@ -290,7 +394,7 @@ public class ItemManager : MonoBehaviour
 
             rankMenu[rank].GetComponent<UnityEngine.UI.Outline>().effectDistance = new Vector2(4, 4);
 
-            if (rank <= (int)ItemRank.상위 + 1)
+            if (rank < (int)ItemRank.상위)
             {
                 int commonStart = (int)ItemRank.흔함;
                 Item[] Items = list.itemList[rank + commonStart].ToArray();
@@ -321,32 +425,22 @@ public class ItemManager : MonoBehaviour
                     images[i].color = c;
 
                 }
+
                 if (rank == 0)
                 {
                     int i = list.itemList[rank + commonStart].Count;
-                    images[i].transform.Find("number1").gameObject.SetActive(true);
-                    images[i].sprite = Resources.Load<Sprite>($"Image/Item/All/{list.itemList[0][0].Name}");
-                    images[i].GetComponentInChildren<TextMeshProUGUI>().text = list.itemList[0][0].count.ToString();
 
-                    Color c = images[i].color;
-                    if (list.itemList[0][0].count == 0) c.a = blur;
-                    else c.a = 1f;
-                    images[i].color = c;
-
-                    images[i + 1].transform.Find("number1").gameObject.SetActive(true);
-                    images[i + 1].sprite = Resources.Load<Sprite>($"Image/Item/All/{list.itemList[0][1].Name}");
-                    images[i + 1].GetComponentInChildren<TextMeshProUGUI>().text = list.itemList[0][1].count.ToString();
-
-                    c = images[i + 1].color;
-                    if (list.itemList[0][1].count == 0)
+                    for (int j = 0; j < list.itemList[0].Count; j++)
                     {
-                        c.a = blur;
-                        buttons[i].GetComponent<UnityEngine.UI.Outline>().effectColor = Color.red;
+                        images[i + j].transform.Find("number1").gameObject.SetActive(true);
+                        images[i + j].sprite = Resources.Load<Sprite>($"Image/Item/All/{list.itemList[0][j].Name}");
+                        images[i + j].GetComponentInChildren<TextMeshProUGUI>().text = list.itemList[0][j].count.ToString();
+
+                        Color c = images[i + j].color;
+                        if (list.itemList[0][j].count == 0) c.a = blur;
+                        else c.a = 1f;
+                        images[i + j].color = c;
                     }
-                    else c.a = 1f;
-                    images[i + 1].color = c;
-
-
                 }
                 else if (rank == 2 && willBeGet != -1)
                 {
@@ -355,6 +449,24 @@ public class ItemManager : MonoBehaviour
                     outline.effectDistance = new Vector2(4, 4);
                 }
 
+            }
+            else
+            {
+                PriorityQueue<Item> items = list.GotItem;
+
+                int i = 0;
+                foreach (Item it in items.EnumerateByPriority())
+                {
+                    images[i].sprite = it.Resource;
+                    outlines[i].effectDistance = new Vector2(4, 4);
+                    outlines[i].effectColor = GetColor(it);
+
+                    images[i].transform.Find("number1").gameObject.SetActive(true);
+                    TextMeshProUGUI countText = images[i].GetComponentInChildren<TextMeshProUGUI>();
+                    countText.text = it.count.ToString();
+
+                    i++;
+                }
             }
                 
         }

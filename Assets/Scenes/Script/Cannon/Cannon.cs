@@ -6,7 +6,7 @@ public class Cannon : MonoBehaviour
 {
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     [NonSerialized] public Transform target;
-    float detectRange = 5f;
+    float detectRange = 6f;
     bool isAttack = false;
     public GameObject projectilePrefab;
     public Transform firePoint;

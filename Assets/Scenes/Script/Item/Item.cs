@@ -1,10 +1,9 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using Unity.Collections.LowLevel.Unsafe;
-using Unity.IO.LowLevel.Unsafe;
 using UnityEngine;
 using UnityEngine.UI;
+using static MyMathf;
 public enum ItemRank
 {
     All,
@@ -15,7 +14,8 @@ public enum ItemRank
     전설적인,
     히든,
     변화된,
-    상위
+    상위,
+    획득
 }
 
 public sealed class Item : IComparable<Item>
@@ -111,11 +111,11 @@ public sealed class Item : IComparable<Item>
 
     public int CompareTo(Item other)
     {
-        if (ReferenceEquals(this, other)) return 0;
-        if (other is null) return 1;                  // this > null
+        int cmp = this.Rank.CompareTo(other.Rank);
+        if (cmp != 0) return cmp;
 
-        // 높은 랭크가 먼저(내림차순)
-        return other.Rank.CompareTo(this.Rank);
+        // Rank가 같으면 Name 기준 오름차순
+        return other.Id.CompareTo(this.Id);
     }
 
     public static implicit operator int(Item item) => (int)item.Rank;
@@ -143,7 +143,7 @@ public class List
     public ItemManager ItemManager;
     private Dictionary<(string, ItemRank), Item> dict;
     private Image[] images;
-    private Button[] buttons;
+    private UnityEngine.UI.Outline[] outlines;
     private int[] rankOn = new int[ActionScript.targetNumberMax];
 
     public Dictionary<(string, ItemRank), Item>[] currentItem = new Dictionary<(string, ItemRank), Item>[ActionScript.targetNumberMax];
@@ -159,6 +159,10 @@ public class List
         ,0, 0, 0, 0, 0, ArmorType.일반
         ,0},
     { "기억 조각", Array.Empty<ItemIngredient>(), 0, 0, 0, 0, 0, 0, 0f, 0f, 0, 0, 0, 0
+        , 0, 0, 0, 0, 0, 0f, 0f,5f
+        ,0, 0, 0, 0, 0, ArmorType.일반
+        ,0},
+    { "영혼 파편", Array.Empty<ItemIngredient>(), 0, 0, 0, 0, 0, 0, 0f, 0f, 0, 0, 0, 0
         , 0, 0, 0, 0, 0, 0f, 0f,5f
         ,0, 0, 0, 0, 0, ArmorType.일반
         ,0},};
@@ -191,7 +195,7 @@ public class List
         ItemManager = itemManager;
 
         images = ItemManager.GetImages();
-        buttons = ItemManager.GetButtons();
+        outlines = itemManager.GetOutlines();
 
 
         number = new int[(int)ItemRank.상위 + 1];
@@ -604,7 +608,6 @@ public class List
 
 
     }
-
     public void SetItem(ItemRank rank)
     {
         if (rank != ItemRank.상위)
@@ -743,12 +746,60 @@ public class List
         ItemManager.Clear(ItemManager.GetEditItem(), false);
         return item;
     }
+    public void GetSoulParts(int count)
+    {
+        if (count <= 0) return;
+        FindItem("영혼 파편", ItemRank.All).count += count;
+        if (ItemManager.isAllToggle) ChangeSouls();
+        else
+        {
+            ItemManager.chat.Push($"<color=White>영혼 파편</color> {count}개 획득."); 
+            ItemManager.Clear(ItemManager.GetEditItem(), false);
+        }
 
+
+    }
+
+    public void GetAll(int count)
+    {
+        if (count <= 0) return;
+        FindItem("만물석", ItemRank.All).count += count;
+        ItemManager.Clear(ItemManager.GetEditItem(), false);
+        ItemManager.chat.Push($"<color=White>만물석</color> {count}개 획득.");
+    }
     public void GetMemoriesParts(int count)
     {
         if (count <= 0) return;
         FindItem("기억 조각", ItemRank.All).count += count;
-        ItemManager.chat.Push($"<color=#Yellow>기억 조각</color> {count}개 획득.");
+        ItemManager.Clear(ItemManager.GetEditItem(), false);
+        ItemManager.chat.Push($"<color=Yellow>기억 조각</color> {count}개 획득.");
+    }
+
+    public void ChangeSouls()
+    {
+        Item item = FindItem("영혼 파편", ItemRank.All);
+        int count = item.count;
+        item.count = 0;
+        switch (Log2(ItemManager.SetSoulParts))
+        {
+            case 0:
+                for (int i = 0; i < count; i++)
+                {
+                    GetRandomItem(ItemRank.흔함);
+                }
+                break;
+            case 1:
+                for (int i = 0; i < count; i++)
+                {
+                    int rand = UnityEngine.Random.Range(0, 100);
+                    if (rand < 66)
+                        GetMemoriesParts(1);
+                    else GameManager.Instance.chat.Push($"<color=Yellow>기억 조각</color> 획득에 실패했습니다.");
+                }
+                break;
+            case 2:
+                break;
+        }
     }
 
     public bool CombineItem(Item item)
@@ -780,7 +831,7 @@ public class List
             {
                 GotItem.Enqueue(item);
                 SetUnity(item);
-            } 
+            }
             SetCannon(item.Rank);
             ItemManager.Clear(null, false);
         }
@@ -1105,10 +1156,10 @@ public class List
                 image.transform.Find("number2").gameObject.SetActive(false);
 
             }
-        if (buttons != null)
+        if (outlines != null)
         {
-            foreach (Button button in buttons)
-                button.GetComponent<UnityEngine.UI.Outline>().effectDistance = new Vector2(0, 0);
+            foreach (UnityEngine.UI.Outline outline in outlines)
+                outline.effectDistance = new Vector2(0, 0);
 
         }
     }

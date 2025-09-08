@@ -63,9 +63,13 @@ public class WalkForward : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
+
+    }
+    void FixedUpdate()
+    {
         if (StunTime > 0f)
         {
-            StunTime -= Time.deltaTime;
+            StunTime -= Time.fixedDeltaTime;
             anim.CrossFade("Idle", 0f);
         }
         else
@@ -73,12 +77,6 @@ public class WalkForward : MonoBehaviour
             anim.CrossFade("Walking", 0f);
         }
 
-
-
-
-    }
-    void FixedUpdate()
-    {
         if (StunTime <= 0f)
         {
             Vector3 direction = (targetPosition - transform.position).normalized;

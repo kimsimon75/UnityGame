@@ -1,6 +1,7 @@
 
 using UnityEngine;
 using UnityEngine.UI;
+using static MyMathf;
 public class ItemScript : MonoBehaviour
 {
     GameObject obj;
@@ -23,26 +24,13 @@ public class ItemScript : MonoBehaviour
             sprites[i] = new Sprite[DataManager.NumCount];
         }
 
-        sprites[0][(int)DataManager.Num.Q] = Resources.Load<Sprite>("Key/귀속");
-        sprites[0][(int)DataManager.Num.W] = Resources.Load<Sprite>("Key/낙뢰");
-        sprites[0][(int)DataManager.Num.E] = Resources.Load<Sprite>("Key/메테오");
-        sprites[0][(int)DataManager.Num.Z] = Resources.Load<Sprite>("Key/영혼 흡수");
-        sprites[0][(int)DataManager.Num.X] = Resources.Load<Sprite>("Key/지진");
-        sprites[0][(int)DataManager.Num.C] = Resources.Load<Sprite>("Key/독약");
-
-
-        sprites[1][(int)DataManager.Num.Q] = Resources.Load<Sprite>("Key/흔함");
-        sprites[1][(int)DataManager.Num.W] = Resources.Load<Sprite>("Key/중급 도박");
-        sprites[1][(int)DataManager.Num.E] = Resources.Load<Sprite>("Key/고급 도박");
-        sprites[1][(int)DataManager.Num.Z] = Resources.Load<Sprite>("Key/초급 도박");
-        sprites[1][(int)DataManager.Num.X] = Resources.Load<Sprite>("Key/기억 조각");
-        sprites[1][(int)DataManager.Num.C] = Resources.Load<Sprite>("Key/에너지 탱크");
+        sprites = DataManager.Instance.sprites;
 
         SetKey();
 
         for (int i = 0; i < DataManager.NumCount; i++)
         {
-            Image darkImg = keyValueImages[i].GetComponentsInChildren<Image>()[2];
+            Image darkImg = keyValueImages[i].GetComponentsInChildren<Image>()[3];
             SetDarker(darkImg, 0.3f);
 
             darkImg.type = Image.Type.Filled;
@@ -62,7 +50,12 @@ public class ItemScript : MonoBehaviour
 
         for (int i = 0; i < DataManager.NumCount; i++)
         {
-            keyValueImages[i].sprite = keyValueImages[i].GetComponentsInChildren<Image>()[2].sprite = sprites[0][i];
+            keyValueImages[i].GetComponentsInChildren<Image>()[1].sprite = keyValueImages[i].GetComponentsInChildren<Image>()[3].sprite = sprites[0][i];
+            if (GameManager.Instance.skillCooldown[i] > 0)
+            {
+                GameObject CooldownTimer = keyValueImages[i].transform.Find("Image/CooldownBG").gameObject;
+                CooldownTimer.SetActive(true);
+            }
         }
     }
 
@@ -71,15 +64,22 @@ public class ItemScript : MonoBehaviour
     {
         if (Input.GetKeyDown(KeyCode.R))
         {
-            obj.SetActive(!obj.activeSelf);
+            
+            for (int i = 0; i < keyValueImages.Length; i++)
+            {
+                keyValueImages[i].GetComponent<UnityEngine.UI.Outline>().enabled = false;
+            }
+                obj.SetActive(!obj.activeSelf);
             if (obj.activeSelf)
             {
                 for (int i = 0; i < DataManager.NumCount; i++)
                 {
-                    keyValueImages[i].sprite = keyValueImages[i].GetComponentsInChildren<Image>()[2].sprite = sprites[1][i];
+                    keyValueImages[i].GetComponentsInChildren<Image>()[1].sprite = keyValueImages[i].GetComponentsInChildren<Image>()[3].sprite = sprites[1][i];
+                    GameObject CooldownTimer = keyValueImages[i].transform.Find("Image/CooldownBG").gameObject;
+                    CooldownTimer.SetActive(false);
                 }
-
-
+                keyValueImages[(int)DataManager.Num.D].GetComponent<UnityEngine.UI.Outline>().enabled = item.isAllToggle;
+                if(item.isAllToggle) keyValueImages[(int)Log2(item.SetSoulParts) + (int)DataManager.Num.Z].GetComponent<UnityEngine.UI.Outline>().enabled = true;
             }
             else
             {
@@ -92,7 +92,7 @@ public class ItemScript : MonoBehaviour
         for (int i = 0; i < DataManager.NumCount; i++)
         {
 
-            darkImg[i].fillAmount = GameManager.Instance.item.isActiveAndEnabled ? 0 : skillCooldown[i] / GameManager.Instance.skillCoolInit[i];
+            darkImg[i].fillAmount = GameManager.Instance.ItemManager.isActiveAndEnabled ? 0 : skillCooldown[i] / GameManager.Instance.skillCoolInit[i];
         }
 
 
@@ -108,7 +108,7 @@ public class ItemScript : MonoBehaviour
             Debug.Log("hello");
             int rank = item.GetRank();
             rank -= 1;
-            if (rank < 0) rank = 7;
+            if (rank < 0) rank = (int)ItemRank.상위;
             item.SetRank(rank);
 
         }
@@ -117,7 +117,7 @@ public class ItemScript : MonoBehaviour
         {
             int rank = item.GetRank();
             rank += 1;
-            if (rank > 7) rank = 0;
+            if (rank > (int)ItemRank.상위) rank = 0;
             item.SetRank(rank);
         }
     }
@@ -125,7 +125,7 @@ public class ItemScript : MonoBehaviour
     bool TryGetNumericKey(out int number)
     {
         // 0 ~ 9 알파벳 키 (메인 키보드)
-        for (KeyCode kc = KeyCode.Alpha1; kc <= KeyCode.Alpha8; kc++)
+        for (KeyCode kc = KeyCode.Alpha1; kc <= (int)ItemRank.획득 + KeyCode.Alpha0; kc++)
         {
             if (Input.GetKeyDown(kc))
             {
@@ -135,7 +135,7 @@ public class ItemScript : MonoBehaviour
         }
 
         // 넘패드 0 ~ 9 도 허용하고 싶으면 추가
-        for (KeyCode kc = KeyCode.Keypad1; kc <= KeyCode.Keypad8; kc++)
+        for (KeyCode kc = KeyCode.Keypad1; kc <= (int)ItemRank.획득 + KeyCode.Keypad0; kc++)
         {
             if (Input.GetKeyDown(kc))
             {

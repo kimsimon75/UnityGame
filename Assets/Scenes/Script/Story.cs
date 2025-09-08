@@ -39,13 +39,16 @@ public class Story : Actor
             switch (level)
             {
                 case 1:
-                    item.list.FindItem("만물석", ItemRank.All).count += 3;
-                    item.Clear(item.GetEditItem(), false);
+                    item.list.GetAll(3);
                     break;
             }
 
             currentHealth = maxHealth = story[++level][0];
         }
+
+        Timeline();
+
+        Armor = story[level][1] - deArmor;
     }
 
     public override void TakeDamageAll(float damageAll, float damage, float detectRange, ArmorType damageType, bool physics, int armorDecrease, int percent)// damageAll만 사용
@@ -55,8 +58,8 @@ public class Story : Actor
         damage = damage * GetDamage(damageType, armorType);
         if (physics)
         {
-            damageAll = damageAll * ArmorCalculate(story[level][1], armorDecrease);
-            damage = damage * ArmorCalculate(story[level][1], armorDecrease);
+            damageAll = damageAll * ArmorCalculate(Armor, armorDecrease);
+            damage = damage * ArmorCalculate(Armor, armorDecrease);
         }
         switch (percent)
         {
@@ -84,11 +87,13 @@ public class Story : Actor
         }
     }
 
-    public override void TakeStunAll(float Time, float TimeAll, float radius)
+    public override void TakeStunAll(float Time, float TimeAll, float radius) { return; }
+    public override void TakePoisonAll(float Time, int Armor, float radius)
     {
-        return;
+        deArmor = Armor;
+        deArmorTime = Time;
     }
 
-    public (int[][] story, byte level, ArmorType armorType) GetDamageInfo() { return (story, level, armorType); }
+    public (int story, byte level, ArmorType armorType) GetDamageInfo() { return (Armor, level, armorType); }
     
 }

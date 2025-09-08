@@ -27,7 +27,7 @@ public class RightClickButtonHandler : MonoBehaviour, IPointerClickHandler
     }
     
     public void OnPointerClick(PointerEventData eventData)
-    
+
     {
 
         Transform imgTf = transform.Find("Image");
@@ -66,10 +66,6 @@ public class RightClickButtonHandler : MonoBehaviour, IPointerClickHandler
         Debug.Log("Right-click triggered!");
         if (!item.list.CombineItem(item.list.FindItem(image.sprite.name, DataManager.Instance.imageDict[image.sprite])))
             Debug.LogError("아이템이 모자라거나 만물석임");
-
-
-
-        
     }
     void CtrlRightClickTrigger(Image image)
     {

@@ -23,10 +23,13 @@ public class DataManager : MonoBehaviour
         E,
         Z,
         X,
-        C
+        C,
+        D,
     }
 
-    public static readonly int NumCount = Enum.GetValues(typeof(Num)).Length;
+    [NonSerialized] public static readonly int NumCount = Enum.GetValues(typeof(Num)).Length;
+
+    public Sprite[][] sprites;
 
     public int[][] enemyStats = new int[76][]
     {
@@ -137,6 +140,31 @@ public class DataManager : MonoBehaviour
     {
         Instance = this;
         imageDict = new Dictionary<Sprite, ItemRank>();
+
+        sprites = new Sprite[2][]
+        {
+            new Sprite[]
+            {
+                Resources.Load<Sprite>("Key/귀속"),
+                Resources.Load<Sprite>("Key/낙뢰"),
+                Resources.Load<Sprite>("Key/메테오"),
+                Resources.Load<Sprite>("Key/영혼 흡수"),
+                Resources.Load<Sprite>("Key/지진"),
+                Resources.Load<Sprite>("Key/독약"),
+                Resources.Load<Sprite>("Key/도핑"),
+            },
+            new Sprite[]
+            {
+                Resources.Load<Sprite>("Key/흔함"),
+                Resources.Load<Sprite>("Key/중급 도박"),
+                Resources.Load<Sprite>("Key/고급 도박"),
+                Resources.Load<Sprite>("Key/초급 도박"),
+                Resources.Load<Sprite>("Key/기억 조각"),
+                Resources.Load<Sprite>("Key/에너지 탱크"),
+                Resources.Load<Sprite>("Key/로테이션"),
+            }
+        };
+
     }
 
     // Update is called once per frame

@@ -1,3 +1,4 @@
+using System;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
@@ -9,7 +10,7 @@ public class ChatManager : MonoBehaviour
     public GameObject messagePrefab;   // 위 MessagePrefab
 
     [Header("옵션")]
-    public int maxLines = 10;          // 동시에 보이는 최대 줄 수
+    [NonSerialized] public int maxLines = 15;          // 동시에 보이는 최대 줄 수
     public float fadeDelay = 2f;
     public float fadeDuration = 1f;
 

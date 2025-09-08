@@ -17,6 +17,11 @@ public abstract class Actor : MonoBehaviour
     public ArmorType armorType = ArmorType.일반;
     public bool isDead = false;
 
+    public int originArmor = 0;
+    public int deArmor = 0;
+    public float deArmorTime = 0;
+
+    protected int Armor = 0;
     public GameObject bar;
 
     protected float GetDamage(ArmorType damageType, ArmorType armorType)
@@ -79,4 +84,18 @@ public abstract class Actor : MonoBehaviour
     public abstract void TakeDamageAll(float damageAll, float damage, float radius, ArmorType damageType, bool physics, int armorDecrease, int percent = 0);/// percent 0 : 일반, 1 : 전체, 2 : 현재, 3 : 잃은,
 
     public abstract void TakeStunAll(float TimeAll, float Time, float radius);
+    public abstract void TakePoisonAll(float Time, int Armor, float radius);
+
+    protected void Timeline()
+    {
+        if (deArmorTime > 0)
+        {
+            deArmorTime -= Time.deltaTime;
+        }
+        else
+        {
+            deArmor = 0;
+        }
+        Armor = originArmor - deArmor;
+    }
 }

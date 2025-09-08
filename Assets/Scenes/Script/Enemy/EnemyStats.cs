@@ -13,13 +13,11 @@ public class EnemyStats : Actor
     [Tooltip("시작 시 현재 체력")]
     public float CurrentHealth;
     private PlayerStats player;
-    private int armor = 0;
     public float moveSpeed = 484f;
     private WalkForward walk;
     public bool boss = false;
     private bool specialBoss = false;
     private int round = 0;
-
 
 
     [System.Obsolete]
@@ -29,7 +27,7 @@ public class EnemyStats : Actor
         int round = GameManager.Instance.GetRound();
 
         MaxHealth = DataManager.Instance.enemyStats[round][0];
-        armor = DataManager.Instance.enemyStats[round][1];
+        originArmor = DataManager.Instance.enemyStats[round][1];
         // 게임 시작할 때 현재 체력을 최대치로 초기화
         CurrentHealth = MaxHealth;
 
@@ -39,6 +37,11 @@ public class EnemyStats : Actor
         {
             armorType = ArmorType.일반;
         }
+    }
+
+    void Update()
+    {
+        Timeline();
     }
 
     /// <summary>
@@ -67,7 +70,7 @@ public class EnemyStats : Actor
                 break;
         }
         if (physics)
-            damage = damage * ArmorCalculate(armor, armorDecrease);
+            damage = damage * ArmorCalculate(Armor, armorDecrease);
         CurrentHealth = Mathf.Max(CurrentHealth - damage, 0f);
         if (CurrentHealth <= 0)
         {
@@ -80,20 +83,20 @@ public class EnemyStats : Actor
                     {
                         case DataManager.삼십라운드:
                             parts = 0;
-                            GameManager.Instance.item.list.GetRandomItem(ItemRank.안흔함);
+                            GameManager.Instance.ItemManager.list.GetRandomItem(ItemRank.안흔함);
                             break;
                         case DataManager.사십라운드:
                             parts = 1;
-                            GameManager.Instance.item.list.GetRandomItem(ItemRank.특별함);
+                            GameManager.Instance.ItemManager.list.GetRandomItem(ItemRank.특별함);
                             break;
                         case DataManager.오십라운드:
                             parts = 1;
                             break;
                     }
-                    GameManager.Instance.item.list.GetMemoriesParts(parts);
+                    GameManager.Instance.ItemManager.list.GetMemoriesParts(parts);
                 }
                 else if (round <= 60)
-                        GameManager.Instance.item.list.GetMemoriesParts(DataManager.Instance.bossReword[DataManager.Instance.bossRound++]);
+                    GameManager.Instance.ItemManager.list.GetMemoriesParts(DataManager.Instance.bossReword[DataManager.Instance.bossRound++]);
             }
             --player.UnitCount;
             DestroySelf();
@@ -133,14 +136,42 @@ public class EnemyStats : Actor
 
         TakeDamage(damage + damageAll, damageType, physics, armorDecrease, percent);
 
-    }
-
+    }       
     public void TakeStun(float Time)
     {
         walk.StunTime = Mathf.Max(walk.StunTime, Time);
     }
 
+
     public override void TakeStunAll(float TimeAll, float Time, float radius)
+    {
+        Vector3 center = transform.position;
+
+        // 원하는 레이어만 필터링
+        LayerMask enemyLayer = LayerMask.GetMask("Enemy");
+        Collider[] hits = Physics.OverlapSphere(center, radius, enemyLayer);
+        float realTime = Mathf.Max(Time, TimeAll * (boss ? 0.3f : 1f));
+
+        foreach (Collider col in hits)
+        {
+            EnemyStats stats = col.GetComponent<EnemyStats>();
+
+            if (stats != null && col.transform != transform)
+            {
+                stats.TakeStun(realTime);
+            }
+        }
+        TakeStun(realTime);
+    }
+
+
+    public void TakePoison(float Time, int Armor)
+    {
+        deArmorTime = Mathf.Max(deArmorTime, Time);
+        deArmor = Armor;
+    }
+
+    public override void TakePoisonAll(float Time, int Armor, float radius)
     {
         Vector3 center = transform.position;
 
@@ -150,16 +181,14 @@ public class EnemyStats : Actor
 
         foreach (Collider col in hits)
         {
-            WalkForward walks = col.GetComponent<WalkForward>();
             EnemyStats stats = col.GetComponent<EnemyStats>();
 
-            if (stats != null && walks != null && col.transform != transform)
+            if (stats != null && col.transform != transform)
             {
-                walks.StunTime = Mathf.Max(walks.StunTime, TimeAll * (stats.boss ? 0.3f : 1f));
+                stats.TakePoison(Time, Armor);
             }
         }
-        float realTime = Mathf.Max(Time, TimeAll * (boss ? 0.3f : 1f));
-        TakeStun(realTime);
+        TakePoison(Time, Armor);
     }
 
 
@@ -188,7 +217,7 @@ public class EnemyStats : Actor
     }
     public (int armor, float moveSpeed, ArmorType armorType) GetDamageInfo()
     {
-        return (armor, moveSpeed, armorType);
+        return (Armor, moveSpeed, armorType);
     }
 
     public void SetRound(int round) => this.round = round;
@@ -196,5 +225,5 @@ public class EnemyStats : Actor
     public void SetBoss(bool boss) => this.boss = boss;
     public void SetSpecialBoss(bool specialBoss) => this.specialBoss = specialBoss;
 
-    public void SetArmor(int armor) => this.armor = armor;
+    public void SetArmor(int armor) => this.originArmor = armor;
 }
