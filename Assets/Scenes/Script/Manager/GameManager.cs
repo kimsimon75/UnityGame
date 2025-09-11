@@ -10,6 +10,8 @@ public class GameManager : MonoBehaviour
 {
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     public static GameManager Instance;
+    [SerializeField] private ActionScript action;
+    public ActionScript Action => action; // 프로퍼티로 외부 노출
 
     private const float init = 35f;
     private const float bossInit = 75f;
@@ -30,6 +32,7 @@ public class GameManager : MonoBehaviour
     public TextMeshProUGUI roundText;
     public Summoner summoner;
     public ItemManager item; // 절대 private로 전환 금지
+    public ItemScrollView scrollView;
     AoeIndicatorLite ring;
 
     public ItemManager ItemManager => item;
@@ -37,6 +40,7 @@ public class GameManager : MonoBehaviour
     public GameObject CrossPrefab;
 
     public GameObject PlayerZone;
+    public GameObject Count;
 
     private GameObject CrossInstance;
 
@@ -100,7 +104,7 @@ public class GameManager : MonoBehaviour
         slider.SpawnPanelsSequentially();
 
         item.willBeGet = UnityEngine.Random.Range(0, item.list.itemList[(int)ItemRank.특별함].Count);
-
+        
         
 
         for (int i = 0; i < DataManager.NumCount; i++)
@@ -230,7 +234,8 @@ public class GameManager : MonoBehaviour
                 string hex = UnityEngine.ColorUtility.ToHtmlStringRGB(Color.yellow);
                 ItemManager.chat.Push($"<color=#{hex}>{ItemRank.특별함}</color> 등급의 {item.list.itemList[(int)ItemRank.특별함][item.willBeGet].Name} 획득");
                 item.list.itemList[(int)ItemRank.특별함][item.willBeGet].count++;
-                item.willBeGet = -1;         
+                item.willBeGet = -1;
+                scrollView.ImageInit(item.list.currentItem[action.targetNumber]);     
             }
             if (round == 15) item.list.GetRandomItem(ItemRank.희귀함);
             if (round == 41)
@@ -319,7 +324,6 @@ public class GameManager : MonoBehaviour
                     go_pawnCooltime = 300f;
                     go_pawnTime = 19f;
                 }
-                Debug.Log(go_pawnTime);
                 time = condition == 15 ? pawnTime : go_pawnTime;
                 cooltime = condition == 15 ? pawnCooltime : go_pawnCooltime;
                 targetObject.SetBoss(true);

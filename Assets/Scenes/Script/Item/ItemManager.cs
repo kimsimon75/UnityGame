@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using TMPro;
+using Unity.Profiling;
 using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.UI;
@@ -129,44 +130,26 @@ public class ItemManager : MonoBehaviour
     {
         if (Input.GetKeyDown(KeyCode.Escape))
         {
-            if (itemStack.Count == 0)
-                Clear(null, true);
-            else
-                Clear(itemStack.Pop(), true);
+            if (itemStack.Count == 0) Clear(null, true);
+            else Clear(itemStack.Pop(), true);
+            return;
+        }
 
-        }
-        else if (Input.GetKeyDown(KeyCode.Q))
-        {
-            Trigger((int)DataManager.Num.Q);
-        }
-        else if (Input.GetKeyDown(KeyCode.W))
-        {
-            Trigger((int)DataManager.Num.W);
-        }
-        else if (Input.GetKeyDown(KeyCode.E))
-        {
-            Trigger((int)DataManager.Num.E);
-        }
-        else if (Input.GetKeyDown(KeyCode.D))
-        {
-            Trigger((int)DataManager.Num.D);
-        }
-        else if (Input.GetKeyDown(KeyCode.Z))
-        {
-            Trigger((int)DataManager.Num.Z);
-        }
-        else if (Input.GetKeyDown(KeyCode.X))
-        {
-            Trigger((int)DataManager.Num.X);
-        }
-        else if (Input.GetKeyDown(KeyCode.C))
-        {
-            Trigger((int)DataManager.Num.C);
-        }
+        // 2) Ctrl 상태 캐시
+        bool ctrl = Input.GetKey(KeyCode.LeftControl) || Input.GetKey(KeyCode.RightControl);
+
+        // 3) 키별로 Ctrl 조합/일반 동작 분기
+        if (Input.GetKeyDown(KeyCode.Q)) { if (ctrl) ControlTrigger((int)DataManager.Num.Q); else Trigger((int)DataManager.Num.Q); return; }
+        if (Input.GetKeyDown(KeyCode.W)) { if (ctrl) ControlTrigger((int)DataManager.Num.W); else Trigger((int)DataManager.Num.W); return; }
+        if (Input.GetKeyDown(KeyCode.E)) { if (ctrl) ControlTrigger((int)DataManager.Num.E); else Trigger((int)DataManager.Num.E); return; }
+        if (Input.GetKeyDown(KeyCode.D)) { Trigger((int)DataManager.Num.D); return; }
+        if (Input.GetKeyDown(KeyCode.Z)) { if (ctrl) ControlTrigger((int)DataManager.Num.Z); else Trigger((int)DataManager.Num.Z); return; }
+        if (Input.GetKeyDown(KeyCode.X)) { if (ctrl) ControlTrigger((int)DataManager.Num.X); else Trigger((int)DataManager.Num.X); return; }
+        if (Input.GetKeyDown(KeyCode.C)) { if (ctrl) ControlTrigger((int)DataManager.Num.C); else Trigger((int)DataManager.Num.C); return; }
     }
     
     public void Trigger(int target)
-    {
+    { if (GameManager.Instance.Count.activeInHierarchy) return;
         switch (target)
         {
             case 0:
@@ -220,6 +203,17 @@ public class ItemManager : MonoBehaviour
                 SetSouls(isAllToggle);
                 break;
         }
+    }
+
+    public void ControlTrigger(int target)
+    {
+            GameObject Count = GameManager.Instance.Count;
+
+            CountScript script = Count.GetComponent<CountScript>();
+
+            script.SetNumber(target);
+            script.slider.value = 0;
+            Count.SetActive(true);
     }
 
     private void SetSouls(bool Set)
@@ -333,6 +327,7 @@ public class ItemManager : MonoBehaviour
                     }
                     break;
             }
+            GameManager.Instance.scrollView.ImageInit(list.currentItem[GameManager.Instance.Action.targetNumber]);
             list.FindItem("기억 조각", ItemRank.All).count -= neccesary;
             Clear(editItem, false);
         }
@@ -530,7 +525,6 @@ public class ItemManager : MonoBehaviour
                 int j = 0;
                 foreach (string name in names)
                 {
-                    targetItem = list.FindItem(name, ItemRank.흔함);
                     Transform tr = images[10 * 5 + j++].transform.Find("number1");
                     tr.gameObject.SetActive(true);
                     TextMeshProUGUI countText = tr.GetComponentInChildren<TextMeshProUGUI>();
@@ -550,14 +544,17 @@ public class ItemManager : MonoBehaviour
                     Transform tr = images[10 * 5 + j++].transform.Find("number2");
                     tr.gameObject.SetActive(true);
                     TextMeshProUGUI countText = tr.GetComponentInChildren<TextMeshProUGUI>();
-                    if (dict.ContainsKey((name, ItemRank.흔함)))
+                    if (Colordict.ContainsKey((name, ItemRank.흔함)))
                     {
-                        int neccesary = Mathf.Max(dict[(name, ItemRank.흔함)] - targetItem.count, 0);
+                        int neccesary = Mathf.Max(Colordict[(name, ItemRank.흔함)] - list.FindItem(name, ItemRank.흔함).count, 0);
                         countText.text = neccesary.ToString();
                         all += neccesary;
                     }
-                    else
-                        countText.text = "0";
+                    else countText.text = "0";
+                }
+                foreach (KeyValuePair<(string, ItemRank), int> kvp in Colordict)
+                {
+                    Debug.Log($"{kvp.Key.Item1}, {kvp.Key.Item2}, {kvp.Value}");
                 }
 
                 images[10 * 5 + j].sprite = list.FindItem("만물석", ItemRank.All).Resource;
@@ -578,7 +575,7 @@ public class ItemManager : MonoBehaviour
 
     public ref Item GetEditItem() { return ref editItem; }
 
-    private Color GetColor(Item targetItem)
+    public Color GetColor(Item targetItem)
     {
         switch (targetItem.Rank)
         {
@@ -587,7 +584,7 @@ public class ItemManager : MonoBehaviour
             case ItemRank.흔함:
                 return Color.green;
             case ItemRank.안흔함:
-                return Color.purple;
+                return new Color32(176, 78, 248, 255);
             case ItemRank.특별함:
                 return Color.yellow;
             case ItemRank.희귀함:

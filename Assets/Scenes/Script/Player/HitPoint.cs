@@ -85,8 +85,8 @@ public class HitPoint : StateMachineBehaviour
                     .TakeDamageAll(0, stats.damage[action.targetNumber], 0, ArmorType.패기, true, stats.neutralizeDefense);
 
                 if (item == null) Debug.Log("None item");
-                foreach (KeyValuePair<(string, ItemRank), Item> kvp in item.list.currentItem[action.targetNumber])
-                    item.list.SetSkill(action.target[action.targetNumber].GetComponent<Actor>(), kvp.Value);
+                foreach (Item item1 in item.list.currentItem[action.targetNumber])
+                    item.list.SetSkill(action.target[action.targetNumber].GetComponent<Actor>(), item1);
                 item.Clear(item.editItem, false);
             }
 

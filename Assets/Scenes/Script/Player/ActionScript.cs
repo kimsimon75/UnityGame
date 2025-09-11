@@ -14,7 +14,9 @@ public class ActionScript : MonoBehaviour
     private AgentMove move;
     private PlayerStats stats;
     public ItemManager item;
-    public const int targetNumberMax = 6;
+    private const int targetNumberMax = 6;
+
+    public int TargetNumberMax => targetNumberMax;
     [NonSerialized] public Transform[] target = new Transform[targetNumberMax];
     [NonSerialized] public int targetNumber = 5;
     public NavMeshHit point;
@@ -37,6 +39,7 @@ public class ActionScript : MonoBehaviour
     private float smoothTimeZoom = 0.10f;
     public GameObject Lightning;
     [NonSerialized] public GameObject Clone;
+    ItemScrollView ScrollView;
 
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
@@ -59,7 +62,15 @@ public class ActionScript : MonoBehaviour
         Clone = Instantiate(Lightning, transform);
         Clone.GetComponent<LightningBoltScript>().StartObject = gameObject;
         Clone.SetActive(false);
+        ScrollView = GameManager.Instance.scrollView;
 
+        var targetQueue = item.list.currentItem[targetNumber];
+        if (targetQueue == null || targetQueue.Count == 0)
+        {
+            Debug.Log("아이템 없음");
+            return;
+        }
+        ScrollView.ImageInit(targetQueue);
     }
 
     // Update is called once per frame
@@ -193,12 +204,14 @@ public class ActionScript : MonoBehaviour
                 if (Input.GetKeyDown(KeyCode.Alpha0 + i + 1))
                 {
                     targetNumber = i;
+                    ScrollView.ImageInit(item.list.currentItem[targetNumber]);
                     TriggerHold();
                 }
 
                 if (Input.GetKeyDown(KeyCode.Keypad0 + i + 1))
                 {
                     targetNumber = i;
+                    ScrollView.ImageInit(item.list.currentItem[targetNumber]);
                     TriggerHold();
                 }
             }

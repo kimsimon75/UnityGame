@@ -40,7 +40,7 @@ public class AutoAttack : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        for (int i = 0; i < ActionScript.targetNumberMax; i++)
+        for (int i = 0; i < GameManager.Instance.Action.TargetNumberMax; i++)
         {
             if (i == action.targetNumber) continue;
             if (action.isStop[i]) continue;
@@ -69,8 +69,8 @@ public class AutoAttack : MonoBehaviour
                             .TakeDamageAll(0, stats.damage[i], 0, ArmorType.패기, true, stats.neutralizeDefense);
 
                         if (item == null) Debug.Log("None item");
-                        foreach (KeyValuePair<(string, ItemRank), Item> kvp in item.list.currentItem[i])
-                            item.list.SetSkill(action.target[i].GetComponent<Actor>(), kvp.Value);
+                        foreach (Item item1 in item.list.currentItem[i])
+                            item.list.SetSkill(action.target[i].GetComponent<Actor>(), item1);
                         item.Clear(item.editItem, false);
                         // 공격 비활성화 시간 설정 (hitTiming 적용)
                         action.attackDisableTime[i] = Time.time + Cycle - attackDelay;

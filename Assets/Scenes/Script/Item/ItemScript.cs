@@ -14,7 +14,7 @@ public class ItemScript : MonoBehaviour
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
     {
-        item = GetComponentInChildren<ItemManager>();
+        item = GameManager.Instance.item;
         obj = item.gameObject;
         obj.SetActive(!obj.activeSelf);
 
@@ -83,6 +83,7 @@ public class ItemScript : MonoBehaviour
             }
             else
             {
+                GameManager.Instance.Count.SetActive(false);
                 SetKey();
             }
         }

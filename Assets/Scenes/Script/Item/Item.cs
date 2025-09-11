@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using Unity.IO.LowLevel.Unsafe;
 using UnityEngine;
 using UnityEngine.UI;
 using static MyMathf;
@@ -144,9 +145,9 @@ public class List
     private Dictionary<(string, ItemRank), Item> dict;
     private Image[] images;
     private UnityEngine.UI.Outline[] outlines;
-    private int[] rankOn = new int[ActionScript.targetNumberMax];
+    private int[] rankOn = new int[GameManager.Instance.Action.TargetNumberMax];
 
-    public Dictionary<(string, ItemRank), Item>[] currentItem = new Dictionary<(string, ItemRank), Item>[ActionScript.targetNumberMax];
+    public PriorityQueue<Item>[] currentItem;
 
     public const int gotItemCount = 15;
     public PriorityQueue<Item> GotItem = new PriorityQueue<Item>(gotItemCount);
@@ -180,9 +181,10 @@ public class List
 
     public List(PlayerStats stats, CannonManager cannon, ItemManager itemManager)
     {
-        for(int i=0;i<currentItem.Length;i++)
+        currentItem = new PriorityQueue<Item>[GameManager.Instance.Action.TargetNumberMax];
+        for (int i = 0; i < currentItem.Length; i++)
         {
-            currentItem[i] = new Dictionary<(string, ItemRank), Item>(30);
+            currentItem[i] = new PriorityQueue<Item>(30);
         }
 
         for (int i = 0; i < itemList.Length; i++)
@@ -483,6 +485,11 @@ public class List
         , 0, 0, 0, 0, 0, 0f, 0f,5f
         ,0, 0, 0, 0, 0, ArmorType.일반
         ,0},
+        { "표창",new []{new ItemIngredient(FindItem("도적", ItemRank.안흔함), 1),new ItemIngredient(FindItem("끈끈이", ItemRank.안흔함), 1),new ItemIngredient(FindItem("단검", ItemRank.흔함), 1)},
+        0, 0, 0, 0, 0, 10, 0.2f, 0.2f, 0, 0, 0, 0
+        , 0, 0, 0, 0, 0, 0f, 0f,5f
+        ,0, 0, 0, 0, 0, ArmorType.일반
+        ,0},
         };
         table[(int)ItemRank.특별함] = special;
         SetItem(ItemRank.특별함);
@@ -508,7 +515,7 @@ public class List
         , 0, 0, 0, 0, 0, 0f, 0f,5f
         ,0, 0, 0, 0, 0, ArmorType.일반
         ,0},
-        { "전쟁 영웅",new []{new ItemIngredient(FindItem("롱소드", ItemRank.특별함), 1),new ItemIngredient(FindItem("버서커", ItemRank.특별함), 1),new ItemIngredient(FindItem("죽음", ItemRank.특별함), 1)},
+        { "전쟁 영웅",new []{new ItemIngredient(FindItem("도끼", ItemRank.특별함), 1),new ItemIngredient(FindItem("버서커", ItemRank.특별함), 1),new ItemIngredient(FindItem("죽음", ItemRank.특별함), 1)},
         0, 0, 0, 0, 0, 20, 0.3f, 0.3f, 0, 0, 10, 0
         , 0, 0, 0, 0, 0, 0f, 0f,5f
         ,0, 0, 0, 0, 0, ArmorType.일반
@@ -534,6 +541,46 @@ public class List
         ,0, 0, 0, 0, 0, ArmorType.일반
         ,0},
         { "플라즈마 광선",new []{new ItemIngredient(FindItem("관통", ItemRank.특별함), 1),new ItemIngredient(FindItem("레이저 포", ItemRank.특별함), 1),new ItemIngredient(FindItem("광선", ItemRank.특별함), 1)},
+        0, 0, 0, 0, 0, 20, 0.3f, 0.3f, 0, 0, 10, 0
+        , 0, 0, 0, 0, 0, 0f, 0f,5f
+        ,0, 0, 0, 0, 0, ArmorType.일반
+        ,0},
+        { "무기의 달인",new []{new ItemIngredient(FindItem("롱소드", ItemRank.특별함), 1),new ItemIngredient(FindItem("표창", ItemRank.특별함), 1),new ItemIngredient(FindItem("도끼", ItemRank.특별함), 1)},
+        0, 0, 0, 0, 0, 20, 0.3f, 0.3f, 0, 0, 10, 0
+        , 0, 0, 0, 0, 0, 0f, 0f,5f
+        ,0, 0, 0, 0, 0, ArmorType.일반
+        ,0},
+        { "과학자",new []{new ItemIngredient(FindItem("해독제", ItemRank.특별함), 1),new ItemIngredient(FindItem("전염병", ItemRank.특별함), 1),new ItemIngredient(FindItem("미래", ItemRank.특별함), 1)},
+        0, 0, 0, 0, 0, 20, 0.3f, 0.3f, 0, 0, 10, 0
+        , 0, 0, 0, 0, 0, 0f, 0f,5f
+        ,0, 0, 0, 0, 0, ArmorType.일반
+        ,0},
+        { "되살아난 영웅",new []{new ItemIngredient(FindItem("롱소드", ItemRank.특별함), 1),new ItemIngredient(FindItem("미래", ItemRank.특별함), 1),new ItemIngredient(FindItem("사이보그", ItemRank.특별함), 1)},
+        0, 0, 0, 0, 0, 20, 0.3f, 0.3f, 0, 0, 10, 0
+        , 0, 0, 0, 0, 0, 0f, 0f,5f
+        ,0, 0, 0, 0, 0, ArmorType.일반
+        ,0},
+        { "저격수",new []{new ItemIngredient(FindItem("관통", ItemRank.특별함), 1),new ItemIngredient(FindItem("광선", ItemRank.특별함), 1),new ItemIngredient(FindItem("블링크", ItemRank.특별함), 1)},
+        0, 0, 0, 0, 0, 20, 0.3f, 0.3f, 0, 0, 10, 0
+        , 0, 0, 0, 0, 0, 0f, 0f,5f
+        ,0, 0, 0, 0, 0, ArmorType.일반
+        ,0},
+        { "도적",new []{new ItemIngredient(FindItem("표창", ItemRank.특별함), 1),new ItemIngredient(FindItem("금화", ItemRank.특별함), 1),new ItemIngredient(FindItem("도적", ItemRank.안흔함), 1), new ItemIngredient(FindItem("신발", ItemRank.흔함), 1)},
+        0, 0, 0, 0, 0, 20, 0.3f, 0.3f, 0, 0, 10, 0
+        , 0, 0, 0, 0, 0, 0f, 0f,5f
+        ,0, 0, 0, 0, 0, ArmorType.일반
+        ,0},       
+        { "군인",new []{new ItemIngredient(FindItem("버서커", ItemRank.특별함), 1),new ItemIngredient(FindItem("화산", ItemRank.특별함), 1),new ItemIngredient(FindItem("강철", ItemRank.특별함), 1)},
+        0, 0, 0, 0, 0, 20, 0.3f, 0.3f, 0, 0, 10, 0
+        , 0, 0, 0, 0, 0, 0f, 0f,5f
+        ,0, 0, 0, 0, 0, ArmorType.일반
+        ,0},       
+        { "굶주림",new []{new ItemIngredient(FindItem("만찬", ItemRank.특별함), 1),new ItemIngredient(FindItem("영생약", ItemRank.특별함), 1),new ItemIngredient(FindItem("전염병", ItemRank.특별함), 1)},
+        0, 0, 0, 0, 0, 20, 0.3f, 0.3f, 0, 0, 10, 0
+        , 0, 0, 0, 0, 0, 0f, 0f,5f
+        ,0, 0, 0, 0, 0, ArmorType.일반
+        ,0},       
+        { "엑스칼리버",new []{new ItemIngredient(FindItem("롱소드", ItemRank.특별함), 1),new ItemIngredient(FindItem("레이피어", ItemRank.특별함), 1),new ItemIngredient(FindItem("도끼", ItemRank.특별함), 1)},
         0, 0, 0, 0, 0, 20, 0.3f, 0.3f, 0, 0, 10, 0
         , 0, 0, 0, 0, 0, 0f, 0f,5f
         ,0, 0, 0, 0, 0, ArmorType.일반
@@ -743,6 +790,7 @@ public class List
             }
             ItemManager.chat.Push($"<color=#{hex}>{rank}</color> 등급의 {item.Name} 획득");
         }
+        GameManager.Instance.scrollView.ImageInit(currentItem[GameManager.Instance.Action.targetNumber]);
         ItemManager.Clear(ItemManager.GetEditItem(), false);
         return item;
     }
@@ -834,6 +882,7 @@ public class List
             }
             SetCannon(item.Rank);
             ItemManager.Clear(null, false);
+            GameManager.Instance.scrollView.ImageInit(currentItem[GameManager.Instance.Action.targetNumber]);
         }
         return enough;
     }
@@ -854,12 +903,13 @@ public class List
             foreach (KeyValuePair<(string, ItemRank), int> kvp in itemDict.ToList())
             {
 
-                if (dict[(kvp.Key.Item1, kvp.Key.Item2)].NecessaryItem.Count() == 0) continue;
+                string Key = kvp.Key.Item1;
+                ItemRank Key2 = kvp.Key.Item2;
+                if (dict[(Key, Key2)].NecessaryItem == Array.Empty<ItemIngredient>()) continue;
+                if (dict[(Key, Key2)].NecessaryItem[0].Item.NecessaryItem == Array.Empty<ItemIngredient>()) continue;
                 if (dict[(kvp.Key.Item1, kvp.Key.Item2)].count < kvp.Value)
                 {
                     isOkay = false;
-                    string Key = kvp.Key.Item1;
-                    ItemRank Key2 = kvp.Key.Item2;
                     int necessaryCount = Mathf.Max(kvp.Value - dict[(Key, Key2)].count, 0);
                     foreach (ItemIngredient nItem in dict[(Key, Key2)].NecessaryItem)
                     {
@@ -897,15 +947,16 @@ public class List
                 }
 
                 item.count++;
-                
+
                 if (item.count == 1)
                 {
                     GotItem.Enqueue(item);
                     SetUnity(item);
-                } 
+                }
                 SetCannon(item.Rank);
 
                 ItemManager.Clear(null, false);
+                GameManager.Instance.scrollView.ImageInit(currentItem[GameManager.Instance.Action.targetNumber]);
             }
         }
         return itemDict;
@@ -929,26 +980,24 @@ public class List
             {
                 string Key = kvp.Key.Item1;
                 ItemRank key2 = kvp.Key.Item2;
+                Debug.Log($"{Key}, {key2}");
                 if (dict[(Key, key2)].NecessaryItem == Array.Empty<ItemIngredient>()) continue;
                 if (dict[(Key, key2)].NecessaryItem[0].Item.NecessaryItem == Array.Empty<ItemIngredient>()) continue;
                 Item targetItem = dict[(Key, key2)].NecessaryItem[0].Item;
-                if (dict[(Key, key2)].count < kvp.Value)
+                isOkay = false;
+                int necessaryCount = kvp.Value;
+                foreach (ItemIngredient nItem in dict[(Key, key2)].NecessaryItem)
                 {
-                    isOkay = false;
-                    int necessaryCount = kvp.Value;
-                    foreach (ItemIngredient nItem in dict[(Key, key2)].NecessaryItem)
+                    if (itemDict.ContainsKey((nItem.Item.Name, nItem.Item.Rank)))
                     {
-                        if (itemDict.ContainsKey((nItem.Item.Name, nItem.Item.Rank)))
-                        {
-                            itemDict[(nItem.Item.Name, nItem.Item.Rank)] += necessaryCount * nItem.Count;
-                        }
-                        else
-                            itemDict.Add((nItem.Item.Name, nItem.Item.Rank), necessaryCount * nItem.Count);
+                        itemDict[(nItem.Item.Name, nItem.Item.Rank)] += necessaryCount * nItem.Count;
                     }
-                    itemDict[(Key, key2)] -= necessaryCount;
-                    if (itemDict[(Key, key2)] <= 0)
-                        itemDict.Remove((Key, key2));
+                    else
+                        itemDict.Add((nItem.Item.Name, nItem.Item.Rank), necessaryCount * nItem.Count);
                 }
+                itemDict[(Key, key2)] -= necessaryCount;
+                if (itemDict[(Key, key2)] <= 0)
+                    itemDict.Remove((Key, key2));
             }
         }
         return itemDict;
@@ -977,33 +1026,23 @@ public class List
     {
         if (item.Rank != ItemRank.상위 && item.BossAttack == 0 && item.MonoPercent != 0)
         {
-            currentItem[0].Add((item.Name, item.Rank), item);
-            SetRankedItem(item, 0);
-            StatsUp(item, 0);
+            UnitySet(0, item);
         }
         if (item.Rank != ItemRank.상위 && item.BossAttack != 0)
         {
-            currentItem[1].Add((item.Name, item.Rank), item);
-            SetRankedItem(item, 1);
-            StatsUp(item, 1);
+            UnitySet(1, item);
         }
         if (item.Rank != ItemRank.상위 && item.MultiStun != 0)
         {
-            currentItem[2].Add((item.Name, item.Rank), item);
-            SetRankedItem(item, 2);
-            StatsUp(item, 2);
+            UnitySet(2, item);
         }
         if (item.Rank != ItemRank.상위 && item.EndPercent != 0)
         {
-            currentItem[3].Add((item.Name, item.Rank), item);
-            SetRankedItem(item, 3);
-            StatsUp(item, 3);
+            UnitySet(3, item);
         }
         if (item.Rank == ItemRank.상위)
         {
-            currentItem[4].Add((item.Name, item.Rank), item);
-            SetRankedItem(item, 4);
-            StatsUp(item, 4);
+            UnitySet(4, item);
         }
         if (item.Rank != ItemRank.상위 && !(
             item.MonoPercent != 0 ||
@@ -1011,10 +1050,15 @@ public class List
             item.MultiStun != 0 ||
             item.EndPercent != 0))
         {
-            currentItem[5].Add((item.Name, item.Rank), item);
-            SetRankedItem(item, 5);
-            StatsUp(item, 5);
+            UnitySet(5, item);
         }
+    }
+
+    private void UnitySet(int count, Item item)
+    {
+        currentItem[count].Enqueue(item);
+        SetRankedItem(item, 5);
+        StatsUp(item, 5);
     }
 
     public void SetRankedItem(Item item, int number)
@@ -1104,9 +1148,9 @@ public class List
 
     private void DeleteUnrankedItem(Item item)
     {
-        for (int i = 0; i < ActionScript.targetNumberMax; i++)
+        for (int i = 0; i < GameManager.Instance.Action.TargetNumberMax; i++)
         {
-            bool t = currentItem[i].Remove((item.Name, item.Rank));
+            bool t = currentItem[i].Remove(item);
             if (t) StatsDown(item, i);
         }
     }

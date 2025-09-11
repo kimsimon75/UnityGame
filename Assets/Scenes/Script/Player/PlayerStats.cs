@@ -6,22 +6,22 @@ using UnityEngine;
 public class PlayerStats : MonoBehaviour
 {
     public int UnitCount;
-    [NonSerialized] public float[] CurrentHealth = new float[ActionScript.targetNumberMax];
-    [NonSerialized] public float[] MaxHealth = new float[ActionScript.targetNumberMax];
-    [NonSerialized] public float[] CurrentMana = new float[ActionScript.targetNumberMax];
-    [NonSerialized] public float[] MaxMana = new float[ActionScript.targetNumberMax];
+    [NonSerialized] public float[] CurrentHealth;
+    [NonSerialized] public float[] MaxHealth;
+    [NonSerialized] public float[] CurrentMana;
+    [NonSerialized] public float[] MaxMana;
 
-    [NonSerialized] public float[] HealthRegen = new float[ActionScript.targetNumberMax];
-    [NonSerialized] public float[] manaRegen = new float[ActionScript.targetNumberMax];
+    [NonSerialized] public float[] HealthRegen;
+    [NonSerialized] public float[] manaRegen;
 
-    private float[] hpRegenBuffer =  new float[ActionScript.targetNumberMax];
-    private float[] mpRegenBuffer = new float[ActionScript.targetNumberMax];
-    [NonSerialized] public float[] attackSpeedBonus = new float[ActionScript.targetNumberMax];
+    private float[] hpRegenBuffer;
+    private float[] mpRegenBuffer;
+    [NonSerialized] public float[] attackSpeedBonus;
     [NonSerialized] public float blendingTime = 0.1f;
-    [NonSerialized] public float[] attackCooldown = new float[ActionScript.targetNumberMax];
-    [NonSerialized] public float[] attackDelay = new float[ActionScript.targetNumberMax];
+    [NonSerialized] public float[] attackCooldown;
+    [NonSerialized] public float[] attackDelay;
     [NonSerialized] public float lastAttackTime = float.MinValue;
-    [NonSerialized] public float[] damage = new float[ActionScript.targetNumberMax];
+    [NonSerialized] public float[] damage;
     [NonSerialized] public float MoveSpeed;
     public int player = 1;
     [NonSerialized] public float detectRange = 4f;
@@ -29,7 +29,7 @@ public class PlayerStats : MonoBehaviour
     public int neutralizeDefense = 0;
     public int MagicalBuffer;
     public int MagicalDebuffer;
-    private int[] TrueDamage = new int[ActionScript.targetNumberMax];
+    private int[] TrueDamage;
     public int MoveSpeeDebuff;
     public int TowerDamage;
     public int TowerAttackSpeed;
@@ -41,8 +41,28 @@ public class PlayerStats : MonoBehaviour
 
     void Awake()
     {
+        CurrentHealth = new float[GameManager.Instance.Action.TargetNumberMax];
+        MaxHealth = new float[GameManager.Instance.Action.TargetNumberMax];
+        CurrentMana = new float[GameManager.Instance.Action.TargetNumberMax];
+
+        MaxMana = new float[GameManager.Instance.Action.TargetNumberMax];
+
+        HealthRegen = new float[GameManager.Instance.Action.TargetNumberMax];
+        manaRegen = new float[GameManager.Instance.Action.TargetNumberMax];
+
+        hpRegenBuffer =  new float[GameManager.Instance.Action.TargetNumberMax];
+        mpRegenBuffer = new float[GameManager.Instance.Action.TargetNumberMax];
+        attackSpeedBonus = new float[GameManager.Instance.Action.TargetNumberMax];
+
+        attackCooldown = new float[GameManager.Instance.Action.TargetNumberMax];
+        attackDelay = new float[GameManager.Instance.Action.TargetNumberMax];
+
+        damage = new float[GameManager.Instance.Action.TargetNumberMax];
+
+        TrueDamage = new int[GameManager.Instance.Action.TargetNumberMax];
+
         UnitCount = 0;
-        for (int i = 0; i < ActionScript.targetNumberMax; i++)
+        for (int i = 0; i < GameManager.Instance.Action.TargetNumberMax; i++)
         {
             MaxHealth[i] = 100f;
             CurrentHealth[i] = 0;
@@ -73,7 +93,7 @@ public class PlayerStats : MonoBehaviour
     void Update()
     {
         text.text = $"{UnitCount}";
-        for(int i=0;i<ActionScript.targetNumberMax;i++)
+        for(int i=0;i<GameManager.Instance.Action.TargetNumberMax;i++)
         attackCooldown[i] = attackDelay[i] / (1 + attackSpeedBonus[i] * 0.01f);
 
         Animator anim = GetComponent<Animator>();

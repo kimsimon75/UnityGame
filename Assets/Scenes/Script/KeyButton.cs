@@ -4,29 +4,14 @@ using UnityEngine.UI;
 
 public class KeyButton : MonoBehaviour, IPointerClickHandler, IPointerEnterHandler, IPointerExitHandler 
 {
-    Button button;
     public int number;
+    public ItemManager itemManager;
 
 
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
     {
-        button = GetComponentInParent<Button>(true);
-
-        if (button != null)
-        {
-            button.onClick.AddListener(LeftButtonTrigger);
-        }
-        else
-        {
-            Debug.LogWarning($"{gameObject.name} 에 Button 컴포넌트가 없습니다.");
-        }
-    }
-
-    // Update is called once per frame
-    void Update()
-    {
-
+        itemManager = GameManager.Instance.item;
     }
 
     public void OnPointerEnter(PointerEventData eventData)
@@ -37,18 +22,21 @@ public class KeyButton : MonoBehaviour, IPointerClickHandler, IPointerEnterHandl
     {
         GameManager.Instance.KeyValueNumber = DataManager.NumCount;
     }
-    
+
     public void OnPointerClick(PointerEventData eventData)
     {
-        // 디버그: 현재 포인터 아래 UI들 출력
-        // 우선 여긴 비워두고, onClick(LeftButtonTrigger)로 처리
+        if (number != (int)DataManager.Num.D &&
+        GameManager.Instance.ItemManager.isActiveAndEnabled &&
+        eventData.button == PointerEventData.InputButton.Left &&
+        (Input.GetKey(KeyCode.LeftControl) ||
+        Input.GetKey(KeyCode.RightControl)))
+        {
+            itemManager.ControlTrigger(number);
+        }
+        else if (eventData.button == PointerEventData.InputButton.Left)
+        {
+            if (GameManager.Instance.ItemManager.isActiveAndEnabled) { GameManager.Instance.ItemManager.Trigger(number); }
+            else GameManager.Instance.Trigger(number);
+        }
     }
-
-    void LeftButtonTrigger()
-    {
-        if (GameManager.Instance.ItemManager.isActiveAndEnabled) { GameManager.Instance.ItemManager.Trigger(number); }
-        else GameManager.Instance.Trigger(number);
-    }
-
-
 }
