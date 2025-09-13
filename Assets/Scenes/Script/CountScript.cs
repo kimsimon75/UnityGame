@@ -7,6 +7,7 @@ public class CountScript : MonoBehaviour
 {
     public Slider slider;
     public Image image;
+    public bool setImage = false;
     public TextMeshProUGUI text;
     [NonSerialized] public int number;
     ItemManager itemManager;
@@ -22,8 +23,16 @@ public class CountScript : MonoBehaviour
         if (Input.GetKeyDown(KeyCode.Escape))
         {
             gameObject.SetActive(false);
+            return;
         }
-        switch ((DataManager.Num)number)
+
+        if (setImage == true)
+        {
+            slider.maxValue = itemManager.list.FindItem(image.sprite.name, DataManager.Instance.imageDict[image.sprite]).count;
+        }
+        else
+        {
+            switch ((DataManager.Num)number)
             {
                 case DataManager.Num.Q:
                     slider.maxValue = itemManager.list.FindItem("기억 조각", ItemRank.All).count;
@@ -40,13 +49,18 @@ public class CountScript : MonoBehaviour
                     slider.maxValue = itemManager.list.FindItem("영혼 파편", ItemRank.All).count;
                     break;
             }
-        image.sprite = DataManager.Instance.sprites[1][number];
+
+            image.sprite = DataManager.Instance.sprites[1][number];
+        }
+
 
         text.text = slider.value.ToString();
     }
 
     public void SetNumber(int number)
     {
+        setImage = false;
+        slider.value = 0;
         this.number = number; 
     }
 }

@@ -79,7 +79,6 @@ public class ItemScrollView : MonoBehaviour
     public void SetImage(PriorityQueue<Item> items)
     {
         int i = 0;
-        Debug.Log(panels.Count);
         foreach (Item item in items.EnumerateByPriority())
         {
             for (int j = 0; j < item.count; j++)

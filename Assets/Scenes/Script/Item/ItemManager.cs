@@ -139,17 +139,18 @@ public class ItemManager : MonoBehaviour
         bool ctrl = Input.GetKey(KeyCode.LeftControl) || Input.GetKey(KeyCode.RightControl);
 
         // 3) 키별로 Ctrl 조합/일반 동작 분기
-        if (Input.GetKeyDown(KeyCode.Q)) { if (ctrl) ControlTrigger((int)DataManager.Num.Q); else Trigger((int)DataManager.Num.Q); return; }
-        if (Input.GetKeyDown(KeyCode.W)) { if (ctrl) ControlTrigger((int)DataManager.Num.W); else Trigger((int)DataManager.Num.W); return; }
-        if (Input.GetKeyDown(KeyCode.E)) { if (ctrl) ControlTrigger((int)DataManager.Num.E); else Trigger((int)DataManager.Num.E); return; }
-        if (Input.GetKeyDown(KeyCode.D)) { Trigger((int)DataManager.Num.D); return; }
-        if (Input.GetKeyDown(KeyCode.Z)) { if (ctrl) ControlTrigger((int)DataManager.Num.Z); else Trigger((int)DataManager.Num.Z); return; }
-        if (Input.GetKeyDown(KeyCode.X)) { if (ctrl) ControlTrigger((int)DataManager.Num.X); else Trigger((int)DataManager.Num.X); return; }
-        if (Input.GetKeyDown(KeyCode.C)) { if (ctrl) ControlTrigger((int)DataManager.Num.C); else Trigger((int)DataManager.Num.C); return; }
+        if (Input.GetKeyDown(KeyCode.Q)) { if (ctrl) ControlTrigger((int)DataManager.Num.Q); else if (!GameManager.Instance.Count.activeInHierarchy)Trigger((int)DataManager.Num.Q); return; }
+        if (Input.GetKeyDown(KeyCode.W)) { if (ctrl) ControlTrigger((int)DataManager.Num.W); else if (!GameManager.Instance.Count.activeInHierarchy)Trigger((int)DataManager.Num.W); return; }
+        if (Input.GetKeyDown(KeyCode.E)) { if (ctrl) ControlTrigger((int)DataManager.Num.E); else if (!GameManager.Instance.Count.activeInHierarchy)Trigger((int)DataManager.Num.E); return; }
+        if (Input.GetKeyDown(KeyCode.D)) { if (!GameManager.Instance.Count.activeInHierarchy) Trigger((int)DataManager.Num.D); return; }
+        if (Input.GetKeyDown(KeyCode.Z)) { if (ctrl) ControlTrigger((int)DataManager.Num.Z); else if (!GameManager.Instance.Count.activeInHierarchy)Trigger((int)DataManager.Num.Z); return; }
+        if (Input.GetKeyDown(KeyCode.X)) { if (ctrl) ControlTrigger((int)DataManager.Num.X); else if (!GameManager.Instance.Count.activeInHierarchy)Trigger((int)DataManager.Num.X); return; }
+        if (Input.GetKeyDown(KeyCode.C)) { if (ctrl) ControlTrigger((int)DataManager.Num.C); else if (!GameManager.Instance.Count.activeInHierarchy)Trigger((int)DataManager.Num.C); return; }
+        
     }
     
     public void Trigger(int target)
-    { if (GameManager.Instance.Count.activeInHierarchy) return;
+    {
         switch (target)
         {
             case 0:
@@ -207,13 +208,12 @@ public class ItemManager : MonoBehaviour
 
     public void ControlTrigger(int target)
     {
-            GameObject Count = GameManager.Instance.Count;
+        GameObject Count = GameManager.Instance.Count;
 
-            CountScript script = Count.GetComponent<CountScript>();
+        CountScript script = Count.GetComponent<CountScript>();
 
-            script.SetNumber(target);
-            script.slider.value = 0;
-            Count.SetActive(true);
+        script.SetNumber(target);
+        GameManager.Instance.SetCountScript();
     }
 
     private void SetSouls(bool Set)
@@ -261,7 +261,7 @@ public class ItemManager : MonoBehaviour
                         if (rand < 50)
                         {
                             item = list.GetRandomItem(ItemRank.안흔함, false);
-                            color = Color.purple;
+                            color = new Color32(176, 78, 248, 255);
                         }
                         else
                         {
@@ -573,7 +573,7 @@ public class ItemManager : MonoBehaviour
 
     }
 
-    public ref Item GetEditItem() { return ref editItem; }
+    public  Item GetEditItem() { return  editItem; }
 
     public Color GetColor(Item targetItem)
     {

@@ -82,12 +82,11 @@ public class HitPoint : StateMachineBehaviour
                 stats.HealthTrigger();
                 stats.ManaTrigger();
                 action.target[action.targetNumber].GetComponent<Actor>()
-                    .TakeDamageAll(0, stats.damage[action.targetNumber], 0, ArmorType.패기, true, stats.neutralizeDefense);
+                    .TakeDamageAll(0, stats.damage[action.targetNumber], 0, ArmorType.패기, true, stats.doublePhysics[action.targetNumber], stats.neutralizeDefense);
 
                 if (item == null) Debug.Log("None item");
                 foreach (Item item1 in item.list.currentItem[action.targetNumber])
                     item.list.SetSkill(action.target[action.targetNumber].GetComponent<Actor>(), item1);
-                item.Clear(item.editItem, false);
             }
 
             hashitThisLoop = true;

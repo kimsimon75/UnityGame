@@ -66,12 +66,11 @@ public class AutoAttack : MonoBehaviour
                         stats.HealthTrigger();
                         stats.ManaTrigger();
                         action.target[i].GetComponent<Actor>()
-                            .TakeDamageAll(0, stats.damage[i], 0, ArmorType.패기, true, stats.neutralizeDefense);
+                            .TakeDamageAll(0, stats.damage[i], 0, ArmorType.패기, true, stats.doublePhysics[i], stats.neutralizeDefense);
 
                         if (item == null) Debug.Log("None item");
                         foreach (Item item1 in item.list.currentItem[i])
                             item.list.SetSkill(action.target[i].GetComponent<Actor>(), item1);
-                        item.Clear(item.editItem, false);
                         // 공격 비활성화 시간 설정 (hitTiming 적용)
                         action.attackDisableTime[i] = Time.time + Cycle - attackDelay;
                     }

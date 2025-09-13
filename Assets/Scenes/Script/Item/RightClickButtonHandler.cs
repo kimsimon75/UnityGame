@@ -2,6 +2,7 @@ using UnityEngine;
 using UnityEngine.EventSystems;
 using System.Collections.Generic;
 using UnityEngine.UI;
+using System.Linq;
 
 public class RightClickButtonHandler : MonoBehaviour, IPointerClickHandler
 {
@@ -92,12 +93,13 @@ public class RightClickButtonHandler : MonoBehaviour, IPointerClickHandler
         if (img.sprite == null)
             return;
 
+            
+        string s = img.sprite.name;
+        Item findItem = item.list.FindItem(s, DataManager.Instance.imageDict[img.sprite]);
+
         Item editItem = item.GetEditItem();
         if (editItem != null)
             item.itemStack.Push(editItem);
-
-        string s = img.sprite.name;
-        Item findItem = item.list.FindItem(s, DataManager.Instance.imageDict[img.sprite]);
 
         if (editItem == findItem)
         {
@@ -106,6 +108,25 @@ public class RightClickButtonHandler : MonoBehaviour, IPointerClickHandler
             EditItemStatus.gameObject.SetActive(true);
             grid.gameObject.SetActive(false);
             item.SetStatus();
+        }
+        else if (editItem == null)
+        {
+            if (Input.GetKey(KeyCode.LeftControl) || Input.GetKey(KeyCode.RightControl))
+            {
+                if ((findItem.Name == "행운의 토큰" && findItem.Rank == ItemRank.희귀함) ||
+                   ( findItem.count != 0 && findItem.NecessaryItem.Count() != 0 && findItem.Rank < ItemRank.전설적인 )
+                 ||
+                 (findItem.Rank == ItemRank.히든 && findItem.Name == "이브") || (findItem.Rank == ItemRank.히든 && findItem.Name == "함선"))
+                {
+                    GameObject Count = GameManager.Instance.Count;
+                    CountScript countScript = Count.GetComponent<CountScript>();
+                    countScript.image.sprite = findItem.Resource;
+                    countScript.setImage = true;
+                    GameManager.Instance.SetCountScript();
+                }
+            }
+            else
+                item.Clear(findItem, false);
         }
         else
             item.Clear(findItem, false);

@@ -110,7 +110,7 @@ public class EnemyStats : Actor
         Destroy(gameObject);
     }
 
-    public override void TakeDamageAll(float damageAll, float damage, float radius, ArmorType damageType, bool physics, int armorDecrease, int percent = 0)
+    public override void TakeDamageAll(float damageAll, float damage, float radius, ArmorType damageType, bool physics,  float DoublePhysicsDamagePercentage, int armorDecrease, int percent = 0)
     {
         if (radius != 0)
         {

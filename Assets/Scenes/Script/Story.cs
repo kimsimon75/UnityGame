@@ -51,7 +51,7 @@ public class Story : Actor
         Armor = story[level][1] - deArmor;
     }
 
-    public override void TakeDamageAll(float damageAll, float damage, float detectRange, ArmorType damageType, bool physics, int armorDecrease, int percent)// damageAll만 사용
+    public override void TakeDamageAll(float damageAll, float damage, float detectRange, ArmorType damageType, bool physics, float DoublePhysicsDamagePercentage, int armorDecrease, int percent)// damageAll만 사용
     {
         if (isDead) return;
         damageAll = damageAll * GetDamage(damageType, armorType);
@@ -64,6 +64,7 @@ public class Story : Actor
         switch (percent)
         {
             case 0:
+                damage = damage * 1;
                 break;
             case 1:
                 damageAll = damageAll / 100 * maxHealth;

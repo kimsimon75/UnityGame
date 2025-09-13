@@ -104,8 +104,8 @@ public class GameManager : MonoBehaviour
         slider.SpawnPanelsSequentially();
 
         item.willBeGet = UnityEngine.Random.Range(0, item.list.itemList[(int)ItemRank.특별함].Count);
-        
-        
+
+
 
         for (int i = 0; i < DataManager.NumCount; i++)
         {
@@ -177,7 +177,7 @@ public class GameManager : MonoBehaviour
             if (Input.GetKeyDown(KeyCode.W))
             {
                 Trigger((int)DataManager.Num.W);
-            }           
+            }
             if (Input.GetKeyDown(KeyCode.E))
             {
                 Trigger((int)DataManager.Num.E);
@@ -235,7 +235,7 @@ public class GameManager : MonoBehaviour
                 ItemManager.chat.Push($"<color=#{hex}>{ItemRank.특별함}</color> 등급의 {item.list.itemList[(int)ItemRank.특별함][item.willBeGet].Name} 획득");
                 item.list.itemList[(int)ItemRank.특별함][item.willBeGet].count++;
                 item.willBeGet = -1;
-                scrollView.ImageInit(item.list.currentItem[action.targetNumber]);     
+                scrollView.ImageInit(item.list.currentItem[action.targetNumber]);
             }
             if (round == 15) item.list.GetRandomItem(ItemRank.희귀함);
             if (round == 41)
@@ -423,15 +423,15 @@ public class GameManager : MonoBehaviour
     public void Trigger(int target)
     {
         if (!item.isActiveAndEnabled)
-        if (energy.currentEnergy >= skillEnergy[target] && skillCooldown[target] <= 0)
-        {
-            isSkill[target] = true;
-            keyValueImages[target].GetComponent<UnityEngine.UI.Outline>().enabled = true;
-            if (skillIndicate[target] > 0)
-                ring.SetRing(skillIndicate[target], true);
-        }
-        else if (skillCooldown[target] > 0) chat.Push($"스킬이 준비중입니다");
-        else chat.Push($"에너지가 모자랍니다");
+            if (energy.currentEnergy >= skillEnergy[target] && skillCooldown[target] <= 0)
+            {
+                isSkill[target] = true;
+                keyValueImages[target].GetComponent<UnityEngine.UI.Outline>().enabled = true;
+                if (skillIndicate[target] > 0)
+                    ring.SetRing(skillIndicate[target], true);
+            }
+            else if (skillCooldown[target] > 0) chat.Push($"스킬이 준비중입니다");
+            else chat.Push($"에너지가 모자랍니다");
     }
 
     public void SkillApply(int target)
@@ -441,7 +441,7 @@ public class GameManager : MonoBehaviour
             if (Input.GetMouseButtonDown(0) && !UiRayUtil.IsPointerOverUIExcept(LayerMask.GetMask("Text")))
             {
                 if (skillIndicate[target] > 0)
-                {                   
+                {
                     Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
                     if (Physics.Raycast(ray, out RaycastHit hitInfo, 100f))
                     {
@@ -524,5 +524,11 @@ public class GameManager : MonoBehaviour
         // 비활성 포함 전부 가져와서 activeSelf를 직접 세팅
         foreach (var t in root.GetComponentsInChildren<Transform>(true))
             t.gameObject.SetActive(on);
+    }
+
+    public void SetCountScript()
+    {
+        Count.SetActive(true);
+        Count.GetComponent<CountScript>().slider.value = 0;
     }
 }

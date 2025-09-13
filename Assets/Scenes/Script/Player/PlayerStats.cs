@@ -22,6 +22,7 @@ public class PlayerStats : MonoBehaviour
     [NonSerialized] public float[] attackDelay;
     [NonSerialized] public float lastAttackTime = float.MinValue;
     [NonSerialized] public float[] damage;
+    [NonSerialized] public float[] doublePhysics;
     [NonSerialized] public float MoveSpeed;
     public int player = 1;
     [NonSerialized] public float detectRange = 4f;
@@ -58,6 +59,7 @@ public class PlayerStats : MonoBehaviour
         attackDelay = new float[GameManager.Instance.Action.TargetNumberMax];
 
         damage = new float[GameManager.Instance.Action.TargetNumberMax];
+        doublePhysics = new float[GameManager.Instance.Action.TargetNumberMax];
 
         TrueDamage = new int[GameManager.Instance.Action.TargetNumberMax];
 
@@ -168,12 +170,12 @@ public class PlayerStats : MonoBehaviour
 
     public (float[] damage, float attackCooldown, float[] attackSpeedBonus,
      int neutralizeDefense, float HealthRegen, float manaRegen,
-      int MagicalBuffer, int MagicalDebuffer, int TrueDamage, int MoveSpeeDebuff)
+      int MagicalBuffer, int MagicalDebuffer, int TrueDamage, int MoveSpeeDebuff, float[] doublePhysics)
       GetStats()
     {
         return (damage, attackCooldown[action.targetNumber], attackSpeedBonus, neutralizeDefense
     , HealthRegen[action.targetNumber], manaRegen[action.targetNumber],
-     MagicalBuffer, MagicalDebuffer, TrueDamage[action.targetNumber], MoveSpeeDebuff);
+     MagicalBuffer, MagicalDebuffer, TrueDamage[action.targetNumber], MoveSpeeDebuff, doublePhysics);
     }
 
 }

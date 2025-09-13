@@ -81,7 +81,7 @@ public abstract class Actor : MonoBehaviour
             return 2 - Mathf.Pow(0.94f, armorDecrease - Armor);
     }
 
-    public abstract void TakeDamageAll(float damageAll, float damage, float radius, ArmorType damageType, bool physics, int armorDecrease, int percent = 0);/// percent 0 : 일반, 1 : 전체, 2 : 현재, 3 : 잃은,
+    public abstract void TakeDamageAll(float damageAll, float damage, float radius, ArmorType damageType, bool physics, float DoublePhysicsDamagePercentage, int armorDecrease, int percent = 0);/// percent 0 : 일반, 1 : 전체, 2 : 현재, 3 : 잃은,
 
     public abstract void TakeStunAll(float TimeAll, float Time, float radius);
     public abstract void TakePoisonAll(float Time, int Armor, float radius);
