@@ -79,14 +79,19 @@ public class HitPoint : StateMachineBehaviour
             // 데미지/스킬
             if (action.target[action.targetNumber].gameObject.activeInHierarchy)
             {
-                stats.HealthTrigger();
-                stats.ManaTrigger();
-                action.target[action.targetNumber].GetComponent<Actor>()
-                    .TakeDamageAll(0, stats.damage[action.targetNumber], 0, ArmorType.패기, true, stats.doublePhysics[action.targetNumber], stats.neutralizeDefense);
-
-                if (item == null) Debug.Log("None item");
+                stats.HealthTrigger(action.targetNumber);
+                stats.ManaTrigger(action.targetNumber);
+                stats.CurrentHealth[action.targetNumber] += 1;
+                stats.CurrentMana[action.targetNumber] += 1;
+                float damageUp = 0;
                 foreach (Item item1 in item.list.currentItem[action.targetNumber])
-                    item.list.SetSkill(action.target[action.targetNumber].GetComponent<Actor>(), item1);
+                    damageUp += item.list.SetSkill(action.target[action.targetNumber].GetComponent<Actor>(), item1);
+
+                Actor actor = action.target[action.targetNumber].GetComponent<Actor>();
+
+                actor.TakeDamageAll(stats.damage[action.targetNumber] * (1 + damageUp), 0, stats.Radius[action.targetNumber], ArmorType.패기, true, stats.doublePhysics[action.targetNumber], stats.neutralizeDefense);
+                actor.TakeDamageAll(stats.damage[action.targetNumber] * stats.TrueDamage[action.targetNumber], 0, stats.Radius[action.targetNumber], ArmorType.고정, false, 0, 0, 0);
+                
             }
 
             hashitThisLoop = true;

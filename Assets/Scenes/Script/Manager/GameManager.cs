@@ -56,15 +56,15 @@ public class GameManager : MonoBehaviour
     public GameObject 사십;
     public GameObject 오십;
 
-    EnemyStats pawnEnemy = null;
-    EnemyStats go_pawnEnemy = null;
-    EnemyStats 삼십적 = null;
-    EnemyStats 사십적 = null;
-    EnemyStats 오십적 = null;
+    EnemyStats pawnEnemy;
+    EnemyStats go_pawnEnemy;
+    EnemyStats 삼십적;
+    EnemyStats 사십적;
+    EnemyStats 오십적;
 
-    public Energy energy = null;
+    public Energy energy;
 
-    public ChatManager chat = null;
+    public ChatManager chat;
 
     int enemyCount = 3;
 
@@ -150,6 +150,8 @@ public class GameManager : MonoBehaviour
         사십타임 -= Time.deltaTime;
         오십타임 -= Time.deltaTime;
 
+        item.list.FindItem("기억 조각", ItemRank.All).count = 10;
+
         for (int i = 0; i < skillCooldown.Length; i++)
         {
             if (skillCooldown[i] > 0)
@@ -201,8 +203,6 @@ public class GameManager : MonoBehaviour
 
 
         }
-
-        item.list.FindItem("기억 조각", ItemRank.All).count = 10;
 
         if (timeLeft > -1)
         {

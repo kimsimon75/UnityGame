@@ -46,8 +46,10 @@ public class ItemManager : MonoBehaviour
     [NonSerialized] public bool isAllToggle = true;
 
     [NonSerialized] public float SetSoulParts = 1;
+    public int RerollCount = 2;
 
     public int willBeGet = -1;
+    public GameObject targetImage;
 
     public Stack<Item> itemStack = new Stack<Item>();
 
@@ -87,6 +89,7 @@ public class ItemManager : MonoBehaviour
                 numberImage.rectTransform.sizeDelta = new Vector2(12, 12);
                 numberImage.transform.localScale = new Vector3(1.5f, 1.5f, 1.5f);
                 numberImage.sprite = Sprite.Create(tex, new Rect(0, 0, tex.width, tex.height), new Vector2(.5f, .5f));
+                numberImage.raycastTarget = false;
 
                 TextMeshProUGUI text = new GameObject("text").AddComponent<TextMeshProUGUI>();
                 Transform tr = text.transform;
@@ -98,6 +101,7 @@ public class ItemManager : MonoBehaviour
                 text.text = "";
                 text.alignment = TextAlignmentOptions.Center;
                 text.color = i == 1 ? Color.black : Color.red;
+                text.raycastTarget = false;
 
                 RectTransform rt = text.rectTransform;
                 rt.anchorMin = Vector2.zero;
@@ -128,7 +132,7 @@ public class ItemManager : MonoBehaviour
 
     void Update()
     {
-        if (Input.GetKeyDown(KeyCode.Escape))
+        if (Input.GetKeyDown(KeyCode.BackQuote))
         {
             if (itemStack.Count == 0) Clear(null, true);
             else Clear(itemStack.Pop(), true);
@@ -146,25 +150,42 @@ public class ItemManager : MonoBehaviour
         if (Input.GetKeyDown(KeyCode.Z)) { if (ctrl) ControlTrigger((int)DataManager.Num.Z); else if (!GameManager.Instance.Count.activeInHierarchy)Trigger((int)DataManager.Num.Z); return; }
         if (Input.GetKeyDown(KeyCode.X)) { if (ctrl) ControlTrigger((int)DataManager.Num.X); else if (!GameManager.Instance.Count.activeInHierarchy)Trigger((int)DataManager.Num.X); return; }
         if (Input.GetKeyDown(KeyCode.C)) { if (ctrl) ControlTrigger((int)DataManager.Num.C); else if (!GameManager.Instance.Count.activeInHierarchy)Trigger((int)DataManager.Num.C); return; }
+        if (Input.GetKeyDown(KeyCode.F) && rank == (int)ItemRank.희귀함 - 1 && editItem == null && targetImage != null)
+        {
+            Item targetItem = list.FindItem(targetImage.transform.Find("Image").GetComponent<Image>().sprite.name, ItemRank.희귀함);
+            if (targetItem.count > 0)
+            {
+                if (RerollCount > 0)
+                {
+                    targetItem.count--;
+                    list.ChangeItem(targetItem);
+                    Clear(editItem, false);
+                }           
+                else
+                    chat.Push("횟수가 부족하여 리롤을 할 수 없습니다");
+            }
+
+
+        }
         
     }
     
     public void Trigger(int target)
     {
-        switch (target)
+        switch ((DataManager.Num)target)
         {
-            case 0:
+            case DataManager.Num.Q:
                 GetRankedItem(ItemRank.흔함);
                 break;
-            case 1:
+            case DataManager.Num.W:
                 GetRankedItem(ItemRank.특별함);
                 break;
-            case 2:
+            case DataManager.Num.E:
                 GetRankedItem(ItemRank.희귀함);
                 break;
-            case 3:
-            case 4:
-            case 5:
+            case DataManager.Num.Z:
+            case DataManager.Num.X:
+            case DataManager.Num.C:
                 if (isAllToggle)
                 {
                     SetSoulParts = 1 << (target - (int)DataManager.Num.Z);
@@ -176,18 +197,22 @@ public class ItemManager : MonoBehaviour
                     if (item.count > 0)
                     {
                         item.count -= 1;
-                        switch (target)
+                        switch ((DataManager.Num)target)
                         {
-                            case 3:
+                            case DataManager.Num.Z:
                                 list.GetRandomItem(ItemRank.흔함);
                                 break;
-                            case 4:
+                            case DataManager.Num.X:
                                 int rand = UnityEngine.Random.Range(0, 100);
                                 if (rand < 66)
                                     list.GetMemoriesParts(1);
                                 else
                                     chat.Push($"<color=Yellow>기억 조각</color> 획득에 실패했습니다.");
                                 break;
+                            case DataManager.Num.C:
+                                list.GetSoulMana(1);
+                                break;
+                                
                         }
                     }
                     else
@@ -197,7 +222,7 @@ public class ItemManager : MonoBehaviour
                 }
 
                 break;
-            case 6:
+            case DataManager.Num.D:
                 isAllToggle = !isAllToggle;
                 if(isAllToggle == true ) list.ChangeSouls();
                 GameManager.Instance.Images[(int)DataManager.Num.D].GetComponent<UnityEngine.UI.Outline>().enabled = isAllToggle;
@@ -335,10 +360,11 @@ public class ItemManager : MonoBehaviour
 
     }
 
-    private void SetUpState(Item item)
+    public void SetUpState(Item item)
     {
         item.count++;
-        if(item.count == 1) list.GotItem.Enqueue(item);
+        if (item.count == 1) list.GotItem.Enqueue(item);
+        Clear(editItem, false);
     }
 
     public Image[] GetImages() { return images; }
@@ -503,7 +529,7 @@ public class ItemManager : MonoBehaviour
             ItemIngredient[] ingredient = item.NecessaryItem;
             for (int i = 0; i < ingredient.Length; i++)
             {
-                images[10 * 2 + 1 + 1 + i].sprite = ingredient[i].Item.Resource;
+                images[10 * 2 + 1 + 1 + i].sprite = list.FindItem(ingredient[i].ItemName, ingredient[i].Rank).Resource;
                 targetItemLine = buttons[10 * 2 + 1 + 1 + i].GetComponent<UnityEngine.UI.Outline>();
                 targetItemLine.effectDistance = new Vector2(4f, 4f);
 
@@ -512,7 +538,7 @@ public class ItemManager : MonoBehaviour
 
                 images[10 * 2 + 1 + 1 + i].GetComponentInChildren<TextMeshProUGUI>().text = ingredient[i].Count.ToString();
 
-                targetItemLine.effectColor = GetColor(ingredient[i].Item);
+                targetItemLine.effectColor = GetColor(list.FindItem(ingredient[i].ItemName, ingredient[i].Rank));
             }
             if (item.Rank != 0)
             {
@@ -627,7 +653,7 @@ public class ItemManager : MonoBehaviour
 
             StringBuilder s = new StringBuilder();
 
-            int Percentage = editItem.Percentage;
+            float Probability = editItem.Probability;
 
             int MonoPhysics = editItem.MonoPhysics;
             int MultiPhysics = editItem.MultiPhysics;
@@ -636,16 +662,17 @@ public class ItemManager : MonoBehaviour
             float MonoStun = editItem.MonoStun;
             float MultiStun = editItem.MultiStun;
             float Range = editItem.Range;
-            int MonoPercent = editItem.MonoPercent;
-            int EndPercent = editItem.EndPercent;
-            int MaxPercent = editItem.MaxPercent;
-            int CurrPercent = editItem.CurrPercent;
-            int Max_CurrPercent = editItem.Max_CurrPercent;
-            int boss = editItem.BossAttack;
+            float Percent = editItem.Percent;
+            bool boss = editItem.BossPercentAttack;
+            float DoublePhysics = editItem.DoublePhysics;
+            float damageUp = editItem.DamageUp;
+            int PercentageCategory = editItem.PercentCategory;
 
-            if (Percentage != 0)
+            float attackRange = editItem.AttackRange;
+
+            if (Probability != 0)
             {
-                s.AppendLine($"스킬 확률 : {Percentage}%");
+                s.AppendLine($"스킬 확률 : {Probability}%");
                 if (MonoPhysics != 0) s.AppendLine($"단일 물리 데미지 : {MonoPhysics}");
                 if (MultiPhysics != 0) s.AppendLine($"범위 물리 데미지 : {MultiPhysics}");
                 if (MonoMagic != 0) s.AppendLine($"단일 마법 데미지 : {MonoMagic}");
@@ -653,13 +680,52 @@ public class ItemManager : MonoBehaviour
                 if (MonoStun != 0) s.AppendLine($"단일 스턴 : {MonoStun}초");
                 if (MultiStun != 0) s.AppendLine($"범위 스턴 : {MultiStun}초");
                 if (Range != 0) s.AppendLine($"스킬 범위 : {Range * 100}");
-                if (MonoPercent != 0 && boss == 0) s.AppendLine($"단일 현재체력 비례 데미지 : {MonoPercent}%");
-                if (EndPercent != 0 && boss == 0) s.AppendLine($"단일 전체체력 비례 데미지 : {EndPercent}%");
-                if (MaxPercent != 0) s.AppendLine($"범위 전체체력 비례 데미지 : {MaxPercent}%");
-                if (CurrPercent != 0) s.AppendLine($"범위 현재체력 비례 데미지 : {CurrPercent}%");
-                if (Max_CurrPercent != 0) s.AppendLine($"범위 잃은체력 비례 데미지 : {Max_CurrPercent}%");
-                if (boss != 1) s.AppendLine($"보스 대상 현재체력 비례 데미지 : {MonoPercent}%"); 
-                if (boss != 2) s.AppendLine($"보스 대상 전체체력 비례 데미지 : {EndPercent}%"); 
+                if (boss == true)
+                {
+                    switch (PercentageCategory)
+                    {
+                        case 1:
+                            s.AppendLine($"보스에게 전체체력의 {Percent}에 해당하는 데미지를 입힙니다");
+                            break;
+                        case 2:
+                            s.AppendLine($"보스에게 현재체력의 {Percent}에 해당하는 데미지를 입힙니다");
+                            break;
+                        case 3:
+                            s.AppendLine($"보스에게 잃은체력의 {Percent}에 해당하는 데미지를 입힙니다");
+                            break;
+                    }
+                }
+                else if (Percent != 0)
+                {
+                    if (Range > 0)
+                        switch (PercentageCategory)
+                        {
+                            case 1:
+                                s.AppendLine($"범위에 전체체력의 {Percent}에 해당하는 데미지를 입힙니다");
+                                break;
+                            case 2:
+                                s.AppendLine($"범위에 현재체력의 {Percent}에 해당하는 데미지를 입힙니다");
+                                break;
+                            case 3:
+                                s.AppendLine($"범위에 잃은체력의 {Percent}에 해당하는 데미지를 입힙니다");
+                                break;
+                        }
+                    else
+                        switch (PercentageCategory)
+                        {
+                            case 1:
+                                s.AppendLine($"단일 대상에게 전체체력의 {Percent}에 해당하는 데미지를 입힙니다");
+                                break;
+                            case 2:
+                                s.AppendLine($"단일 대상에게 현재체력의 {Percent}에 해당하는 데미지를 입힙니다");
+                                break;
+                            case 3:
+                                s.AppendLine($"단일 대상에게 잃은체력의 {Percent}에 해당하는 데미지를 입힙니다");
+                                break;
+                        }
+
+                }
+                if (damageUp != 0) s.AppendLine($"치명타 : {damageUp * 100}%");
 
                 switch ((editItem.Name, editItem.Rank))
                 {
@@ -668,6 +734,11 @@ public class ItemManager : MonoBehaviour
                         break;
                 }
 
+            }
+            else if (attackRange != 0)
+            {
+                s.AppendLine($"공격 범위(넓은 범위 우선) : {attackRange * 100}");
+                if (DoublePhysics != 0) s.AppendLine($"공격력 비례 물리 데미지(짭플) : {DoublePhysics * 100}%");
             }
             else
                 s.AppendLine("스킬이 없습니다");

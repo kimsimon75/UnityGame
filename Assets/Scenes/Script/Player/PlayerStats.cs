@@ -6,17 +6,17 @@ using UnityEngine;
 public class PlayerStats : MonoBehaviour
 {
     public int UnitCount;
-    [NonSerialized] public float[] CurrentHealth;
-    [NonSerialized] public float[] MaxHealth;
-    [NonSerialized] public float[] CurrentMana;
-    [NonSerialized] public float[] MaxMana;
+    [NonSerialized] public int[] CurrentHealth;
+    [NonSerialized] public int[] MaxHealth;
+    [NonSerialized] public int[] CurrentMana;
+    [NonSerialized] public int[] MaxMana;
 
     [NonSerialized] public float[] HealthRegen;
     [NonSerialized] public float[] manaRegen;
 
     private float[] hpRegenBuffer;
     private float[] mpRegenBuffer;
-    [NonSerialized] public float[] attackSpeedBonus;
+    [NonSerialized] public float attackSpeedBonus;
     [NonSerialized] public float blendingTime = 0.1f;
     [NonSerialized] public float[] attackCooldown;
     [NonSerialized] public float[] attackDelay;
@@ -24,13 +24,15 @@ public class PlayerStats : MonoBehaviour
     [NonSerialized] public float[] damage;
     [NonSerialized] public float[] doublePhysics;
     [NonSerialized] public float MoveSpeed;
+    [NonSerialized] public float[] Radius;
+    [NonSerialized] public float[] DamageUp;
     public int player = 1;
     [NonSerialized] public float detectRange = 4f;
 
     public int neutralizeDefense = 0;
     public int MagicalBuffer;
     public int MagicalDebuffer;
-    private int[] TrueDamage;
+    public int[] TrueDamage;
     public int MoveSpeeDebuff;
     public int TowerDamage;
     public int TowerAttackSpeed;
@@ -42,34 +44,35 @@ public class PlayerStats : MonoBehaviour
 
     void Awake()
     {
-        CurrentHealth = new float[GameManager.Instance.Action.TargetNumberMax];
-        MaxHealth = new float[GameManager.Instance.Action.TargetNumberMax];
-        CurrentMana = new float[GameManager.Instance.Action.TargetNumberMax];
+        CurrentHealth = new int[GameManager.Instance.Action.TargetNumberMax];
+        MaxHealth = new int[GameManager.Instance.Action.TargetNumberMax];
+        CurrentMana = new int[GameManager.Instance.Action.TargetNumberMax];
 
-        MaxMana = new float[GameManager.Instance.Action.TargetNumberMax];
+        MaxMana = new int[GameManager.Instance.Action.TargetNumberMax];
 
         HealthRegen = new float[GameManager.Instance.Action.TargetNumberMax];
         manaRegen = new float[GameManager.Instance.Action.TargetNumberMax];
 
         hpRegenBuffer =  new float[GameManager.Instance.Action.TargetNumberMax];
         mpRegenBuffer = new float[GameManager.Instance.Action.TargetNumberMax];
-        attackSpeedBonus = new float[GameManager.Instance.Action.TargetNumberMax];
 
         attackCooldown = new float[GameManager.Instance.Action.TargetNumberMax];
         attackDelay = new float[GameManager.Instance.Action.TargetNumberMax];
 
         damage = new float[GameManager.Instance.Action.TargetNumberMax];
         doublePhysics = new float[GameManager.Instance.Action.TargetNumberMax];
+        DamageUp = new float[GameManager.Instance.Action.TargetNumberMax];
+        Radius = new float[GameManager.Instance.Action.TargetNumberMax];
 
         TrueDamage = new int[GameManager.Instance.Action.TargetNumberMax];
 
         UnitCount = 0;
         for (int i = 0; i < GameManager.Instance.Action.TargetNumberMax; i++)
         {
-            MaxHealth[i] = 100f;
+            MaxHealth[i] = 100;
             CurrentHealth[i] = 0;
             
-            MaxMana[i] = 100f;          // ➕ 추가
+            MaxMana[i] = 100;          // ➕ 추가
             CurrentMana[i] = 0;
 
             HealthRegen[i] = 0f;
@@ -83,9 +86,9 @@ public class PlayerStats : MonoBehaviour
 
         for (int i = 0; i < damage.Length; i++)
         {
-            damage[i] = 10;
+            damage[i] = 50;
             attackDelay[i] = 1f;
-            attackSpeedBonus[i] = 0f;
+            attackSpeedBonus = 0f;
             attackCooldown[i] = 1f;
         }
 
@@ -96,7 +99,7 @@ public class PlayerStats : MonoBehaviour
     {
         text.text = $"{UnitCount}";
         for(int i=0;i<GameManager.Instance.Action.TargetNumberMax;i++)
-        attackCooldown[i] = attackDelay[i] / (1 + attackSpeedBonus[i] * 0.01f);
+        attackCooldown[i] = attackDelay[i] / (1 + attackSpeedBonus * 0.01f);
 
         Animator anim = GetComponent<Animator>();
         AnimationClip[] clips = anim.runtimeAnimatorController.animationClips;
@@ -141,22 +144,19 @@ public class PlayerStats : MonoBehaviour
         }
     }
 
-    public void HealthTrigger()
+    public void HealthTrigger(int targetNum)
     {
-        int targetNum = action.targetNumber;
         if (CurrentHealth[targetNum] == MaxHealth[targetNum])
         {
             CurrentHealth[targetNum] = 0;
         }
     }
 
-    public void ManaTrigger()
+    public void ManaTrigger(int targetNum)
     {
-        int targetNum = action.targetNumber;
         if (CurrentMana[targetNum] == MaxMana[targetNum])
         {
             CurrentMana[targetNum] = 0;
-
         }
     }
     public Vector2 GetHP()
@@ -168,14 +168,14 @@ public class PlayerStats : MonoBehaviour
         return new Vector2(CurrentMana[action.targetNumber], MaxMana[action.targetNumber]);
     }
 
-    public (float[] damage, float attackCooldown, float[] attackSpeedBonus,
+    public (float[] damage, float attackCooldown, float attackSpeedBonus,
      int neutralizeDefense, float HealthRegen, float manaRegen,
-      int MagicalBuffer, int MagicalDebuffer, int TrueDamage, int MoveSpeeDebuff, float[] doublePhysics)
+      int MagicalBuffer, int MagicalDebuffer, int TrueDamage, int MoveSpeeDebuff, float[] doublePhysics, float[] Radius)
       GetStats()
     {
         return (damage, attackCooldown[action.targetNumber], attackSpeedBonus, neutralizeDefense
     , HealthRegen[action.targetNumber], manaRegen[action.targetNumber],
-     MagicalBuffer, MagicalDebuffer, TrueDamage[action.targetNumber], MoveSpeeDebuff, doublePhysics);
+     MagicalBuffer, MagicalDebuffer, TrueDamage[action.targetNumber], MoveSpeeDebuff, doublePhysics, Radius);
     }
 
 }

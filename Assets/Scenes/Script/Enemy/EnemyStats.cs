@@ -1,6 +1,7 @@
 using System;
 using RaycastPro.RaySensors;
 using Unity.VisualScripting;
+using Unity.VisualScripting.FullSerializer;
 using UnityEngine;
 
 public class EnemyStats : Actor
@@ -47,28 +48,52 @@ public class EnemyStats : Actor
     /// <summary>
     /// 데미지를 입었을 때 호출
     /// </summary>
-    public void TakeDamage(float damage, ArmorType damageType, bool physics, int armorDecrease, int percent = 0) /// percent 0 : 일반, 1 : 전체, 2 : 현재, 3 : 잃은, 
+    public void TakeDamage(float damage, ArmorType damageType, bool physics, int armorDecrease, int percent = 0, bool boss = false) /// percent 0 : 일반, 1 : 전체, 2 : 현재, 3 : 잃은, 
     {
         if (isDead) return;
         damage = damage * GetDamage(damageType, armorType);
 
-        switch (percent)
+        if (boss == true)
         {
-            case 0:
-                damage = damage * 1;
-                break;
-            case 1:
-                damage = damage / 100 * MaxHealth;
-                break;
-            case 2:
-                damage = damage / 100 * CurrentHealth;
-                break;
-            case 3:
-                damage = damage / 100 * (MaxHealth - CurrentHealth);
-                break;
-            default:
-                break;
+            switch (percent)
+                {
+                    case 0:
+                        damage = damage * 1;
+                        break;
+                    case 1:
+                        damage = damage / 100f * MaxHealth;
+                        break;
+                    case 2:
+                        damage = damage * CurrentHealth / 100f;
+                        break;
+                    case 3:
+                        damage = damage / 100f * (MaxHealth - CurrentHealth);
+                        break;
+                    default:
+                        break;
+                }
         }
+        else
+        {
+            switch (percent)
+            {
+                case 0:
+                    damage = damage * 1;
+                    break;
+                case 1:
+                    damage = damage / 100f * MaxHealth;
+                    break;
+                case 2:
+                    damage = damage / 100f * CurrentHealth;
+                    break;
+                case 3:
+                    damage = damage / 100f * (MaxHealth - CurrentHealth);
+                    break;
+                default:
+                    break;
+            }
+        }
+
         if (physics)
             damage = damage * ArmorCalculate(Armor, armorDecrease);
         CurrentHealth = Mathf.Max(CurrentHealth - damage, 0f);
@@ -112,6 +137,13 @@ public class EnemyStats : Actor
 
     public override void TakeDamageAll(float damageAll, float damage, float radius, ArmorType damageType, bool physics,  float DoublePhysicsDamagePercentage, int armorDecrease, int percent = 0)
     {
+        float pureDamageAll = damageAll;
+        float doubledDamage = 0;
+        if (DoublePhysicsDamagePercentage > 0)
+        {
+            pureDamageAll = damageAll*Mathf.Max(1 - DoublePhysicsDamagePercentage, 0);
+            doubledDamage = damageAll * DoublePhysicsDamagePercentage;
+        }
         if (radius != 0)
         {
             Vector3 center = transform.position;
@@ -127,14 +159,14 @@ public class EnemyStats : Actor
                 EnemyStats stats = col.GetComponent<EnemyStats>();
                 if (stats != null && col.transform != transform)
                 {
-                    stats.TakeDamage(damageAll, damageType, physics, armorDecrease);
+                    stats.TakeDamage(pureDamageAll + doubledDamage * ArmorCalculate(Armor, armorDecrease) , damageType, physics, armorDecrease);
                 }
             }
 
             DebugDrawCircleXZ(center, radius, Color.red);
         }
 
-        TakeDamage(damage + damageAll, damageType, physics, armorDecrease, percent);
+        TakeDamage(damage + pureDamageAll + doubledDamage * (1 + ArmorCalculate(Armor, armorDecrease)), damageType, physics, armorDecrease, percent);
 
     }       
     public void TakeStun(float Time)

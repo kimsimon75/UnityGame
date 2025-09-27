@@ -26,7 +26,9 @@ public class StatsWindow : MonoBehaviour
             stringBuilder.AppendLine($"부대 {stats.action.targetNumber + 1}");
             stringBuilder.AppendLine($"공격력 : {status.Item1[targetNumber]}");
             stringBuilder.AppendLine($"공격 속도 : {(1 / status.Item2).ToString("F3")}");
-            stringBuilder.AppendLine($"공속 보너스 : {status.Item3[targetNumber]}%");
+            stringBuilder.AppendLine($"공속 보너스 : {status.Item3}%");
+            stringBuilder.AppendLine($"공격력 비례 물리피해(짭플) : {status.Item11[targetNumber]}");
+            stringBuilder.AppendLine($"공격 범위 : {status.Item12[targetNumber] * 100}");
             stringBuilder.AppendLine($"방어력 감소 : {status.Item4}");
             stringBuilder.AppendLine($"체력 재생 : {DataManager.Instance.RoundX(status.Item5, 3)}");
             stringBuilder.AppendLine($"마나 재생 : {DataManager.Instance.RoundX(status.Item6, 3)}");
@@ -69,10 +71,10 @@ public class StatsWindow : MonoBehaviour
                 int keyValue = GameManager.Instance.KeyValueNumber;
                 stringBuilder.AppendLine($"스킬명 : {DataManager.Instance.sprites[0][keyValue].name}");
                 stringBuilder.AppendLine($"에너지 소모량 : {GameManager.Instance.skillEnergy[keyValue]}");
-                if(GameManager.Instance.skillIndicate[keyValue] > 0)
-                stringBuilder.AppendLine($"범위 : {GameManager.Instance.skillIndicate[keyValue] * 100}");
+                if (GameManager.Instance.skillIndicate[keyValue] > 0)
+                    stringBuilder.AppendLine($"범위 : {GameManager.Instance.skillIndicate[keyValue] * 100}");
                 else
-                stringBuilder.AppendLine($"범위 : 단일");
+                    stringBuilder.AppendLine($"범위 : 단일");
                 stringBuilder.AppendLine($"스킬 재사용 대기시간 : {GameManager.Instance.skillCoolInit[keyValue]}초");
 
                 string S = "스킬 설명 : ";

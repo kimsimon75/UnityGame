@@ -63,14 +63,21 @@ public class AutoAttack : MonoBehaviour
                     if (action.target[i].gameObject.activeInHierarchy)
                     {
                         // 공격 실행
-                        stats.HealthTrigger();
-                        stats.ManaTrigger();
-                        action.target[i].GetComponent<Actor>()
-                            .TakeDamageAll(0, stats.damage[i], 0, ArmorType.패기, true, stats.doublePhysics[i], stats.neutralizeDefense);
+                        stats.HealthTrigger(i);
+                        stats.ManaTrigger(i);
+                        stats.CurrentHealth[i] += 1;
+                        stats.CurrentMana[i] += 1;
+                        float damageUp = 0;
+                        foreach (Item item1 in item.list.currentItem[i])
+                            damageUp += item.list.SetSkill(action.target[i].GetComponent<Actor>(), item1);
+
+
+                        Actor actor = action.target[i].GetComponent<Actor>();
+
+                        actor.TakeDamageAll(stats.damage[i] * (1 + damageUp),0, stats.Radius[i], ArmorType.패기, true, stats.doublePhysics[i], stats.neutralizeDefense);
+                        actor.TakeDamageAll(stats.damage[i] * stats.TrueDamage[i], 0, stats.Radius[i], ArmorType.고정, false, 0, 0, 0);  
 
                         if (item == null) Debug.Log("None item");
-                        foreach (Item item1 in item.list.currentItem[i])
-                            item.list.SetSkill(action.target[i].GetComponent<Actor>(), item1);
                         // 공격 비활성화 시간 설정 (hitTiming 적용)
                         action.attackDisableTime[i] = Time.time + Cycle - attackDelay;
                     }

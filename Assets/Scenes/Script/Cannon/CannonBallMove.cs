@@ -36,10 +36,10 @@ public class CannonBallMove : MonoBehaviour
 
     void OnTriggerEnter(Collider other)
     {
-        if (other.CompareTag("Enemy"))
+        if (other.gameObject == target.gameObject)
         {
             Actor stats = other.transform.GetComponent<Actor>();
-                stats.TakeDamageAll(Damage, 0, 3f, DamageType,true,0,0);
+                stats.TakeDamageAll(0, Damage, 0, DamageType ,true ,0 ,0 );
             Destroy(gameObject); // 또는 다른 처리
         }
     }

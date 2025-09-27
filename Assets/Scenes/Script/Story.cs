@@ -54,11 +54,23 @@ public class Story : Actor
     public override void TakeDamageAll(float damageAll, float damage, float detectRange, ArmorType damageType, bool physics, float DoublePhysicsDamagePercentage, int armorDecrease, int percent)// damageAll만 사용
     {
         if (isDead) return;
-        damageAll = damageAll * GetDamage(damageType, armorType);
-        damage = damage * GetDamage(damageType, armorType);
+        if (percent == 0)
+        {
+            damageAll = damageAll * GetDamage(damageType, armorType);
+            damage = damage * GetDamage(damageType, armorType);            
+        }
+
+        
+        float pureDamage = damageAll;
+        float doubledDamage = 0;
+        if (DoublePhysicsDamagePercentage > 0)
+        {
+            pureDamage = damageAll*Mathf.Max(1 - DoublePhysicsDamagePercentage, 0);
+            doubledDamage = damageAll * DoublePhysicsDamagePercentage;
+        }
         if (physics)
         {
-            damageAll = damageAll * ArmorCalculate(Armor, armorDecrease);
+            pureDamage = pureDamage * ArmorCalculate(Armor, armorDecrease);
             damage = damage * ArmorCalculate(Armor, armorDecrease);
         }
         switch (percent)
@@ -67,21 +79,21 @@ public class Story : Actor
                 damage = damage * 1;
                 break;
             case 1:
-                damageAll = damageAll / 100 * maxHealth;
-                damage = damage / 100 * maxHealth;
+                damageAll = damageAll * maxHealth / 10000f;
+                damage = damage * maxHealth / 10000f;
                 break;
             case 2:
-                damageAll = damageAll / 100 * currentHealth;
-                damage = damage / 100 * currentHealth;
+                damageAll = damageAll * 10000f;
+                damage = damage * 10000f;
                 break;
             case 3:
-                damageAll = damageAll / 100 * (maxHealth - currentHealth);
-                damage = damage / 100 * (maxHealth - currentHealth);
+                damageAll = damageAll / 10000f * (maxHealth - currentHealth);
+                damage = damage / 10000f * (maxHealth - currentHealth);
                 break;
             default:
                 break;
         }
-        currentHealth = Mathf.Max(currentHealth - damage - damageAll, 0f);
+        currentHealth = Mathf.Max(currentHealth - damage - (percent > 0 ? damageAll :pureDamage - doubledDamage * (1 + ArmorCalculate(Armor, armorDecrease)) ) , 0f);
         if (currentHealth <= 0)
         {
             isDead = true;

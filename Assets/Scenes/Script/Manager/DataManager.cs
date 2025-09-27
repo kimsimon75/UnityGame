@@ -173,7 +173,7 @@ public class DataManager : MonoBehaviour
 
     }
 
-    public double RoundX(float value, int digits)
+    public float RoundX(float value, int digits)
     {
         float mul = Mathf.Pow(10f, digits);
         return Mathf.Round(value * mul) / mul;

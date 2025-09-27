@@ -6,14 +6,14 @@ public class Cannon : MonoBehaviour
 {
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     [NonSerialized] public Transform target;
-    float detectRange = 6f;
+    float detectRange = 10f;
     bool isAttack = false;
     public GameObject projectilePrefab;
     public Transform firePoint;
     private float attackCooldown = 2f;
     private float attackDelay;
     public int attackCooldownBuff = 0;
-    [NonSerialized] public int damage = 10;
+    [NonSerialized] public int damage = 50;
     public ArmorType damageType = ArmorType.공성;
     void Start()
     {
@@ -77,8 +77,8 @@ public class Cannon : MonoBehaviour
         isAttack = false;
     }
 
-    public (int damage, float attackDelay, ArmorType damageType) GetDamageInfo()
+    public (int damage, float attackDelay, ArmorType damageType, float attackCooldownBuff) GetDamageInfo()
     {
-        return (damage, attackDelay, damageType);
+        return (damage, attackDelay, damageType, attackCooldownBuff);
     }
 }

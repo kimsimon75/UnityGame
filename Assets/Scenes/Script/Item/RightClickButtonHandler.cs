@@ -4,7 +4,7 @@ using System.Collections.Generic;
 using UnityEngine.UI;
 using System.Linq;
 
-public class RightClickButtonHandler : MonoBehaviour, IPointerClickHandler
+public class RightClickButtonHandler : MonoBehaviour, IPointerClickHandler, IPointerEnterHandler, IPointerExitHandler
 {
     private ItemManager item;
     public Button myButton;
@@ -130,5 +130,15 @@ public class RightClickButtonHandler : MonoBehaviour, IPointerClickHandler
         }
         else
             item.Clear(findItem, false);
+    }
+
+    public void OnPointerEnter(PointerEventData eventData)
+    {
+        item.targetImage = eventData.pointerEnter.GetComponentInParent<Button>().gameObject;
+    }
+
+    public void OnPointerExit(PointerEventData eventData)
+    {
+        item.targetImage = null;
     }
 }
