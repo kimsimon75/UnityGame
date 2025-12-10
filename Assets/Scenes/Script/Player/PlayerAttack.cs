@@ -33,13 +33,12 @@ public class PlayerAttack : MonoBehaviour
         transform.rotation = Quaternion.Slerp(transform.rotation, lookRotation, UnityEngine.Time.deltaTime * 10f);
 
 
-        if (dist > stats.detectRange - 0.1f && !action.IsAttackDisabledFor(action.targetNumber))
+        if (dist > stats.detectRange && !action.IsAttackDisabledFor(action.targetNumber))
         {
             agent.isStopped = false;
             agent.SetDestination(target.position);
             if(!anim.GetCurrentAnimatorStateInfo(0).IsName("Walking") &&
-            !(anim.GetNextAnimatorStateInfo(0).IsName("Walking") &&
-             anim.IsInTransition(0)))
+            !(anim.GetNextAnimatorStateInfo(0).IsName("Walking") && anim.IsInTransition(0)))
             
             anim.CrossFade("Walking", stats.blendingTime);
         }

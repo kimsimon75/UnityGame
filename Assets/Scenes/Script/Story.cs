@@ -7,9 +7,13 @@ public class Story : Actor
     public float maxHealth = 0;
     int[][] story = new int[14][];
     public byte level = 0;
-    public ItemManager item;
-    void Start()
+    private ItemManager item;
+
+    private int degree;
+    protected override void Start()
     {
+        base.Start();
+        item = GameManager.Instance.ItemManager;
         armorType = ArmorType.공성;
         story[0] = new int[2] { 0, 0 };
         story[1] = new int[2] { 100000, 9 };
@@ -27,6 +31,8 @@ public class Story : Actor
         story[13] = new int[2] { 550000000, 247 };
 
         currentHealth = maxHealth = story[++level][0];
+
+        degree = DataManager.degree;
     }
 
     // Update is called once per frame
@@ -51,14 +57,12 @@ public class Story : Actor
         Armor = story[level][1] - deArmor;
     }
 
-    public override void TakeDamageAll(float damageAll, float damage, float detectRange, ArmorType damageType, bool physics, float DoublePhysicsDamagePercentage, int armorDecrease, int percent)// damageAll만 사용
+    public override void TakeDamageAll_physics(int damageAll, int damage, float detectRange, ArmorType damageType, float DoublePhysicsDamagePercentage, int armorDecrease)// damageAll만 사용
     {
         if (isDead) return;
-        if (percent == 0)
-        {
-            damageAll = damageAll * GetDamage(damageType, armorType);
-            damage = damage * GetDamage(damageType, armorType);            
-        }
+
+        damageAll = (int)(damageAll * GetDamage(damageType, armorType));
+        damage = (int)(damage * GetDamage(damageType, armorType));            
 
         
         float pureDamage = damageAll;
@@ -68,37 +72,25 @@ public class Story : Actor
             pureDamage = damageAll*Mathf.Max(1 - DoublePhysicsDamagePercentage, 0);
             doubledDamage = damageAll * DoublePhysicsDamagePercentage;
         }
-        if (physics)
-        {
             pureDamage = pureDamage * ArmorCalculate(Armor, armorDecrease);
-            damage = damage * ArmorCalculate(Armor, armorDecrease);
-        }
-        switch (percent)
-        {
-            case 0:
-                damage = damage * 1;
-                break;
-            case 1:
-                damageAll = damageAll * maxHealth / 10000f;
-                damage = damage * maxHealth / 10000f;
-                break;
-            case 2:
-                damageAll = damageAll * 10000f;
-                damage = damage * 10000f;
-                break;
-            case 3:
-                damageAll = damageAll / 10000f * (maxHealth - currentHealth);
-                damage = damage / 10000f * (maxHealth - currentHealth);
-                break;
-            default:
-                break;
-        }
-        currentHealth = Mathf.Max(currentHealth - damage - (percent > 0 ? damageAll :pureDamage - doubledDamage * (1 + ArmorCalculate(Armor, armorDecrease)) ) , 0f);
+            damage = (int)(damage * ArmorCalculate(Armor, armorDecrease));
+
+        currentHealth = Mathf.Max(currentHealth - damage - (DoublePhysicsDamagePercentage > 0 ? damageAll : pureDamage - doubledDamage * (1 + ArmorCalculate(Armor, armorDecrease)) ) , 0f);
         if (currentHealth <= 0)
         {
             isDead = true;
         }
     }
+
+    public override void TakeDamageAll_magics(int damageAll, int damage, float radius, bool trueDamage = false)
+    {
+        
+    }
+    public override void TakeDamageAll_percentage(float damageAll, float damage, float radius, int percent = 0)
+    {
+        
+    }
+
 
     public override void TakeStunAll(float Time, float TimeAll, float radius) { return; }
     public override void TakePoisonAll(float Time, int Armor, float radius)

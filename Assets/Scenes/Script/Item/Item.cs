@@ -149,7 +149,7 @@ public class List
     private Dictionary<(string, ItemRank), Item> dict;
     private Image[] images;
     private UnityEngine.UI.Outline[] outlines;
-    private int[] rankOn = new int[GameManager.Instance.Action.TargetNumberMax];
+    private int[] rankOn;
     private int cannonRankOn;
 
     public PriorityQueue<Item>[] currentItem;
@@ -185,6 +185,7 @@ public class List
     public List(PlayerStats stats, CannonManager cannon, ItemManager itemManager)
     {
         currentItem = new PriorityQueue<Item>[GameManager.Instance.Action.TargetNumberMax];
+        rankOn = new int[GameManager.Instance.Action.TargetNumberMax];
         for (int i = 0; i < currentItem.Length; i++)
         {
             currentItem[i] = new PriorityQueue<Item>(30);
@@ -200,7 +201,7 @@ public class List
         ItemManager = itemManager;
 
         images = ItemManager.GetImages();
-        outlines = itemManager.GetOutlines();
+        outlines = ItemManager.GetOutlines();
 
         table = new object[(int)ItemRank.상위 + 1][,];
         table[(int)ItemRank.All] = all;
@@ -1387,17 +1388,19 @@ public class List
                     case ItemRank.특별함:
                         Stats.damage[number] += 400;
                         Stats.attackDelay[number] = 0.9f;
-                        Stats.attackSpeedBonus += 25f;
+                        Stats.attackSpeedBonus[number] += 25f;
+                        Stats.someSortOfSkillEffect[0] += 3f;
+                        GameManager.Instance.chat.Push("도약 잠금 해제");
                         break;
                     case ItemRank.희귀함:
                         Stats.damage[number] += 4500;
                         Stats.attackDelay[number] = 0.85f;
-                        Stats.attackSpeedBonus += 45f;
+                        Stats.attackSpeedBonus[number] += 45f;
                         break;
                     case ItemRank.전설적인:
                         Stats.damage[number] += 9000;
                         Stats.attackDelay[number] = 0.70f;
-                        Stats.attackSpeedBonus += 215f;
+                        Stats.attackSpeedBonus[number] += 215f;
                         break;
 
                 }
@@ -1450,15 +1453,15 @@ public class List
                         break;
                     case ItemRank.특별함:
                         Stats.damage[number] -= 400;
-                        Stats.attackSpeedBonus -= 25f;
+                        Stats.attackSpeedBonus[number] -= 25f;
                         break;
                     case ItemRank.희귀함:
                         Stats.damage[number] -= 4500;
-                        Stats.attackSpeedBonus -= 45f;
+                        Stats.attackSpeedBonus[number] -= 45f;
                         break;
                     case ItemRank.전설적인:
                         Stats.damage[number] -= 9000;
-                        Stats.attackSpeedBonus -= 215f;
+                        Stats.attackSpeedBonus[number] -= 215f;
                         break;
                     case ItemRank.상위:
                         break;
@@ -1509,7 +1512,7 @@ public class List
         if (Stats != null)
         {
             Stats.damage[number] += item.AttackPower;
-            Stats.attackSpeedBonus += item.AttackSpeed;
+            Stats.attackSpeedBonus[number] += item.AttackSpeed;
             Stats.HealthRegen[number] += DataManager.Instance.RoundX(item.HealthRegen, 3);
             Stats.manaRegen[number] += DataManager.Instance.RoundX(item.ManaRegen, 3);
             Stats.doublePhysics[number] += item.DoublePhysics;
@@ -1530,12 +1533,23 @@ public class List
     public void StatsDown(Item item, int number)
     {
         Stats.damage[number] -= item.AttackPower;
-        Stats.attackSpeedBonus -= item.AttackSpeed;
-        Stats.HealthRegen[number] -= item.HealthRegen;
-        Stats.manaRegen[number] -= item.ManaRegen;
+        Stats.attackSpeedBonus[number] -= item.AttackSpeed;
+        Stats.HealthRegen[number] -= DataManager.Instance.RoundX(item.HealthRegen, 3);
+        Stats.manaRegen[number] -= DataManager.Instance.RoundX(item.ManaRegen, 3);
+        Stats.doublePhysics[number] -= item.DoublePhysics;
         Stats.TrueDamage[number] -= item.TrueDamage;
         Stats.neutralizeDefense -= item.NeutralizeDefense;
-        Cannon.SetCannon(-item.TowerDamage, -item.TowerAttackSpeed);
+        if(Stats.Radius[number] <= item.AttackRange)
+        {
+            Stats.Radius[number] = 0f;
+            foreach(Item itemIn in itemList[number])
+            {
+                if(Stats.Radius[number] < itemIn.AttackRange)
+                Stats.Radius[number] = itemIn.AttackRange;
+
+            }
+        }
+        Cannon.SetCannon(item.TowerDamage, item.TowerAttackSpeed);
 
     }
 
@@ -1549,6 +1563,7 @@ public class List
                 c.a = 1f;
                 image.color = c;
 
+                if(image.gameObject.activeSelf)
                 image.transform.Find("number1").gameObject.SetActive(false);
                 image.transform.Find("number2").gameObject.SetActive(false);
 
@@ -1580,36 +1595,37 @@ public class List
         float DamageUp = item.DamageUp;
         int PercentageCategory = item.PercentCategory;
         bool BossPercentAttack = item.BossPercentAttack;
+        ArmorType attackType = item.AttackType;
+        float doubledDamage = item.DoublePhysics;
+        int neutralizeDefense = item.NeutralizeDefense;
 
         float DamagePercentage = 0f;
 
         int rand = UnityEngine.Random.Range(0, 10000);
-                Debug.Log(Probability * 100);
 
         for(int i=0;i<item.count;i++)
         if (rand < Mathf.Ceil(Probability * 100))
         {
-            actor.TakeDamageAll(MultiPhysics, MonoPhysics, Range
-            , ArmorType.고정, true, 0, Stats.neutralizeDefense, 0);
+            actor.TakeDamageAll_physics(MultiPhysics, MonoPhysics, Range, attackType, doubledDamage, neutralizeDefense);
 
-            actor.TakeDamageAll(MultiMagic, MonoMagic, Range
-            , ArmorType.마법, false, 0, 0, 0);
+            actor.TakeDamageAll_magics(MultiMagic, MonoMagic, Range, true);
+
+            actor.TakeDamageAll_magics(MultiMagic, MonoMagic, Range, false);
 
             actor.TakeStunAll(MultiStun, MonoStun, Range);
 
-            if (Range > 0)
-                actor.TakeDamageAll(Percent, 0, Range, ArmorType.마법, false, 0, 0, PercentageCategory);
-            else
-            {
-                actor.TakeDamageAll(0, Percent, 0, item.AttackType, false, 0, 0, PercentageCategory);
-            }
+
+
 
             if (actor.GetComponent<EnemyStats>() != null && BossPercentAttack == true)
             {
-                actor.GetComponent<EnemyStats>().TakeDamage(Percent, ArmorType.마법, false, 0, PercentageCategory, BossPercentAttack);
+                actor.GetComponent<EnemyStats>().TakeDamage_percentage(Percent, PercentageCategory);
+            }
+            else
+            {
+                actor.TakeDamageAll_percentage(Percent, 0, Range, PercentageCategory);
             }
 
-            DamagePercentage += DamageUp;
         }
 
         rand = UnityEngine.Random.Range(0, 10000);
@@ -1627,6 +1643,7 @@ public class List
                     GameManager.Instance.scrollView.GetComponent<ItemScrollView>().ImageInit(currentItem[GameManager.Instance.Action.targetNumber]);
                     break;
             }
+            DamagePercentage += DamageUp;
         }
         return DamagePercentage;
     }

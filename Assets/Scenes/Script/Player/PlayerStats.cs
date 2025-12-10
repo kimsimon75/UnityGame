@@ -16,16 +16,19 @@ public class PlayerStats : MonoBehaviour
 
     private float[] hpRegenBuffer;
     private float[] mpRegenBuffer;
-    [NonSerialized] public float attackSpeedBonus;
+    [NonSerialized] public float[] attackSpeedBonus;
+
+    [NonSerialized] public float[] attackSpeedBonusBonus;
     [NonSerialized] public float blendingTime = 0.1f;
     [NonSerialized] public float[] attackCooldown;
     [NonSerialized] public float[] attackDelay;
     [NonSerialized] public float lastAttackTime = float.MinValue;
-    [NonSerialized] public float[] damage;
+    [NonSerialized] public int[] damage;
+
+    [NonSerialized] public float[] damageBonus;
     [NonSerialized] public float[] doublePhysics;
     [NonSerialized] public float MoveSpeed;
     [NonSerialized] public float[] Radius;
-    [NonSerialized] public float[] DamageUp;
     public int player = 1;
     [NonSerialized] public float detectRange = 4f;
 
@@ -37,37 +40,63 @@ public class PlayerStats : MonoBehaviour
     public int TowerDamage;
     public int TowerAttackSpeed;
 
+    public float[] someSortOfSkillActive;
+
+    public int[] someSortOfSkillDuration;
+
+    public float[] someSortOfSkillCooltime;
+
+    public SkillCool[] someSortOfSkillCooldown;
+
+    public float[] someSortOfSkillEffect;
+
 
 
     public TextMeshProUGUI text;
     public ActionScript action;
 
+    public ArmorType armorType;
+
     void Awake()
     {
-        CurrentHealth = new int[GameManager.Instance.Action.TargetNumberMax];
-        MaxHealth = new int[GameManager.Instance.Action.TargetNumberMax];
-        CurrentMana = new int[GameManager.Instance.Action.TargetNumberMax];
+        action = GameManager.Instance.Action;
 
-        MaxMana = new int[GameManager.Instance.Action.TargetNumberMax];
+        CurrentHealth = new int[action.TargetNumberMax];
+        MaxHealth = new int[action.TargetNumberMax];
+        CurrentMana = new int[action.TargetNumberMax];
 
-        HealthRegen = new float[GameManager.Instance.Action.TargetNumberMax];
-        manaRegen = new float[GameManager.Instance.Action.TargetNumberMax];
+        MaxMana = new int[action.TargetNumberMax];
 
-        hpRegenBuffer =  new float[GameManager.Instance.Action.TargetNumberMax];
-        mpRegenBuffer = new float[GameManager.Instance.Action.TargetNumberMax];
+        HealthRegen = new float[action.TargetNumberMax];
+        manaRegen = new float[action.TargetNumberMax];
 
-        attackCooldown = new float[GameManager.Instance.Action.TargetNumberMax];
-        attackDelay = new float[GameManager.Instance.Action.TargetNumberMax];
+        hpRegenBuffer =  new float[action.TargetNumberMax];
+        mpRegenBuffer = new float[action.TargetNumberMax];
 
-        damage = new float[GameManager.Instance.Action.TargetNumberMax];
-        doublePhysics = new float[GameManager.Instance.Action.TargetNumberMax];
-        DamageUp = new float[GameManager.Instance.Action.TargetNumberMax];
-        Radius = new float[GameManager.Instance.Action.TargetNumberMax];
+        attackCooldown = new float[action.TargetNumberMax];
+        attackDelay = new float[action.TargetNumberMax];
 
-        TrueDamage = new int[GameManager.Instance.Action.TargetNumberMax];
+        damage = new int[action.TargetNumberMax];
+        doublePhysics = new float[action.TargetNumberMax];
+        Radius = new float[action.TargetNumberMax];
+
+        TrueDamage = new int[action.TargetNumberMax];
+
+        someSortOfSkillActive = new float[DataManager.NumCount-1];
+        someSortOfSkillDuration = new int[DataManager.NumCount-1];
+        someSortOfSkillCooltime = new float[DataManager.NumCount-1];
+        someSortOfSkillCooldown = new SkillCool[DataManager.NumCount-1];
+        someSortOfSkillEffect = new float[DataManager.NumCount-1];
+
+        attackSpeedBonus = new float[action.TargetNumberMax];
+
+        attackSpeedBonusBonus = new float[action.TargetNumberMax];
+        damageBonus = new float[action.TargetNumberMax];
+
+        armorType = ArmorType.패기;
 
         UnitCount = 0;
-        for (int i = 0; i < GameManager.Instance.Action.TargetNumberMax; i++)
+        for (int i = 0; i < action.TargetNumberMax; i++)
         {
             MaxHealth[i] = 100;
             CurrentHealth[i] = 0;
@@ -79,6 +108,24 @@ public class PlayerStats : MonoBehaviour
             manaRegen[i] = 0f;
         }        // ➕ 추가
 
+        for(int i=0;i<DataManager.NumCount-1; i++)
+        {
+            someSortOfSkillCooldown[i] = new SkillCool();
+        }
+
+
+        someSortOfSkillDuration[1] = 7;
+        someSortOfSkillDuration[2] = 15;
+
+        someSortOfSkillCooltime[0] = 4; // 도약
+        someSortOfSkillCooltime[1] = 50; // 각성
+        someSortOfSkillCooltime[2] = 40; // 도핑
+
+        someSortOfSkillEffect[0] = 0f;
+        someSortOfSkillEffect[1] = 80f;
+        someSortOfSkillEffect[2] = 15f;
+
+
         MoveSpeed = 6f;
 
 
@@ -86,9 +133,9 @@ public class PlayerStats : MonoBehaviour
 
         for (int i = 0; i < damage.Length; i++)
         {
-            damage[i] = 50;
+            damage[i] = 10;
             attackDelay[i] = 1f;
-            attackSpeedBonus = 0f;
+            attackSpeedBonus[i] = 0f;
             attackCooldown[i] = 1f;
         }
 
@@ -98,8 +145,8 @@ public class PlayerStats : MonoBehaviour
     void Update()
     {
         text.text = $"{UnitCount}";
-        for(int i=0;i<GameManager.Instance.Action.TargetNumberMax;i++)
-        attackCooldown[i] = attackDelay[i] / (1 + attackSpeedBonus * 0.01f);
+        for(int i=0;i<action.TargetNumberMax;i++)
+        attackCooldown[i] = attackDelay[i] / (1 + attackSpeedBonus[i] * 0.01f + attackSpeedBonusBonus[i] * 0.01f);
 
         Animator anim = GetComponent<Animator>();
         AnimationClip[] clips = anim.runtimeAnimatorController.animationClips;
@@ -111,8 +158,11 @@ public class PlayerStats : MonoBehaviour
                 float animationLength = clip.length / attackCooldown[action.targetNumber];
                 anim.SetFloat("AttackSpeed", animationLength);
             }
-        }
+        }       
+
     }
+
+
 
 
     void FixedUpdate()
@@ -168,13 +218,13 @@ public class PlayerStats : MonoBehaviour
         return new Vector2(CurrentMana[action.targetNumber], MaxMana[action.targetNumber]);
     }
 
-    public (float[] damage, float attackCooldown, float attackSpeedBonus,
+    public (int[] damage, float[] damageBonus, float attackCooldown, float attackSpeedBonus,
      int neutralizeDefense, float HealthRegen, float manaRegen,
       int MagicalBuffer, int MagicalDebuffer, int TrueDamage, int MoveSpeeDebuff, float[] doublePhysics, float[] Radius)
       GetStats()
     {
-        return (damage, attackCooldown[action.targetNumber], attackSpeedBonus, neutralizeDefense
-    , HealthRegen[action.targetNumber], manaRegen[action.targetNumber],
+        return (damage, damageBonus, attackCooldown[action.targetNumber], attackSpeedBonus[action.targetNumber] + attackSpeedBonusBonus[action.targetNumber]
+        , neutralizeDefense, HealthRegen[action.targetNumber], manaRegen[action.targetNumber],
      MagicalBuffer, MagicalDebuffer, TrueDamage[action.targetNumber], MoveSpeeDebuff, doublePhysics, Radius);
     }
 

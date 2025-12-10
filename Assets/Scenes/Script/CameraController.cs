@@ -2,12 +2,12 @@ using UnityEngine;
 
 public class CameraController : MonoBehaviour
 {
-    public float moveSpeed = 10f;
+    public float moveSpeed = 20f;
     public float borderThickness = 10f; // 마우스 감지 거리 (픽셀)
     public GameObject item;
 
-    public Vector2 scrollLimitsX = new Vector2(-30f, 30f);
-    public Vector2 scrollLimitsZ = new Vector2(-30f, 30f);
+    public Vector2 scrollLimitsX = new Vector2(-100f, 100f);
+    public Vector2 scrollLimitsZ = new Vector2(-100f, 100f);
 
     void Start()
     {

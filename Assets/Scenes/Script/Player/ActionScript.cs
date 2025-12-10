@@ -1,5 +1,6 @@
 using System;
 using DigitalRuby.LightningBolt;
+using Microsoft.Unity.VisualStudio.Editor;
 using UnityEngine;
 using UnityEngine.AI;
 
@@ -8,12 +9,15 @@ public class ActionScript : MonoBehaviour
     Animator anim;
     private bool isReady = false;
     private bool isAllReady = false;
+
+    private bool snapCameraOnce = false;
     private PlayerAttack attack;
     private HoldScanner hold;
     private NavMeshAgent agent;
     private AgentMove move;
     private PlayerStats stats;
-    public ItemManager item;
+    private ItemManager item;
+    private GameObject itemList;
     private const int targetNumberMax = 6;
 
     public int TargetNumberMax => targetNumberMax;
@@ -44,6 +48,8 @@ public class ActionScript : MonoBehaviour
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
     {
+        item = GameManager.Instance.ItemManager;
+        itemList = GameManager.Instance.itemList;
         anim = GetComponent<Animator>();
         attack = GetComponent<PlayerAttack>();
         hold = GetComponent<HoldScanner>();
@@ -76,6 +82,14 @@ public class ActionScript : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
+
+
+        if (snapCameraOnce)
+        {
+            
+        mainCamera.transform.position = transform.position + camOffset;
+        snapCameraOnce = false;
+        }
 
         if (Input.GetKeyDown(KeyCode.S))
         {
@@ -123,6 +137,22 @@ public class ActionScript : MonoBehaviour
                 }
                 isAllReady = false;
             }
+            else if(GameManager.Instance.TeleportOn)
+            {
+                float height = gameObject.transform.position.y;
+                Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
+                Plane plane = new Plane(Vector3.up, new Vector3(0, height, 0));
+                
+                if (plane.Raycast(ray, out float enter))
+                {
+                    Vector3 point = ray.GetPoint(enter);
+                    GetComponent<Skill>().Teleport(point);
+                    // point는 항상 y = fixedY
+                    TriggerHold();
+                    GameManager.Instance.Images[(int)DataManager.Num.Q].GetComponent<UnityEngine.UI.Outline>().enabled = false;
+                }
+
+            }
             else
             {
                 LayerMask mask = LayerMask.GetMask("Enemy", "Cannon");
@@ -165,12 +195,11 @@ public class ActionScript : MonoBehaviour
             if (OnTheStory)
             {
                 Goal = StoryCannon.transform;
-                mainCamera.transform.position = new Vector3(Goal.position.x, Goal.position.y - 1f + 0.083333349f, Goal.position.z) + camOffset;
             }
             else
             {
                 Goal = MagicZone.transform;
-                mainCamera.transform.position = new Vector3(Goal.position.x, Goal.position.y + 0.073333349f, Goal.position.z) + camOffset;
+ 
             }
             TriggerHold();
             point = default;
@@ -183,7 +212,8 @@ public class ActionScript : MonoBehaviour
             {
                 // Agent 가 꺼져 있거나 아직 NavMesh 위가 아니면 transform 직접 이동
                 transform.position = Goal.position;
-            }
+            }               
+            snapCameraOnce = true;
         }
         else if (Input.GetKey(KeyCode.Space))
         {
@@ -198,17 +228,17 @@ public class ActionScript : MonoBehaviour
             }
         }
 
-        if (!item.gameObject.activeInHierarchy)
+        if (!itemList.gameObject.activeInHierarchy)
             for (int i = 0; i < targetNumberMax; i++)
             {
-                if (Input.GetKeyDown(KeyCode.Alpha0 + i + 1))
+                if (Input.GetKeyDown(KeyCode.Alpha1 + i))
                 {
                     targetNumber = i;
                     ScrollView.ImageInit(item.list.currentItem[targetNumber]);
                     TriggerHold();
                 }
 
-                if (Input.GetKeyDown(KeyCode.Keypad0 + i + 1))
+                if (Input.GetKeyDown(KeyCode.Keypad1 + i))
                 {
                     targetNumber = i;
                     ScrollView.ImageInit(item.list.currentItem[targetNumber]);
@@ -234,6 +264,8 @@ public class ActionScript : MonoBehaviour
             ref zoomVelocity,
             smoothTimeZoom
         );
+
+
 
     }
 

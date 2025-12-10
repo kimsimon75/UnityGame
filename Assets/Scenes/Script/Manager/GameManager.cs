@@ -5,6 +5,7 @@ using Unity.VisualScripting;
 using UnityEngine.UI;
 using System.Linq;
 using System;
+using Unity.VisualScripting.Antlr3.Runtime.Misc;
 
 public class GameManager : MonoBehaviour
 {
@@ -32,6 +33,8 @@ public class GameManager : MonoBehaviour
     public TextMeshProUGUI roundText;
     public Summoner summoner;
     public ItemManager item; // 절대 private로 전환 금지
+
+    public GameObject itemList;
     public ItemScrollView scrollView;
     AoeIndicatorLite ring;
 
@@ -56,6 +59,8 @@ public class GameManager : MonoBehaviour
     public GameObject 사십;
     public GameObject 오십;
 
+    public PlayerStats player;
+
     EnemyStats pawnEnemy;
     EnemyStats go_pawnEnemy;
     EnemyStats 삼십적;
@@ -68,16 +73,24 @@ public class GameManager : MonoBehaviour
 
     int enemyCount = 3;
 
-    bool[] isSkill = new bool[DataManager.NumCount];
+    public List list;
+
+    bool[] isSkill = new bool[DataManager.NumCount -1];
     [SerializeField] private GameObject keyValue;
     private Image[] keyValueImages;
     public Image[] Images => keyValueImages;
     [NonSerialized] public int KeyValueNumber = DataManager.NumCount;
 
-    [NonSerialized] public int[] skillEnergy = new int[DataManager.NumCount];
-    [NonSerialized] public float[] skillCoolInit = new float[DataManager.NumCount];
-    [NonSerialized] public float[] skillCooldown = new float[DataManager.NumCount];
-    [NonSerialized] public float[] skillIndicate = new float[DataManager.NumCount];
+    [NonSerialized] public int[] skillEnergy = new int[DataManager.NumCount-1];
+    [NonSerialized] public float[] skillCoolInit = new float[DataManager.NumCount-1];
+    [NonSerialized] public SkillCool[] skillCooldown = new SkillCool[DataManager.NumCount-1];
+    [NonSerialized] public float[] skillIndicate = new float[DataManager.NumCount-1];
+
+    GameObject[] cooldownImage;
+
+    public bool SkillToggle = false;
+
+    public bool TeleportOn = false;
 
 
     void Awake()
@@ -88,6 +101,10 @@ public class GameManager : MonoBehaviour
            keyValue.GetComponentsInChildren<Image>(includeInactive: true)
                    .Where(img => img.GetComponent<Button>() != null)
                    .ToArray();
+        itemList = item.transform.Find("Items").gameObject;
+
+        
+
     }
 
     void Start()
@@ -95,6 +112,7 @@ public class GameManager : MonoBehaviour
         ring = GetComponent<AoeIndicatorLite>();
         timeLeft = 0f;
         roundText.text = "라운드 시작 전";
+        item.SetList();
         item.list.GetMemoriesParts(1);
         item.list.GetSoulParts(5);
         slider.SpawnPanelsSequentially();
@@ -102,6 +120,14 @@ public class GameManager : MonoBehaviour
         slider.SpawnPanelsSequentially();
         slider.SpawnPanelsSequentially();
         slider.SpawnPanelsSequentially();
+
+        cooldownImage = new GameObject[DataManager.NumCount-1];
+
+        for(int i=0; i<DataManager.NumCount - 1; i++)
+        {
+            cooldownImage[i] = keyValueImages[i].transform.Find("Image/CooldownBG").gameObject;
+            skillCooldown[i] = new SkillCool();
+        }
 
         item.willBeGet = UnityEngine.Random.Range(0, item.list.itemList[(int)ItemRank.특별함].Count);
 
@@ -111,7 +137,6 @@ public class GameManager : MonoBehaviour
         {
             keyValueImages[i].AddComponent<KeyButton>();
             keyValueImages[i].GetComponent<KeyButton>().number = i;
-            skillCooldown[i] = 0;
         }
         skillEnergy[(int)DataManager.Num.Q] = 700;
         skillEnergy[(int)DataManager.Num.W] = 100;
@@ -119,7 +144,6 @@ public class GameManager : MonoBehaviour
         skillEnergy[(int)DataManager.Num.Z] = 90;
         skillEnergy[(int)DataManager.Num.X] = 200;
         skillEnergy[(int)DataManager.Num.C] = 620;
-        skillEnergy[(int)DataManager.Num.D] = 150;
 
         skillCoolInit[(int)DataManager.Num.Q] = 3f;
         skillCoolInit[(int)DataManager.Num.W] = 17f;
@@ -127,7 +151,6 @@ public class GameManager : MonoBehaviour
         skillCoolInit[(int)DataManager.Num.Z] = 4.5f;
         skillCoolInit[(int)DataManager.Num.X] = 40f;
         skillCoolInit[(int)DataManager.Num.C] = 170f;
-        skillCoolInit[(int)DataManager.Num.D] = 135f;
 
         skillIndicate[(int)DataManager.Num.Q] = 0f;
         skillIndicate[(int)DataManager.Num.W] = 0f;
@@ -135,7 +158,6 @@ public class GameManager : MonoBehaviour
         skillIndicate[(int)DataManager.Num.Z] = 0f;
         skillIndicate[(int)DataManager.Num.X] = 6f;
         skillIndicate[(int)DataManager.Num.C] = 0f;
-        skillIndicate[(int)DataManager.Num.D] = 0f;
     }
 
     void Update()
@@ -154,22 +176,27 @@ public class GameManager : MonoBehaviour
 
         for (int i = 0; i < skillCooldown.Length; i++)
         {
-            if (skillCooldown[i] > 0)
-                skillCooldown[i] = Mathf.Max(skillCooldown[i] - Time.deltaTime, 0);
-            GameObject CooldownTimer = keyValueImages[i].transform.Find("Image/CooldownBG").gameObject;
-
-            if (skillCooldown[i] <= 0) SetActiveRecursively(CooldownTimer, false);
-            else CooldownTimer.GetComponentInChildren<TextMeshProUGUI>().text = ((int)skillCooldown[i]).ToString();
-
+            GameObject CooldownTimer = cooldownImage[i];
+   
+            if ((SkillToggle ? player.someSortOfSkillCooldown[i] : skillCooldown[i]).Remaining <= 0)
+            {
+                CooldownTimer.SetActive(false);
+            }
+            else
+            {
+                CooldownTimer.GetComponentInChildren<TextMeshProUGUI>(true).text = 
+                ((int)(SkillToggle ? player.someSortOfSkillCooldown[i] : skillCooldown[i]).Remaining + 1).ToString();
+                CooldownTimer.SetActive(true);
+            }
         }
 
-        if (item.isActiveAndEnabled)
+        if (itemList.activeSelf)
         {
 
         }
         else
         {
-            for (int i = 0; i < DataManager.NumCount; i++)
+            for (int i = 0; i < DataManager.NumCount-1; i++)
                 SkillApply(i);
 
             if (Input.GetKeyDown(KeyCode.Q))
@@ -198,7 +225,7 @@ public class GameManager : MonoBehaviour
             }
             if (Input.GetKeyDown(KeyCode.D))
             {
-                Trigger((int)DataManager.Num.D);
+                SkillToggle = !SkillToggle;
             }
 
 
@@ -232,7 +259,7 @@ public class GameManager : MonoBehaviour
             if (round == 6)
             {
                 string hex = UnityEngine.ColorUtility.ToHtmlStringRGB(Color.yellow);
-                ItemManager.chat.Push($"<color=#{hex}>{ItemRank.특별함}</color> 등급의 {item.list.itemList[(int)ItemRank.특별함][item.willBeGet].Name} 획득");
+                item.chat.Push($"<color=#{hex}>{ItemRank.특별함}</color> 등급의 {item.list.itemList[(int)ItemRank.특별함][item.willBeGet].Name} 획득");
                 item.list.itemList[(int)ItemRank.특별함][item.willBeGet].count++;
                 item.willBeGet = -1;
                 scrollView.ImageInit(item.list.currentItem[action.targetNumber]);
@@ -422,18 +449,43 @@ public class GameManager : MonoBehaviour
 
     public void Trigger(int target)
     {
-        if (!item.isActiveAndEnabled)
-            if (energy.currentEnergy >= skillEnergy[target] && skillCooldown[target] <= 0)
+        if (!itemList.activeSelf)
+        {   
+            if(target == DataManager.NumCount -1)
             {
-                isSkill[target] = true;
-                keyValueImages[target].GetComponent<UnityEngine.UI.Outline>().enabled = true;
-                if (skillIndicate[target] > 0)
-                    ring.SetRing(skillIndicate[target], true);
+                SkillToggle = !SkillToggle;
             }
-            else if (skillCooldown[target] > 0) chat.Push($"스킬이 준비중입니다");
-            else chat.Push($"에너지가 모자랍니다");
-    }
+            else if(!SkillToggle)
+            {   
 
+                 if (energy.currentEnergy >= skillEnergy[target] && skillCooldown[target].IsReady)
+                {
+                    isSkill[target] = true;
+                    keyValueImages[target].GetComponent<UnityEngine.UI.Outline>().enabled = true;
+                    if (skillIndicate[target] > 0)
+                        ring.SetRing(skillIndicate[target], true);
+                }           
+                else if (skillCooldown[target].Remaining > 0) chat.Push($"스킬이 준비중입니다.");
+                else chat.Push($"에너지가 모자랍니다.");
+            }
+
+            else if(SkillToggle) 
+            {
+                if(player.someSortOfSkillCooldown[target].IsReady)
+                {                
+                    if(target == (int)DataManager.Num.Q)
+                    {
+                        TeleportOn = true;
+                        keyValueImages[(int)DataManager.Num.Q].GetComponent<UnityEngine.UI.Outline>().enabled = true;
+                    }
+                    else
+                        action.GetComponent<Skill>().ApplyAttackBuff(target);
+                }
+                else chat.Push($"스킬이 준비중입니다.");
+            }
+
+        }
+    }
     public void SkillApply(int target)
     {
         if (isSkill[target] == true && Input.anyKeyDown)
@@ -447,8 +499,7 @@ public class GameManager : MonoBehaviour
                     {
                         SkillDetail(target, hitInfo);
                         energy.currentEnergy -= skillEnergy[target];
-                        skillCooldown[target] = skillCoolInit[target];
-                        SetActiveRecursively(keyValueImages[target].transform.Find("Image/CooldownBG").gameObject, true);
+                        skillCooldown[target].Start(skillCoolInit[target]);
                     }
 
                 }
@@ -462,8 +513,7 @@ public class GameManager : MonoBehaviour
                         {
                             SkillDetail(target, hitInfo);
                             energy.currentEnergy -= skillEnergy[target];
-                            skillCooldown[target] = skillCoolInit[target];
-                            SetActiveRecursively(keyValueImages[target].transform.Find("Image/CooldownBG").gameObject, true);
+                            skillCooldown[target].Start(skillCoolInit[target]);
                         }
 
                     }
@@ -482,19 +532,19 @@ public class GameManager : MonoBehaviour
         {
             case DataManager.Num.Q:
                 hitInfo.transform.GetComponent<Actor>().TakeStunAll(0, 5, 0);
-                hitInfo.transform.GetComponent<Actor>().TakeDamageAll(0, 12500000, 0, ArmorType.마법, false, 0, 0);
-                hitInfo.transform.GetComponent<Actor>().TakeDamageAll(0, 7, 0, ArmorType.마법, false, 0, 1);
+                hitInfo.transform.GetComponent<Actor>().TakeDamageAll_magics(0, 12500000, 0);
+                hitInfo.transform.GetComponent<Actor>().TakeDamageAll_percentage(0, 7, 0, 1);
                 break;
             case DataManager.Num.W:
                 hitInfo.transform.GetComponent<Actor>().TakeStunAll(0, 2, 0);
-                hitInfo.transform.GetComponent<Actor>().TakeDamageAll(0, 22500, 0, ArmorType.마법, false, 0, 0);
+                hitInfo.transform.GetComponent<Actor>().TakeDamageAll_magics(0, 22500, 0);
                 break;
             case DataManager.Num.E:
                 {
                     Highlightable[] highlightables = ring.ring.GetComponent<AOEBlueHighlighter>()._inside.ToArray();
                     foreach (Highlightable highlightable in highlightables)
                     {
-                        highlightable.GetComponent<Actor>().TakeDamageAll(0, 7000000, 0, ArmorType.고정, false, 0, 0);
+                        highlightable.GetComponent<Actor>().TakeDamageAll_magics(0, 7000000, 0, true);
                     }
                 }
 

@@ -89,8 +89,12 @@ public class HitPoint : StateMachineBehaviour
 
                 Actor actor = action.target[action.targetNumber].GetComponent<Actor>();
 
-                actor.TakeDamageAll(stats.damage[action.targetNumber] * (1 + damageUp), 0, stats.Radius[action.targetNumber], ArmorType.패기, true, stats.doublePhysics[action.targetNumber], stats.neutralizeDefense);
-                actor.TakeDamageAll(stats.damage[action.targetNumber] * stats.TrueDamage[action.targetNumber], 0, stats.Radius[action.targetNumber], ArmorType.고정, false, 0, 0, 0);
+                actor.TakeDamageAll_physics((int)(stats.damage[action.targetNumber] * (1 + damageUp + stats.damageBonus[action.targetNumber])), 
+                0, stats.Radius[action.targetNumber], stats.armorType, stats.doublePhysics[action.targetNumber], stats.neutralizeDefense);
+
+                actor.TakeDamageAll_magics(
+                    (int)(stats.damage[action.targetNumber] * (1 + damageUp + stats.damageBonus[action.targetNumber]) * stats.TrueDamage[action.targetNumber]),
+                 0, stats.Radius[action.targetNumber], true);
                 
             }
 

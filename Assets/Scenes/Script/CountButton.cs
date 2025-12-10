@@ -15,7 +15,7 @@ public class CountButton : MonoBehaviour, IPointerClickHandler
     {
         number = script.number;
 
-        itemManager = GameManager.Instance.item;
+        itemManager = GameManager.Instance.ItemManager;
         chat = GameManager.Instance.chat;
     }
 

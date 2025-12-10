@@ -43,6 +43,8 @@ public class ItemManager : MonoBehaviour
     public TextMeshProUGUI[] ItemStatus;
     public TextMeshProUGUI ItemSkillExplanation;
     public ChatManager chat;
+
+    public GameObject Count;
     [NonSerialized] public bool isAllToggle = true;
 
     [NonSerialized] public float SetSoulParts = 1;
@@ -55,15 +57,14 @@ public class ItemManager : MonoBehaviour
 
     void Awake()
     {
-
-        images = GetComponentsInChildren<Image>().Where(img => img.gameObject.name.ToLower().Contains("image")).ToArray();
-        buttons = GetComponentsInChildren<Button>().Where(img => img.gameObject.name.ToLower().Contains("button")).ToArray();
+        images = ItemList.GetComponentsInChildren<Image>().Where(img => img.gameObject.name.ToLower().Contains("image")).ToArray();
+        buttons = ItemList.GetComponentsInChildren<Button>().Where(img => img.gameObject.name.ToLower().Contains("button")).ToArray();
         outlines = buttons
             .Select(b => b.GetComponent<UnityEngine.UI.Outline>())
             .Where(o => o != null)
             .ToArray();
 
-        list = new List(stats, cannon, this);
+                Count = GameManager.Instance.Count;
         blur = 0.5f;
 
         tex = new Texture2D((int)radius * 2, (int)radius * 2, TextureFormat.ARGB32, false);
@@ -116,22 +117,25 @@ public class ItemManager : MonoBehaviour
             button.AddComponent<RightClickButtonHandler>();
         }
 
-        menu = GetComponentsInChildren<Image>().Where(img =>
-        !img.gameObject.name.ToLower().Contains("button") &&
-        !img.gameObject.name.ToLower().Contains("items") &&
-        !img.gameObject.name.ToLower().Contains("number") &&
-        !img.gameObject.name.ToLower().Contains("image") &&
+        menu = GetComponent<Transform>().Find("Items/row1").GetComponentsInChildren<Image>().Where(img =>
         !img.gameObject.name.ToLower().Contains("row")).ToArray();
 
         foreach (Image image in menu)
         {
             image.AddComponent<MyButtonTrigger>();
         }
-        list.Clear();
+
+    }
+
+    void Start()
+    {
+
     }
 
     void Update()
     {
+        if(!GameManager.Instance.itemList.activeSelf)
+            return;
         if (Input.GetKeyDown(KeyCode.BackQuote))
         {
             if (itemStack.Count == 0) Clear(null, true);
@@ -143,13 +147,13 @@ public class ItemManager : MonoBehaviour
         bool ctrl = Input.GetKey(KeyCode.LeftControl) || Input.GetKey(KeyCode.RightControl);
 
         // 3) 키별로 Ctrl 조합/일반 동작 분기
-        if (Input.GetKeyDown(KeyCode.Q)) { if (ctrl) ControlTrigger((int)DataManager.Num.Q); else if (!GameManager.Instance.Count.activeInHierarchy)Trigger((int)DataManager.Num.Q); return; }
-        if (Input.GetKeyDown(KeyCode.W)) { if (ctrl) ControlTrigger((int)DataManager.Num.W); else if (!GameManager.Instance.Count.activeInHierarchy)Trigger((int)DataManager.Num.W); return; }
-        if (Input.GetKeyDown(KeyCode.E)) { if (ctrl) ControlTrigger((int)DataManager.Num.E); else if (!GameManager.Instance.Count.activeInHierarchy)Trigger((int)DataManager.Num.E); return; }
-        if (Input.GetKeyDown(KeyCode.D)) { if (!GameManager.Instance.Count.activeInHierarchy) Trigger((int)DataManager.Num.D); return; }
-        if (Input.GetKeyDown(KeyCode.Z)) { if (ctrl) ControlTrigger((int)DataManager.Num.Z); else if (!GameManager.Instance.Count.activeInHierarchy)Trigger((int)DataManager.Num.Z); return; }
-        if (Input.GetKeyDown(KeyCode.X)) { if (ctrl) ControlTrigger((int)DataManager.Num.X); else if (!GameManager.Instance.Count.activeInHierarchy)Trigger((int)DataManager.Num.X); return; }
-        if (Input.GetKeyDown(KeyCode.C)) { if (ctrl) ControlTrigger((int)DataManager.Num.C); else if (!GameManager.Instance.Count.activeInHierarchy)Trigger((int)DataManager.Num.C); return; }
+        if (Input.GetKeyDown(KeyCode.Q)) { if (ctrl) ControlTrigger((int)DataManager.Num.Q); else if (!Count.activeInHierarchy)Trigger((int)DataManager.Num.Q); return; }
+        if (Input.GetKeyDown(KeyCode.W)) { if (ctrl) ControlTrigger((int)DataManager.Num.W); else if (!Count.activeInHierarchy)Trigger((int)DataManager.Num.W); return; }
+        if (Input.GetKeyDown(KeyCode.E)) { if (ctrl) ControlTrigger((int)DataManager.Num.E); else if (!Count.activeInHierarchy)Trigger((int)DataManager.Num.E); return; }
+        if (Input.GetKeyDown(KeyCode.D)) { if (!Count.activeInHierarchy) Trigger((int)DataManager.Num.D); return; }
+        if (Input.GetKeyDown(KeyCode.Z)) { if (ctrl) ControlTrigger((int)DataManager.Num.Z); else if (!Count.activeInHierarchy)Trigger((int)DataManager.Num.Z); return; }
+        if (Input.GetKeyDown(KeyCode.X)) { if (ctrl) ControlTrigger((int)DataManager.Num.X); else if (!Count.activeInHierarchy)Trigger((int)DataManager.Num.X); return; }
+        if (Input.GetKeyDown(KeyCode.C)) { if (ctrl) ControlTrigger((int)DataManager.Num.C); else if (!Count.activeInHierarchy)Trigger((int)DataManager.Num.C); return; }
         if (Input.GetKeyDown(KeyCode.F) && rank == (int)ItemRank.희귀함 - 1 && editItem == null && targetImage != null)
         {
             Item targetItem = list.FindItem(targetImage.transform.Find("Image").GetComponent<Image>().sprite.name, ItemRank.희귀함);
@@ -167,6 +171,17 @@ public class ItemManager : MonoBehaviour
 
 
         }
+        
+    }
+
+    public void SetList()
+    {
+        list = new List(stats, cannon, this);
+        list.Clear();
+    }
+
+    public void LoopTrigger()
+    {
         
     }
     
@@ -233,8 +248,6 @@ public class ItemManager : MonoBehaviour
 
     public void ControlTrigger(int target)
     {
-        GameObject Count = GameManager.Instance.Count;
-
         CountScript script = Count.GetComponent<CountScript>();
 
         script.SetNumber(target);
@@ -394,7 +407,7 @@ public class ItemManager : MonoBehaviour
 
         if (item == null)
         {
-            string str = "row1";
+            string str = "Items/row1";
 
             Transform[] rankMenu = {
                     transform.Find($"{str}/흔함"),

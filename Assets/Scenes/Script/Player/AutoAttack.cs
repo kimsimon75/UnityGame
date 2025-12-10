@@ -19,7 +19,7 @@ public class AutoAttack : MonoBehaviour
         stats = GetComponent<PlayerStats>();
         action = GetComponent<ActionScript>();
         hold = GetComponent<HoldScanner>();
-        item = action.item;
+        item = GameManager.Instance.ItemManager;
 
         Animator animator = GetComponent<Animator>();
         HitPoint hitPointBehaviour = null;
@@ -74,8 +74,12 @@ public class AutoAttack : MonoBehaviour
 
                         Actor actor = action.target[i].GetComponent<Actor>();
 
-                        actor.TakeDamageAll(stats.damage[i] * (1 + damageUp),0, stats.Radius[i], ArmorType.패기, true, stats.doublePhysics[i], stats.neutralizeDefense);
-                        actor.TakeDamageAll(stats.damage[i] * stats.TrueDamage[i], 0, stats.Radius[i], ArmorType.고정, false, 0, 0, 0);  
+                        actor.TakeDamageAll_physics((int)(stats.damage[action.targetNumber] * (1 + damageUp + stats.damageBonus[action.targetNumber])), 
+                        0, stats.Radius[action.targetNumber], stats.armorType, stats.doublePhysics[action.targetNumber], stats.neutralizeDefense);
+
+                        actor.TakeDamageAll_magics(
+                            (int)(stats.damage[action.targetNumber] * (1 + damageUp + stats.damageBonus[action.targetNumber]) * stats.TrueDamage[action.targetNumber]),
+                        0, stats.Radius[action.targetNumber], true); 
 
                         if (item == null) Debug.Log("None item");
                         // 공격 비활성화 시간 설정 (hitTiming 적용)

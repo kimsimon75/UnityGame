@@ -1,3 +1,4 @@
+using Unity.VisualScripting;
 using UnityEngine;
 
 public enum ArmorType
@@ -23,6 +24,15 @@ public abstract class Actor : MonoBehaviour
 
     protected int Armor = 0;
     public GameObject bar;
+
+    public float magicArmor;
+    public float magicalBuffer;
+
+    protected virtual void Start()
+    {
+        magicArmor = 0.85f;
+        magicalBuffer = 0f;
+    }
 
     protected float GetDamage(ArmorType damageType, ArmorType armorType)
     {
@@ -81,9 +91,14 @@ public abstract class Actor : MonoBehaviour
             return 2 - Mathf.Pow(0.94f, armorDecrease - Armor);
     }
 
-    public abstract void TakeDamageAll(float damageAll, float damage, float radius, ArmorType damageType, bool physics, float DoublePhysicsDamagePercentage, int armorDecrease, int percent = 0);/// percent 0 : 일반, 1 : 전체, 2 : 현재, 3 : 잃은,
+    public abstract void TakeDamageAll_physics(int damageAll, int damage, float radius, ArmorType damageType, float DoublePhysicsDamagePercentage, int armorDecrease);/// percent 0 : 일반, 1 : 전체, 2 : 현재, 3 : 잃은,
+
+    public abstract void TakeDamageAll_magics(int damageAll, int damage, float radius, bool trueDamage = false);
+
+    public abstract void TakeDamageAll_percentage(float damageAll, float damage, float radius, int percent = 0);
 
     public abstract void TakeStunAll(float TimeAll, float Time, float radius);
+
     public abstract void TakePoisonAll(float Time, int Armor, float radius);
 
     protected void Timeline()

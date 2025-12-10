@@ -12,7 +12,7 @@ public class RightClickButtonHandler : MonoBehaviour, IPointerClickHandler, IPoi
     void Awake()
     {
         myButton = GetComponent<Button>();
-        item = GetComponentInParent<ItemManager>();
+        item = GameManager.Instance.ItemManager;
     }
 
     void Start()
@@ -104,7 +104,7 @@ public class RightClickButtonHandler : MonoBehaviour, IPointerClickHandler, IPoi
         if (editItem == findItem)
         {
             GridLayoutGroup grid = GetComponentInParent<GridLayoutGroup>();
-            Transform EditItemStatus = GetComponentInParent<ItemManager>().transform.Find("Panel");
+            Transform EditItemStatus = GameManager.Instance.itemList.transform.Find("Panel");
             EditItemStatus.gameObject.SetActive(true);
             grid.gameObject.SetActive(false);
             item.SetStatus();

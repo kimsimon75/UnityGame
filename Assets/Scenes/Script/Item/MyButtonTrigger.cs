@@ -9,7 +9,7 @@ public class MyButtonTrigger : MonoBehaviour
     void Awake()
     {
         myButton = GetComponent<Button>();
-        item = GetComponentInParent<ItemManager>();
+        item = GameManager.Instance.ItemManager;
     }
     void Start()
     {

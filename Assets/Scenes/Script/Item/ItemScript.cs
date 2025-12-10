@@ -10,13 +10,17 @@ public class ItemScript : MonoBehaviour
 
     private Image[] darkImg = new Image[DataManager.NumCount];
 
+    SkillCool[] skillCooldown;
+    SkillCool[] someSortOfSkillCooldown;
+
     Sprite[][] sprites = new Sprite[2][];
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
     {
-        item = GameManager.Instance.item;
-        obj = item.gameObject;
-        obj.SetActive(!obj.activeSelf);
+        skillCooldown = GameManager.Instance.skillCooldown;
+        someSortOfSkillCooldown = GameManager.Instance.player.someSortOfSkillCooldown;
+        item = GameManager.Instance.ItemManager;
+        obj = item.transform.Find("Items").gameObject;
 
         keyValueImages = GameManager.Instance.Images;
         for (int i = 0; i < sprites.Length; i++)
@@ -45,31 +49,17 @@ public class ItemScript : MonoBehaviour
         }
     }
 
-    void SetKey()
-    {
-
-        for (int i = 0; i < DataManager.NumCount; i++)
-        {
-            keyValueImages[i].GetComponentsInChildren<Image>()[1].sprite = keyValueImages[i].GetComponentsInChildren<Image>()[3].sprite = sprites[0][i];
-            if (GameManager.Instance.skillCooldown[i] > 0)
-            {
-                GameObject CooldownTimer = keyValueImages[i].transform.Find("Image/CooldownBG").gameObject;
-                CooldownTimer.SetActive(true);
-            }
-        }
-    }
-
     // Update is called once per frame
     void Update()
     {
         if (Input.GetKeyDown(KeyCode.R))
         {
-            
             for (int i = 0; i < keyValueImages.Length; i++)
             {
                 keyValueImages[i].GetComponent<UnityEngine.UI.Outline>().enabled = false;
             }
                 obj.SetActive(!obj.activeSelf);
+
             if (obj.activeSelf)
             {
                 for (int i = 0; i < DataManager.NumCount; i++)
@@ -88,16 +78,21 @@ public class ItemScript : MonoBehaviour
             }
         }
 
-        float[] skillCooldown = GameManager.Instance.skillCooldown;
-
-        for (int i = 0; i < DataManager.NumCount; i++)
+        if(Input.GetKeyDown(KeyCode.D) && !obj.activeSelf)
         {
-
-            darkImg[i].fillAmount = GameManager.Instance.ItemManager.isActiveAndEnabled ? 0 : skillCooldown[i] / GameManager.Instance.skillCoolInit[i];
+            SetKey();
         }
 
 
-        if (!item.transform.gameObject.activeInHierarchy) return;
+        for (int i = 0; i < DataManager.NumCount-1; i++)
+        {
+            darkImg[i].fillAmount = GameManager.Instance.itemList.activeSelf ? 0 : 
+            (GameManager.Instance.SkillToggle ? (someSortOfSkillCooldown[i].Remaining / GameManager.Instance.player.someSortOfSkillCooltime[i]) :
+             (skillCooldown[i].Remaining / GameManager.Instance.skillCoolInit[i]));
+        }
+
+
+        if (!item.transform.Find("Items").gameObject.activeInHierarchy) return;
 
         if (TryGetNumericKey(out int number))
         {
@@ -122,7 +117,19 @@ public class ItemScript : MonoBehaviour
             item.SetRank(rank);
         }
     }
+    public void SetKey()
+    {
 
+        for (int i = 0; i < DataManager.NumCount; i++)
+        {
+            keyValueImages[i].GetComponentsInChildren<Image>()[1].sprite = keyValueImages[i].GetComponentsInChildren<Image>()[3].sprite = sprites[(!GameManager.Instance.SkillToggle) ? 0 : 2][i];
+            if (i != DataManager.NumCount-1  && GameManager.Instance.skillCooldown[i].Remaining> 0)
+            {
+                GameObject CooldownTimer = keyValueImages[i].transform.Find("Image/CooldownBG").gameObject;
+                CooldownTimer.SetActive(true);
+            }
+        }
+    }
     bool TryGetNumericKey(out int number)
     {
         // 0 ~ 9 알파벳 키 (메인 키보드)

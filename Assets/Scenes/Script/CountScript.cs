@@ -14,7 +14,7 @@ public class CountScript : MonoBehaviour
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
     {
-        itemManager = GameManager.Instance.item;
+        itemManager = GameManager.Instance.ItemManager;
     }
 
     // Update is called once per frame

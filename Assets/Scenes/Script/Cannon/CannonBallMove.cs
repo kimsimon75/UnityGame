@@ -7,7 +7,7 @@ public class CannonBallMove : MonoBehaviour
     [NonSerialized] public Transform target;
     [NonSerialized] public float speed = 10f;
 
-    private float Damage;
+    private int Damage;
     private ArmorType DamageType;
     void Start()
     {
@@ -36,10 +36,10 @@ public class CannonBallMove : MonoBehaviour
 
     void OnTriggerEnter(Collider other)
     {
-        if (other.gameObject == target.gameObject)
+        if (target!=null && other.gameObject == target.gameObject)
         {
             Actor stats = other.transform.GetComponent<Actor>();
-                stats.TakeDamageAll(0, Damage, 0, DamageType ,true ,0 ,0 );
+                stats.TakeDamageAll_physics(0, Damage, 0, DamageType ,0 ,0 );
             Destroy(gameObject); // 또는 다른 처리
         }
     }

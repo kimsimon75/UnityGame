@@ -14,6 +14,8 @@ public class DataManager : MonoBehaviour
     public const int 사십라운드 = 41;
     public const int 오십라운드 = 51;
 
+    public const int degree = 10000;
+
     public Dictionary<Sprite, ItemRank> imageDict;
 
     public enum Num
@@ -141,7 +143,7 @@ public class DataManager : MonoBehaviour
         Instance = this;
         imageDict = new Dictionary<Sprite, ItemRank>();
 
-        sprites = new Sprite[2][]
+        sprites = new Sprite[3][]
         {
             new Sprite[]
             {
@@ -151,13 +153,23 @@ public class DataManager : MonoBehaviour
                 Resources.Load<Sprite>("Key/영혼 흡수"),
                 Resources.Load<Sprite>("Key/지진"),
                 Resources.Load<Sprite>("Key/독약"),
-                Resources.Load<Sprite>("Key/도핑"),
+                Resources.Load<Sprite>("Key/로테이션"),
             },
             new Sprite[]
             {
                 Resources.Load<Sprite>("Key/흔함"),
                 Resources.Load<Sprite>("Key/중급 도박"),
                 Resources.Load<Sprite>("Key/고급 도박"),
+                Resources.Load<Sprite>("Key/초급 도박"),
+                Resources.Load<Sprite>("Key/기억 조각"),
+                Resources.Load<Sprite>("Key/에너지 탱크"),
+                Resources.Load<Sprite>("Key/로테이션"),
+            },
+            new Sprite[]
+            {
+                Resources.Load<Sprite>("Key/도약"),
+                Resources.Load<Sprite>("Key/각성"),
+                Resources.Load<Sprite>("Key/도핑"),
                 Resources.Load<Sprite>("Key/초급 도박"),
                 Resources.Load<Sprite>("Key/기억 조각"),
                 Resources.Load<Sprite>("Key/에너지 탱크"),

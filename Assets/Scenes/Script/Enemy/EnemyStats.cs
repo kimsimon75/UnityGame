@@ -20,10 +20,9 @@ public class EnemyStats : Actor
     private bool specialBoss = false;
     private int round = 0;
 
-
-    [System.Obsolete]
-    void Start()
+    protected override void Start()
     {
+        base.Start();
         walk = GetComponent<WalkForward>();
         int round = GameManager.Instance.GetRound();
 
@@ -32,7 +31,7 @@ public class EnemyStats : Actor
         // 게임 시작할 때 현재 체력을 최대치로 초기화
         CurrentHealth = MaxHealth;
 
-        player = FindObjectOfType<PlayerStats>();
+        player = GameManager.Instance.player;
 
         if (round <= 60)
         {
@@ -48,94 +47,17 @@ public class EnemyStats : Actor
     /// <summary>
     /// 데미지를 입었을 때 호출
     /// </summary>
-    public void TakeDamage(float damage, ArmorType damageType, bool physics, int armorDecrease, int percent = 0, bool boss = false) /// percent 0 : 일반, 1 : 전체, 2 : 현재, 3 : 잃은, 
+    public void TakeDamage_physics(float damage, ArmorType damageType, int armorDecrease) 
     {
         if (isDead) return;
-        damage = damage * GetDamage(damageType, armorType);
+        damage = damage * GetDamage(damageType, armorType) * ArmorCalculate(Armor, armorDecrease);
 
-        if (boss == true)
-        {
-            switch (percent)
-                {
-                    case 0:
-                        damage = damage * 1;
-                        break;
-                    case 1:
-                        damage = damage / 100f * MaxHealth;
-                        break;
-                    case 2:
-                        damage = damage * CurrentHealth / 100f;
-                        break;
-                    case 3:
-                        damage = damage / 100f * (MaxHealth - CurrentHealth);
-                        break;
-                    default:
-                        break;
-                }
-        }
-        else
-        {
-            switch (percent)
-            {
-                case 0:
-                    damage = damage * 1;
-                    break;
-                case 1:
-                    damage = damage / 100f * MaxHealth;
-                    break;
-                case 2:
-                    damage = damage / 100f * CurrentHealth;
-                    break;
-                case 3:
-                    damage = damage / 100f * (MaxHealth - CurrentHealth);
-                    break;
-                default:
-                    break;
-            }
-        }
-
-        if (physics)
-            damage = damage * ArmorCalculate(Armor, armorDecrease);
         CurrentHealth = Mathf.Max(CurrentHealth - damage, 0f);
-        if (CurrentHealth <= 0)
-        {
-            if (boss)
-            {
-                if (specialBoss)
-                {
-                    int parts = 0;
-                    switch (round)
-                    {
-                        case DataManager.삼십라운드:
-                            parts = 0;
-                            GameManager.Instance.ItemManager.list.GetRandomItem(ItemRank.안흔함);
-                            break;
-                        case DataManager.사십라운드:
-                            parts = 1;
-                            GameManager.Instance.ItemManager.list.GetRandomItem(ItemRank.특별함);
-                            break;
-                        case DataManager.오십라운드:
-                            parts = 1;
-                            break;
-                    }
-                    GameManager.Instance.ItemManager.list.GetMemoriesParts(parts);
-                }
-                else if (round <= 60)
-                    GameManager.Instance.ItemManager.list.GetMemoriesParts(DataManager.Instance.bossReword[DataManager.Instance.bossRound++]);
-            }
-            --player.UnitCount;
-            DestroySelf();
-            isDead = true;
-        }
+
+        Clear();
     }
 
-    public void DestroySelf()
-    {
-        Destroy(bar);
-        Destroy(gameObject);
-    }
-
-    public override void TakeDamageAll(float damageAll, float damage, float radius, ArmorType damageType, bool physics,  float DoublePhysicsDamagePercentage, int armorDecrease, int percent = 0)
+    public override void TakeDamageAll_physics(int damageAll, int damage, float radius, ArmorType damageType, float DoublePhysicsDamagePercentage, int armorDecrease)
     {
         float pureDamageAll = damageAll;
         float doubledDamage = 0;
@@ -159,16 +81,66 @@ public class EnemyStats : Actor
                 EnemyStats stats = col.GetComponent<EnemyStats>();
                 if (stats != null && col.transform != transform)
                 {
-                    stats.TakeDamage(pureDamageAll + doubledDamage * ArmorCalculate(Armor, armorDecrease) , damageType, physics, armorDecrease);
+                    stats.TakeDamage_physics(pureDamageAll + doubledDamage * ArmorCalculate(Armor, armorDecrease) , damageType, armorDecrease);
                 }
             }
 
             DebugDrawCircleXZ(center, radius, Color.red);
         }
 
-        TakeDamage(damage + pureDamageAll + doubledDamage * (1 + ArmorCalculate(Armor, armorDecrease)), damageType, physics, armorDecrease, percent);
+        TakeDamage_physics(damage + pureDamageAll + doubledDamage * (1 + ArmorCalculate(Armor, armorDecrease)), damageType, armorDecrease);
 
-    }       
+    }      
+
+    public void TakeDamage_magics(int damage)
+    {
+        if(isDead) return;
+        CurrentHealth = Mathf.Max(CurrentHealth - damage, 0);
+        Clear();
+    } 
+
+    public override void TakeDamageAll_magics(int damageAll, int damage, float radius, bool trueDamage = false)
+    {
+        if (radius != 0)
+        {
+            Vector3 center = transform.position;
+
+
+            // 원하는 레이어만 필터링
+            LayerMask enemyLayer = LayerMask.GetMask("Enemy");
+
+            Collider[] hits = Physics.OverlapSphere(center, radius, enemyLayer);
+
+            foreach (Collider col in hits)
+            {
+                EnemyStats stats = col.GetComponent<EnemyStats>();
+                if (stats != null && col.transform != transform)
+                {
+                    stats.TakeDamage_magics(damageAll);
+                }
+            }
+
+            DebugDrawCircleXZ(center, radius, Color.red);
+        }
+        TakeDamage_magics(damageAll + damage);
+    }    
+
+    public void TakeDamage_explosions(float damage, ArmorType damageType, int percent = 0)/// percent 0 : 일반, 1 : 전체, 2 : 현재, 3 : 잃은, 
+    {
+        
+    }
+
+    public override void TakeDamageAll_percentage(float damageAll, float damage, float radius, int percent = 0) /// percent 0 : 일반, 1 : 전체, 2 : 현재, 3 : 잃은, 
+    {
+        
+    }   
+    
+     public void TakeDamage_percentage(float damage, int percent = 0)
+    {
+        
+    }
+
+
     public void TakeStun(float Time)
     {
         walk.StunTime = Mathf.Max(walk.StunTime, Time);
@@ -231,7 +203,46 @@ public class EnemyStats : Actor
     {
         CurrentHealth = Mathf.Min(CurrentHealth + amount, MaxHealth);
     }
-
+    public void Clear()
+    {
+        if (CurrentHealth <= 0)
+        {
+            if (boss)
+            {
+                if (specialBoss)
+                {
+                    int parts = 0;
+                    switch (round)
+                    {
+                        case DataManager.삼십라운드:
+                            parts = 0;
+                            GameManager.Instance.ItemManager.list.GetRandomItem(ItemRank.안흔함);
+                            break;
+                        case DataManager.사십라운드:
+                            parts = 1;
+                            GameManager.Instance.ItemManager.list.GetRandomItem(ItemRank.특별함);
+                            break;
+                        case DataManager.오십라운드:
+                            parts = 1;
+                            break;
+                    }
+                    GameManager.Instance.ItemManager.list.GetMemoriesParts(parts);
+                }
+                else if (round <= 60)
+                    GameManager.Instance.ItemManager.list.GetMemoriesParts(DataManager.Instance.bossReword[DataManager.Instance.bossRound++]);
+            }
+            DestroySelf();
+        }
+    }
+    
+    public void DestroySelf()
+    {   
+        if (isDead) return;
+        --player.UnitCount;
+        isDead = true;
+        Destroy(bar);
+        Destroy(gameObject);
+    }
 
 
     void DebugDrawCircleXZ(Vector3 center, float radius, Color color, int segments = 36)

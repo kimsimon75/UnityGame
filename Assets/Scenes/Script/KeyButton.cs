@@ -11,7 +11,7 @@ public class KeyButton : MonoBehaviour, IPointerClickHandler, IPointerEnterHandl
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
     {
-        itemManager = GameManager.Instance.item;
+        itemManager = GameManager.Instance.ItemManager;
     }
 
     public void OnPointerEnter(PointerEventData eventData)
@@ -35,8 +35,12 @@ public class KeyButton : MonoBehaviour, IPointerClickHandler, IPointerEnterHandl
         }
         else if (eventData.button == PointerEventData.InputButton.Left)
         {
-            if (GameManager.Instance.ItemManager.isActiveAndEnabled) { GameManager.Instance.ItemManager.Trigger(number); }
-            else GameManager.Instance.Trigger(number);
+            if (GameManager.Instance.itemList.activeSelf) { itemManager.Trigger(number); }
+            else
+            {
+                GameManager.Instance.Trigger(number);
+                itemManager.GetComponent<ItemScript>().SetKey();
+            }
         }
     }
 }

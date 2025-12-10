@@ -19,29 +19,30 @@ public class StatsWindow : MonoBehaviour
 
         int targetNumber = action.targetNumber;
         StringBuilder stringBuilder = new StringBuilder();
+        int keyValue = GameManager.Instance.KeyValueNumber;
 
-        if (GameManager.Instance.KeyValueNumber >= DataManager.NumCount)
+        if (keyValue >= DataManager.NumCount)
         {
             var status = stats.GetStats();
             stringBuilder.AppendLine($"부대 {stats.action.targetNumber + 1}");
-            stringBuilder.AppendLine($"공격력 : {status.Item1[targetNumber]}");
-            stringBuilder.AppendLine($"공격 속도 : {(1 / status.Item2).ToString("F3")}");
-            stringBuilder.AppendLine($"공속 보너스 : {status.Item3}%");
-            stringBuilder.AppendLine($"공격력 비례 물리피해(짭플) : {status.Item11[targetNumber]}");
-            stringBuilder.AppendLine($"공격 범위 : {status.Item12[targetNumber] * 100}");
-            stringBuilder.AppendLine($"방어력 감소 : {status.Item4}");
-            stringBuilder.AppendLine($"체력 재생 : {DataManager.Instance.RoundX(status.Item5, 3)}");
-            stringBuilder.AppendLine($"마나 재생 : {DataManager.Instance.RoundX(status.Item6, 3)}");
-            stringBuilder.AppendLine($"마법증폭 : {status.Item7}");
-            stringBuilder.AppendLine($"마법방어력 감소 : {status.Item8}");
-            stringBuilder.AppendLine($"방어무시 : {status.Item9}");
-            stringBuilder.AppendLine($"이동속도 감소 : {status.Item10}");
+            stringBuilder.AppendLine($"공격력 : {status.Item1[targetNumber]} + {(status.Item1[targetNumber] * status.Item2[targetNumber]).ToString("F0")}");
+            stringBuilder.AppendLine($"공격 속도 : {(1 / status.Item3).ToString("F3")}");
+            stringBuilder.AppendLine($"공속 보너스 : {status.Item4}%");
+            stringBuilder.AppendLine($"공격력 비례 물리피해(짭플) : {status.Item12[targetNumber]}");
+            stringBuilder.AppendLine($"공격 범위 : {status.Item13[targetNumber] * 100}");
+            stringBuilder.AppendLine($"방어력 감소 : {status.Item5}");
+            stringBuilder.AppendLine($"체력 재생 : {DataManager.Instance.RoundX(status.Item6, 3)}");
+            stringBuilder.AppendLine($"마나 재생 : {DataManager.Instance.RoundX(status.Item7, 3)}");
+            stringBuilder.AppendLine($"마법증폭 : {status.Item8}");
+            stringBuilder.AppendLine($"마법방어력 감소 : {status.Item9}");
+            stringBuilder.AppendLine($"방어무시 : {status.Item10}");
+            stringBuilder.AppendLine($"이동속도 감소 : {status.Item11}");
         }
-        else
+        else if (keyValue != DataManager.NumCount -1)
         {
-            if (GameManager.Instance.item.isActiveAndEnabled)
+            if (GameManager.Instance.itemList.activeSelf)
             {
-                switch ((DataManager.Num)GameManager.Instance.KeyValueNumber)
+                switch ((DataManager.Num)keyValue)
                 {
                     case DataManager.Num.Q:
                         stringBuilder.AppendLine($"기억 조각 1개를 소모하여 85%의 확률로 흔함과 안흠함중에 하나를 뽑습니다.");
@@ -66,9 +67,8 @@ public class StatsWindow : MonoBehaviour
                         break;
                 }
             }
-            else
+            else if (!GameManager.Instance.SkillToggle)
             {
-                int keyValue = GameManager.Instance.KeyValueNumber;
                 stringBuilder.AppendLine($"스킬명 : {DataManager.Instance.sprites[0][keyValue].name}");
                 stringBuilder.AppendLine($"에너지 소모량 : {GameManager.Instance.skillEnergy[keyValue]}");
                 if (GameManager.Instance.skillIndicate[keyValue] > 0)
@@ -98,8 +98,36 @@ public class StatsWindow : MonoBehaviour
                     case DataManager.Num.C:
                         S += $"독약을 뿌려 해당 유닛 주변 유닛들의 방어력을 20 깎습니다";
                         break;
-                    case DataManager.Num.D:
-                        S += $"";
+                    default:
+                        S += "";
+                        break;
+                }
+                stringBuilder.AppendLine(S);
+            }
+            else
+            {   
+                stringBuilder.AppendLine($"스킬명 : {DataManager.Instance.sprites[2][keyValue].name}");
+
+                string S = "스킬 설명 : ";
+                switch ((DataManager.Num)keyValue)
+                {
+                    case DataManager.Num.Q:
+                        S += $"{stats.someSortOfSkillEffect[0]*100}거리를 도약합니다.";
+                        break;
+                    case DataManager.Num.W:
+                        S += $"{stats.someSortOfSkillDuration[1]}초동안 공격속도를 {stats.someSortOfSkillEffect[1]}% 증가시킵니다.";
+                        break;
+                    case DataManager.Num.E:
+                        S += $"{stats.someSortOfSkillDuration[2]}초동안 공격력을 {stats.someSortOfSkillEffect[2]}% 증가시킵니다.";
+                        break;
+                    case DataManager.Num.Z:
+                        S += $"유닛 하나를 삭제시킵니다.";
+                        break;
+                    case DataManager.Num.X:
+                        S += $"해당 범위의 유닛들을 3초동안 속박시킵니다.";
+                        break;
+                    case DataManager.Num.C:
+                        S += $"독약을 뿌려 해당 유닛 주변 유닛들의 방어력을 20 깎습니다";
                         break;
                     default:
                         S += "";
@@ -107,6 +135,10 @@ public class StatsWindow : MonoBehaviour
                 }
                 stringBuilder.AppendLine(S);
             }
+        }
+        else
+        {
+            stringBuilder.AppendLine("스킬들을 변경합니다.");
         }
 
         texts.text = stringBuilder.ToString();

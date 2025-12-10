@@ -83,7 +83,7 @@ public class ItemScrollView : MonoBehaviour
         {
             for (int j = 0; j < item.count; j++)
             {
-                panels[i].GetComponent<UnityEngine.UI.Outline>().effectColor = GameManager.Instance.item.GetColor(item);
+                panels[i].GetComponent<UnityEngine.UI.Outline>().effectColor = GameManager.Instance.ItemManager.GetColor(item);
                 panels[i++].transform.Find("Item").GetComponent<Image>().sprite = item.Resource;
             }
         }
