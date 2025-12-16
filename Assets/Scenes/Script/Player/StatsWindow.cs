@@ -35,7 +35,7 @@ public class StatsWindow : MonoBehaviour
             stringBuilder.AppendLine($"마나 재생 : {DataManager.Instance.RoundX(status.Item7, 3)}");
             stringBuilder.AppendLine($"마법증폭 : {status.Item8}");
             stringBuilder.AppendLine($"마법방어력 감소 : {status.Item9}");
-            stringBuilder.AppendLine($"방어무시 : {status.Item10}");
+            stringBuilder.AppendLine($"방어무시 : {status.Item10 * 100}%");
             stringBuilder.AppendLine($"이동속도 감소 : {status.Item11}");
         }
         else if (keyValue != DataManager.NumCount -1)

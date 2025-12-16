@@ -1,15 +1,13 @@
+
 using UnityEngine;
 
 public class Story : Actor
 {
     // Start is called once before the first execution of Update after the MonoBehaviour is created
-    public float currentHealth = 0;
-    public float maxHealth = 0;
     int[][] story = new int[14][];
     public byte level = 0;
     private ItemManager item;
-
-    private int degree;
+    
     protected override void Start()
     {
         base.Start();
@@ -31,8 +29,6 @@ public class Story : Actor
         story[13] = new int[2] { 550000000, 247 };
 
         currentHealth = maxHealth = story[++level][0];
-
-        degree = DataManager.degree;
     }
 
     // Update is called once per frame
@@ -46,6 +42,77 @@ public class Story : Actor
             {
                 case 1:
                     item.list.GetAll(3);
+                    item.list.GetSoulParts(1);
+                    break;
+                case 2:
+                    item.list.GetAll(3);
+                    item.list.GetSoulParts(1);
+                    item.list.GetRandomItem(ItemRank.안흔함);
+                    break;
+                case 3:
+                    item.list.GetAll(4);
+                    item.list.GetSoulParts(1);
+                    StartCoroutine(item.list.GetRandomItems(ItemRank.안흔함, 2));
+                    break;
+                case 4:
+                    item.list.GetMemoriesParts(1);
+                    item.list.GetSoulParts(1);
+                    item.list.GetRandomItem(ItemRank.안흔함);
+                    StartCoroutine(item.list.GetRandomItems(ItemRank.특별함, 2));
+                    break;
+                case 5:
+                    item.list.GetMemoriesParts(1);
+                    item.list.GetSoulParts(1);
+                    StartCoroutine(item.list.GetRandomItems(ItemRank.안흔함, 2));
+                    StartCoroutine(item.list.GetRandomItems(ItemRank.특별함, 2));
+                    break;
+                case 6:
+                    item.list.GetMemoriesParts(3);
+                    item.list.GetAll(1);
+                    item.list.GetRandomItem(ItemRank.희귀함);
+                    break;
+                case 7:
+                    item.list.GetMemoriesParts(3);
+                    item.list.GetAll(2);
+                    StartCoroutine(item.list.GetRandomItems(ItemRank.희귀함, 2));
+                    break;
+                case 8:
+                    item.list.GetMemoriesParts(4);
+                    item.list.GetAll(1);
+                    StartCoroutine(item.list.GetRandomItems(ItemRank.희귀함, 3));
+                    break;
+                case 9:
+                    item.list.GetMemoriesParts(5);
+                    item.list.GetAll(1);
+                    StartCoroutine(item.list.GetRandomItems(ItemRank.안흔함, 2));
+                    StartCoroutine(item.list.GetRandomItems(ItemRank.특별함, 3));
+                    break;
+                case 10:
+                    item.list.GetMemoriesParts(4);
+                    item.list.GetAll(1);
+                    item.list.GetSoulParts(1);
+                    break;
+                case 11:
+                    item.list.GetMemoriesParts(4);
+                    item.list.GetAll(4);
+                    item.list.GetSoulParts(1);
+                    StartCoroutine(item.list.GetRandomItems(ItemRank.안흔함, 2));
+                    if(GameManager.Instance.GetRound() < 30)
+                    {
+                        item.list.GetMemoriesParts(2);
+                        GameManager.Instance.chat.Push("파괴왕을 달성하여");
+                    }
+                    break;
+                case 12:
+                    item.list.GetMemoriesParts(3);
+                    item.list.GetAll(4);
+                    item.list.GetSoulParts(1);
+                    StartCoroutine(item.list.GetRandomItems(ItemRank.특별함, 2));
+                    break;
+                case 13:
+                    item.list.GetMemoriesParts(3);
+                    item.list.GetAll(3);
+                    item.list.GetSoulParts(1);
                     break;
             }
 
@@ -76,27 +143,45 @@ public class Story : Actor
             damage = (int)(damage * ArmorCalculate(Armor, armorDecrease));
 
         currentHealth = Mathf.Max(currentHealth - damage - (DoublePhysicsDamagePercentage > 0 ? damageAll : pureDamage - doubledDamage * (1 + ArmorCalculate(Armor, armorDecrease)) ) , 0f);
-        if (currentHealth <= 0)
-        {
-            isDead = true;
-        }
+        Clear();
     }
-
     public override void TakeDamageAll_magics(int damageAll, int damage, float radius, bool trueDamage = false)
     {
-        
+        if(isDead) return;
+        if(trueDamage)
+            currentHealth = Mathf.Max(currentHealth - damage - damageAll, 0);
+        else
+            currentHealth = Mathf.Max(currentHealth - (damage + damageAll) * GetMagicDamage(), 0);
+        Clear();
     }
-    public override void TakeDamageAll_percentage(float damageAll, float damage, float radius, int percent = 0)
+    public override void TakeDamageAll_percentage(float damageAll, float damage, float radius, int damageKind, int percent, bool boss = false, int armorDecrease = 0, ArmorType damageType = ArmorType.패기)
     {
-        
+        if(isDead) return;
+        Debug.Log((damageAll + damage) / 100f * Percentage(percent) * DamageKind(damageKind,Armor,armorDecrease));
+        currentHealth = Mathf.Max(currentHealth - (damageAll + damage) / 100f * Percentage(percent) * DamageKind(damageKind,Armor,armorDecrease,damageType,armorType), 0);
+        Clear();
     }
 
+    public override void TakeDamage_explosions(float damage, ArmorType damageType, int percent)
+    {
+        if(isDead) return;
+        damage = damage * GetDamage(damageType, armorType) * ExPercentage(percent);
+        TakeDamageAll_magics((int)damage, 0, 0, false);
+    }
 
     public override void TakeStunAll(float Time, float TimeAll, float radius) { return; }
     public override void TakePoisonAll(float Time, int Armor, float radius)
     {
         deArmor = Armor;
         deArmorTime = Time;
+    }
+
+    private void Clear()
+    {        
+        if (currentHealth <= 0)
+        {
+            isDead = true;
+        }
     }
 
     public (int story, byte level, ArmorType armorType) GetDamageInfo() { return (Armor, level, armorType); }

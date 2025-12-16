@@ -39,6 +39,7 @@ public class GameManager : MonoBehaviour
     AoeIndicatorLite ring;
 
     public ItemManager ItemManager => item;
+    public TargetDetector Detector;
     public SlideInSpawner slider;
     public GameObject CrossPrefab;
 
@@ -103,7 +104,7 @@ public class GameManager : MonoBehaviour
                    .ToArray();
         itemList = item.transform.Find("Items").gameObject;
 
-        
+        Detector = item.GetComponent<TargetDetector>();
 
     }
 
@@ -115,6 +116,7 @@ public class GameManager : MonoBehaviour
         item.SetList();
         item.list.GetMemoriesParts(1);
         item.list.GetSoulParts(5);
+        item.list.GetRandomItem(ItemRank.안흔함);
         slider.SpawnPanelsSequentially();
         slider.SpawnPanelsSequentially();
         slider.SpawnPanelsSequentially();
@@ -172,30 +174,29 @@ public class GameManager : MonoBehaviour
         사십타임 -= Time.deltaTime;
         오십타임 -= Time.deltaTime;
 
-        item.list.FindItem("기억 조각", ItemRank.All).count = 10;
-
-        for (int i = 0; i < skillCooldown.Length; i++)
-        {
-            GameObject CooldownTimer = cooldownImage[i];
-   
-            if ((SkillToggle ? player.someSortOfSkillCooldown[i] : skillCooldown[i]).Remaining <= 0)
-            {
-                CooldownTimer.SetActive(false);
-            }
-            else
-            {
-                CooldownTimer.GetComponentInChildren<TextMeshProUGUI>(true).text = 
-                ((int)(SkillToggle ? player.someSortOfSkillCooldown[i] : skillCooldown[i]).Remaining + 1).ToString();
-                CooldownTimer.SetActive(true);
-            }
-        }
-
         if (itemList.activeSelf)
         {
 
         }
         else
         {
+
+            for (int i = 0; i < skillCooldown.Length; i++)
+            {
+                GameObject CooldownTimer = cooldownImage[i];
+    
+                if ((SkillToggle ? player.someSortOfSkillCooldown[i] : skillCooldown[i]).Remaining <= 0)
+                {
+                    CooldownTimer.SetActive(false);
+                }
+                else
+                {
+                    CooldownTimer.GetComponentInChildren<TextMeshProUGUI>(true).text = 
+                    ((int)(SkillToggle ? player.someSortOfSkillCooldown[i] : skillCooldown[i]).Remaining + 1).ToString();
+                    CooldownTimer.SetActive(true);
+                }
+            }
+
             for (int i = 0; i < DataManager.NumCount-1; i++)
                 SkillApply(i);
 
@@ -259,12 +260,17 @@ public class GameManager : MonoBehaviour
             if (round == 6)
             {
                 string hex = UnityEngine.ColorUtility.ToHtmlStringRGB(Color.yellow);
-                item.chat.Push($"<color=#{hex}>{ItemRank.특별함}</color> 등급의 {item.list.itemList[(int)ItemRank.특별함][item.willBeGet].Name} 획득");
-                item.list.itemList[(int)ItemRank.특별함][item.willBeGet].count++;
+                Item willBeGetItem = item.list.itemList[(int)ItemRank.특별함][item.willBeGet];
+                item.chat.Push($"<color=#{hex}>{ItemRank.특별함}</color> 등급의 {willBeGetItem.Name} 획득");
+                willBeGetItem.count++;
                 item.willBeGet = -1;
+                if(willBeGetItem.count == 1)
+                {
+                    item.list.GotItem.Enqueue(willBeGetItem);
+                    item.list.SetUnity(willBeGetItem);
+                }
                 scrollView.ImageInit(item.list.currentItem[action.targetNumber]);
             }
-            if (round == 15) item.list.GetRandomItem(ItemRank.희귀함);
             if (round == 41)
             {
                 item.list.GetSoulParts(5);
@@ -468,7 +474,6 @@ public class GameManager : MonoBehaviour
                 else if (skillCooldown[target].Remaining > 0) chat.Push($"스킬이 준비중입니다.");
                 else chat.Push($"에너지가 모자랍니다.");
             }
-
             else if(SkillToggle) 
             {
                 if(player.someSortOfSkillCooldown[target].IsReady)
@@ -486,43 +491,32 @@ public class GameManager : MonoBehaviour
 
         }
     }
-    public void SkillApply(int target)
+    public void SkillApply(int skillNum)
     {
-        if (isSkill[target] == true && Input.anyKeyDown)
+        if (isSkill[skillNum] == true && Input.anyKeyDown)
         {
             if (Input.GetMouseButtonDown(0) && !UiRayUtil.IsPointerOverUIExcept(LayerMask.GetMask("Text")))
             {
-                if (skillIndicate[target] > 0)
+                if (skillIndicate[skillNum] > 0)
                 {
-                    Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
-                    if (Physics.Raycast(ray, out RaycastHit hitInfo, 100f))
-                    {
-                        SkillDetail(target, hitInfo);
-                        energy.currentEnergy -= skillEnergy[target];
-                        skillCooldown[target].Start(skillCoolInit[target]);
-                    }
-
+                    SkillDetail(skillNum, Detector.hit);
+                    energy.currentEnergy -= skillEnergy[skillNum];
+                    skillCooldown[skillNum].Start(skillCoolInit[skillNum]);
                 }
                 else
                 {
-                    LayerMask enemyLayer = LayerMask.GetMask("Enemy");
-                    Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
-                    if (Physics.Raycast(ray, out RaycastHit hitInfo, 100f, enemyLayer))
+                    if (Detector.hit.transform.GetComponent<Actor>() != null)
                     {
-                        if (hitInfo.transform.GetComponent<Actor>() != null)
-                        {
-                            SkillDetail(target, hitInfo);
-                            energy.currentEnergy -= skillEnergy[target];
-                            skillCooldown[target].Start(skillCoolInit[target]);
-                        }
-
+                        SkillDetail(skillNum, Detector.hit);
+                        energy.currentEnergy -= skillEnergy[skillNum];
+                        skillCooldown[skillNum].Start(skillCoolInit[skillNum]);
                     }
                 }
 
             }
             ring.SetRing(0f, false);
-            keyValueImages[target].GetComponent<UnityEngine.UI.Outline>().enabled = false;
-            isSkill[target] = false;
+            keyValueImages[skillNum].GetComponent<UnityEngine.UI.Outline>().enabled = false;
+            isSkill[skillNum] = false;
         }
     }
 
@@ -533,7 +527,7 @@ public class GameManager : MonoBehaviour
             case DataManager.Num.Q:
                 hitInfo.transform.GetComponent<Actor>().TakeStunAll(0, 5, 0);
                 hitInfo.transform.GetComponent<Actor>().TakeDamageAll_magics(0, 12500000, 0);
-                hitInfo.transform.GetComponent<Actor>().TakeDamageAll_percentage(0, 7, 0, 1);
+                hitInfo.transform.GetComponent<Actor>().TakeDamageAll_percentage(0, 7, 0, 1, 1);
                 break;
             case DataManager.Num.W:
                 hitInfo.transform.GetComponent<Actor>().TakeStunAll(0, 2, 0);

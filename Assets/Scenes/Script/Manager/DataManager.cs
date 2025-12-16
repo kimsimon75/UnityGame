@@ -14,7 +14,7 @@ public class DataManager : MonoBehaviour
     public const int 사십라운드 = 41;
     public const int 오십라운드 = 51;
 
-    public const int degree = 10000;
+    public static readonly int[] exPercent = new int[] {0, 100000, 10000, 100000};
 
     public Dictionary<Sprite, ItemRank> imageDict;
 

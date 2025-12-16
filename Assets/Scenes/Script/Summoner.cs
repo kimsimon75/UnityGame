@@ -38,7 +38,7 @@ public class Summoner : MonoBehaviour
 
         enemy.SetBoss(true);
         if(round != 0) enemy.SetRound(round);
-        if(maxHealth != 0) enemy.MaxHealth = enemy.CurrentHealth = maxHealth;
+        if(maxHealth != 0) enemy.maxHealth = enemy.currentHealth = maxHealth;
         if(armor != 0) enemy.SetArmor(armor);
         enemy.SetSpecialBoss(specialBoss);
         enemy.armorType = ArmorType.보스;

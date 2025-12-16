@@ -36,7 +36,7 @@ public class GradientHealthBar : MonoBehaviour
     void Update()
     {
         // 캐릭터 체력 비율 계산 (0~1)
-        float ratio = stats.CurrentHealth / stats.MaxHealth;
+        float ratio = stats.currentHealth / stats.maxHealth;
 
         // Slider 값 갱신 (fillAmount에 반영됨)
         healthSlider.value = ratio;

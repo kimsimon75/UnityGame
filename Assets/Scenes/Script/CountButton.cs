@@ -6,15 +6,12 @@ public class CountButton : MonoBehaviour, IPointerClickHandler
 {
     public Slider slider;
     public CountScript script;
-    int number;
     ChatManager chat;
     ItemManager itemManager;
     int commonCount = 0;
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
     {
-        number = script.number;
-
         itemManager = GameManager.Instance.ItemManager;
         chat = GameManager.Instance.chat;
     }
@@ -41,10 +38,7 @@ public class CountButton : MonoBehaviour, IPointerClickHandler
         }
         else
         {
-            for (int i = 0; i < slider.value; i++)
-            {
-                itemManager.Trigger(number);
-            }
+            itemManager.TriggerMany(script.rank,(int)slider.value);
         }
         script.gameObject.SetActive(false);
     }

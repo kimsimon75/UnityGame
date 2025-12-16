@@ -28,10 +28,18 @@ public abstract class Actor : MonoBehaviour
     public float magicArmor;
     public float magicalBuffer;
 
+    public float maxHealth;
+    public float currentHealth;
+
     protected virtual void Start()
     {
         magicArmor = 0.85f;
-        magicalBuffer = 0f;
+        magicalBuffer = 1f;
+    }
+
+    protected float GetMagicDamage()
+    {
+        return magicArmor * magicalBuffer;
     }
 
     protected float GetDamage(ArmorType damageType, ArmorType armorType)
@@ -95,11 +103,13 @@ public abstract class Actor : MonoBehaviour
 
     public abstract void TakeDamageAll_magics(int damageAll, int damage, float radius, bool trueDamage = false);
 
-    public abstract void TakeDamageAll_percentage(float damageAll, float damage, float radius, int percent = 0);
+    public abstract void TakeDamageAll_percentage(float damageAll, float damage, float radius, int damageKind, int percentCategory, bool boss = false, int armorDecrease = 0, ArmorType damageType = ArmorType.패기);
 
     public abstract void TakeStunAll(float TimeAll, float Time, float radius);
 
     public abstract void TakePoisonAll(float Time, int Armor, float radius);
+
+    public abstract void TakeDamage_explosions(float damage, ArmorType damageType, int percentCategory = 0);
 
     protected void Timeline()
     {
@@ -112,5 +122,55 @@ public abstract class Actor : MonoBehaviour
             deArmor = 0;
         }
         Armor = originArmor - deArmor;
+    }
+
+    protected float Percentage(int percent)
+    {
+        switch(percent)
+        {
+            case 1:
+                return maxHealth;
+            case 2:
+                return currentHealth;
+            case 3:
+                return maxHealth - currentHealth;
+            default:
+                return 1;
+
+        }
+    }
+
+    protected float ExPercentage(int percent)
+    {
+        switch(percent)
+        {
+            case 1:
+                return DataManager.exPercent[1];
+            case 2:
+                return DataManager.exPercent[2];
+            case 3:
+                return DataManager.exPercent[3];
+            default:
+                return DataManager.exPercent[0];
+
+        }
+    }
+
+    protected float DamageKind(int damageKind, int Armor = 0, int armorDecrease = 0, ArmorType damageType = ArmorType.고정, ArmorType armorType = ArmorType.고정)
+    {
+        switch(damageKind)
+        {
+            case 0:
+                return ArmorCalculate(Armor, armorDecrease);
+            case 1:
+                return GetMagicDamage();
+            case 2:
+                return 1;
+            case 3:
+                return GetDamage(damageType, armorType);
+            default:
+                Debug.Assert(true);
+                return 1;
+        }
     }
 }

@@ -2825,6 +2825,7 @@ GameObject:
   - component: {fileID: 2408570990248573624}
   - component: {fileID: -5713291617361971065}
   - component: {fileID: -1677901088190523749}
+  - component: {fileID: 6183031645349430811}
   m_Layer: 6
   m_Name: Remy@Walking(Clone)
   m_TagString: Enemy
@@ -2891,9 +2892,14 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   armorType: 3
   isDead: 0
+  originArmor: 0
+  deArmor: 0
+  deArmorTime: 0
   bar: {fileID: 0}
+  magicArmor: 0
+  magicalBuffer: 0
   MaxHealth: 0
-  CurrentHealth: 0
+  currentHealth: 0
   moveSpeed: 484
   boss: 0
 --- !u!114 &1778523383449982076
@@ -2939,7 +2945,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   outlineMode: 0
   outlineColor: {r: 1, g: 0, b: 0, a: 1}
-  outlineWidth: 3
+  outlineWidth: 1
   precomputeOutline: 0
   bakeKeys: []
   bakeValues: []
@@ -2955,6 +2961,30 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 67dd814c4c998f64ba456623b9ea6524, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  enableDebugLogs: 1
+--- !u!136 &6183031645349430811
+CapsuleCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 9116230094194289795}
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
+  m_IsTrigger: 0
+  m_ProvidesContacts: 0
+  m_Enabled: 1
+  serializedVersion: 2
+  m_Radius: 1
+  m_Height: 4
+  m_Direction: 1
+  m_Center: {x: 0, y: 2, z: 0}
 --- !u!1 &9141778370405148892
 GameObject:
   m_ObjectHideFlags: 0

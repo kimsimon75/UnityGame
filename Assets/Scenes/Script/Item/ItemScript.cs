@@ -92,7 +92,7 @@ public class ItemScript : MonoBehaviour
         }
 
 
-        if (!item.transform.Find("Items").gameObject.activeInHierarchy) return;
+        if (!GameManager.Instance.itemList.gameObject.activeInHierarchy) return;
 
         if (TryGetNumericKey(out int number))
         {
@@ -123,11 +123,6 @@ public class ItemScript : MonoBehaviour
         for (int i = 0; i < DataManager.NumCount; i++)
         {
             keyValueImages[i].GetComponentsInChildren<Image>()[1].sprite = keyValueImages[i].GetComponentsInChildren<Image>()[3].sprite = sprites[(!GameManager.Instance.SkillToggle) ? 0 : 2][i];
-            if (i != DataManager.NumCount-1  && GameManager.Instance.skillCooldown[i].Remaining> 0)
-            {
-                GameObject CooldownTimer = keyValueImages[i].transform.Find("Image/CooldownBG").gameObject;
-                CooldownTimer.SetActive(true);
-            }
         }
     }
     bool TryGetNumericKey(out int number)

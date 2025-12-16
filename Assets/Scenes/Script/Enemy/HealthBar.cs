@@ -147,7 +147,7 @@ public class HealthBar : MonoBehaviour
         if (stats == null)
             ratio = story.currentHealth / story.maxHealth;
         else
-            ratio = stats.CurrentHealth / stats.MaxHealth;
+            ratio = stats.currentHealth / stats.maxHealth;
 
         slider.value = ratio;
 

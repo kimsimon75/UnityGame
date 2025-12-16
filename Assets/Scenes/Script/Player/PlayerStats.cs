@@ -30,12 +30,12 @@ public class PlayerStats : MonoBehaviour
     [NonSerialized] public float MoveSpeed;
     [NonSerialized] public float[] Radius;
     public int player = 1;
-    [NonSerialized] public float detectRange = 4f;
+    [NonSerialized] public float detectRange = 6f;
 
     public int neutralizeDefense = 0;
     public int MagicalBuffer;
     public int MagicalDebuffer;
-    public int[] TrueDamage;
+    public float[] TrueDamage;
     public int MoveSpeeDebuff;
     public int TowerDamage;
     public int TowerAttackSpeed;
@@ -80,7 +80,7 @@ public class PlayerStats : MonoBehaviour
         doublePhysics = new float[action.TargetNumberMax];
         Radius = new float[action.TargetNumberMax];
 
-        TrueDamage = new int[action.TargetNumberMax];
+        TrueDamage = new float[action.TargetNumberMax];
 
         someSortOfSkillActive = new float[DataManager.NumCount-1];
         someSortOfSkillDuration = new int[DataManager.NumCount-1];
@@ -220,7 +220,7 @@ public class PlayerStats : MonoBehaviour
 
     public (int[] damage, float[] damageBonus, float attackCooldown, float attackSpeedBonus,
      int neutralizeDefense, float HealthRegen, float manaRegen,
-      int MagicalBuffer, int MagicalDebuffer, int TrueDamage, int MoveSpeeDebuff, float[] doublePhysics, float[] Radius)
+      int MagicalBuffer, int MagicalDebuffer, float TrueDamage, int MoveSpeeDebuff, float[] doublePhysics, float[] Radius)
       GetStats()
     {
         return (damage, damageBonus, attackCooldown[action.targetNumber], attackSpeedBonus[action.targetNumber] + attackSpeedBonusBonus[action.targetNumber]

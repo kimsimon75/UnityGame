@@ -30,10 +30,10 @@ public class UnitStatus : MonoBehaviour
             {
                 slider.gameObject.SetActive(true);
                 EnemyStats stats = target.GetComponent<EnemyStats>();
-                float ratio = stats.CurrentHealth / stats.MaxHealth;
+                float ratio = stats.currentHealth / stats.maxHealth;
                 slider.value = ratio;
                 TextMeshProUGUI[] texts = slider.GetComponentsInChildren<TextMeshProUGUI>();
-                string s = $"{Mathf.Ceil(stats.CurrentHealth):N0}/ {stats.MaxHealth:N0}";
+                string s = $"{Mathf.Ceil(stats.currentHealth):N0}/ {stats.maxHealth:N0}";
                 texts[0].text = s;
                 texts[1].text = s;
 
@@ -42,7 +42,7 @@ public class UnitStatus : MonoBehaviour
                     text[0].text = $"방어력 : {Info.armor} (-{(Info.armor / (Info.armor + 50f) * 100).ToString("F3")}%)";
                 else
                     text[0].text = $"방어력 : {Info.armor}({((1 - Mathf.Pow(0.94f, -Info.armor))* 100).ToString("F3")}%)";
-                text[1].text = $"이동 속도 : {Info.moveSpeed * 100}";
+                text[1].text = $"이동 속도 : {Info.moveSpeed}";
                 text[2].text = $"방어 타입 : {Info.armorType}";
             }
             else if (target.GetComponentInParent<Cannon>() != null)

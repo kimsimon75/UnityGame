@@ -9,7 +9,7 @@ public class CountScript : MonoBehaviour
     public Image image;
     public bool setImage = false;
     public TextMeshProUGUI text;
-    [NonSerialized] public int number;
+    [NonSerialized] public int rank;
     ItemManager itemManager;
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
@@ -32,7 +32,7 @@ public class CountScript : MonoBehaviour
         }
         else
         {
-            switch ((DataManager.Num)number)
+            switch ((DataManager.Num)rank)
             {
                 case DataManager.Num.Q:
                     slider.maxValue = itemManager.list.FindItem("기억 조각", ItemRank.All).count;
@@ -50,17 +50,17 @@ public class CountScript : MonoBehaviour
                     break;
             }
 
-            image.sprite = DataManager.Instance.sprites[1][number];
+            image.sprite = DataManager.Instance.sprites[1][rank];
         }
 
 
         text.text = slider.value.ToString();
     }
 
-    public void SetNumber(int number)
+    public void SetNumber(int rank)
     {
         setImage = false;
         slider.value = 0;
-        this.number = number; 
+        this.rank = rank; 
     }
 }

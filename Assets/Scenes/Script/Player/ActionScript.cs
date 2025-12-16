@@ -1,6 +1,5 @@
 using System;
 using DigitalRuby.LightningBolt;
-using Microsoft.Unity.VisualStudio.Editor;
 using UnityEngine;
 using UnityEngine.AI;
 
@@ -37,7 +36,7 @@ public class ActionScript : MonoBehaviour
     private float zoomSpeed = 10f;
     private float minDistance = 30f;
     private float maxDistance = 110f;
-    private Vector3 camOffset = new Vector3(0, 12f, -6f);
+    private Vector3 camOffset = new Vector3(0, 75f, -75f);
     private float targetDistance;
     private float zoomVelocity;
     private float smoothTimeZoom = 0.10f;
@@ -59,7 +58,7 @@ public class ActionScript : MonoBehaviour
 
         TriggerHold();
         targetDistance = mainCamera.fieldOfView;
-        mainCamera.transform.position = new Vector3(transform.position.x, transform.position.y + 12f, transform.position.z - 6f);
+        mainCamera.transform.position = transform.position + camOffset;
 
         for (int i = 0; i < target.Length; i++)
         {
@@ -155,14 +154,7 @@ public class ActionScript : MonoBehaviour
             }
             else
             {
-                LayerMask mask = LayerMask.GetMask("Enemy", "Cannon");
-                Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
-
-                if (Physics.Raycast(ray, out RaycastHit hitInfo, 100f, mask))
-                {
-                    statsTarget = hitInfo.transform;
-                }
-
+                    statsTarget = GameManager.Instance.Detector.hit.transform;
             }
 
         }
@@ -217,7 +209,7 @@ public class ActionScript : MonoBehaviour
         }
         else if (Input.GetKey(KeyCode.Space))
         {
-            mainCamera.transform.position = new Vector3(transform.position.x, transform.position.y, transform.position.z) + camOffset;
+            mainCamera.transform.position = transform.position + camOffset;
         }
         
         else if (Input.GetKey(KeyCode.LeftControl) || Input.GetKey(KeyCode.RightControl))

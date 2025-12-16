@@ -6,13 +6,6 @@ using UnityEngine;
 
 public class EnemyStats : Actor
 {
-
-    [Header("체력 설정")]
-    [Tooltip("최대 체력")]
-    public float MaxHealth;
-
-    [Tooltip("시작 시 현재 체력")]
-    public float CurrentHealth;
     private PlayerStats player;
     public float moveSpeed = 484f;
     private WalkForward walk;
@@ -26,10 +19,10 @@ public class EnemyStats : Actor
         walk = GetComponent<WalkForward>();
         int round = GameManager.Instance.GetRound();
 
-        MaxHealth = DataManager.Instance.enemyStats[round][0];
+        maxHealth = DataManager.Instance.enemyStats[round][0];
         originArmor = DataManager.Instance.enemyStats[round][1];
         // 게임 시작할 때 현재 체력을 최대치로 초기화
-        CurrentHealth = MaxHealth;
+        currentHealth = maxHealth;
 
         player = GameManager.Instance.player;
 
@@ -47,24 +40,24 @@ public class EnemyStats : Actor
     /// <summary>
     /// 데미지를 입었을 때 호출
     /// </summary>
-    public void TakeDamage_physics(float damage, ArmorType damageType, int armorDecrease) 
+    private void TakeDamage_physics(int damage, ArmorType damageType, int armorDecrease) 
     {
         if (isDead) return;
-        damage = damage * GetDamage(damageType, armorType) * ArmorCalculate(Armor, armorDecrease);
+        damage = (int)(damage * GetDamage(damageType, armorType) * ArmorCalculate(Armor, armorDecrease));
 
-        CurrentHealth = Mathf.Max(CurrentHealth - damage, 0f);
+        currentHealth = (int)Mathf.Max(currentHealth - damage, 0f);
 
         Clear();
     }
 
     public override void TakeDamageAll_physics(int damageAll, int damage, float radius, ArmorType damageType, float DoublePhysicsDamagePercentage, int armorDecrease)
     {
-        float pureDamageAll = damageAll;
-        float doubledDamage = 0;
+        int pureDamageAll = damageAll;
+        int doubledDamage = 0;
         if (DoublePhysicsDamagePercentage > 0)
         {
-            pureDamageAll = damageAll*Mathf.Max(1 - DoublePhysicsDamagePercentage, 0);
-            doubledDamage = damageAll * DoublePhysicsDamagePercentage;
+            pureDamageAll = (int)(damageAll * Mathf.Max(1 - DoublePhysicsDamagePercentage, 0));
+            doubledDamage = (int)(damageAll * DoublePhysicsDamagePercentage);
         }
         if (radius != 0)
         {
@@ -81,24 +74,26 @@ public class EnemyStats : Actor
                 EnemyStats stats = col.GetComponent<EnemyStats>();
                 if (stats != null && col.transform != transform)
                 {
-                    stats.TakeDamage_physics(pureDamageAll + doubledDamage * ArmorCalculate(Armor, armorDecrease) , damageType, armorDecrease);
+                    stats.TakeDamage_physics(pureDamageAll + (int)(doubledDamage * ArmorCalculate(Armor, armorDecrease)) , damageType, armorDecrease);
                 }
             }
 
             DebugDrawCircleXZ(center, radius, Color.red);
         }
 
-        TakeDamage_physics(damage + pureDamageAll + doubledDamage * (1 + ArmorCalculate(Armor, armorDecrease)), damageType, armorDecrease);
+        TakeDamage_physics(damage + pureDamageAll + (int)(doubledDamage * Mathf.Pow(ArmorCalculate(Armor, armorDecrease), 2)), damageType, armorDecrease);
 
     }      
 
-    public void TakeDamage_magics(int damage)
+    private void TakeDamage_magics(int damage, bool trueDamage = false)
     {
         if(isDead) return;
-        CurrentHealth = Mathf.Max(CurrentHealth - damage, 0);
+        if(trueDamage)
+            currentHealth = Mathf.Max(currentHealth - damage, 0);
+        else
+            currentHealth = Mathf.Max(currentHealth - damage * GetMagicDamage(), 0);
         Clear();
     } 
-
     public override void TakeDamageAll_magics(int damageAll, int damage, float radius, bool trueDamage = false)
     {
         if (radius != 0)
@@ -113,39 +108,74 @@ public class EnemyStats : Actor
 
             foreach (Collider col in hits)
             {
-                EnemyStats stats = col.GetComponent<EnemyStats>();
-                if (stats != null && col.transform != transform)
+                EnemyStats stats = col.GetComponentInParent<EnemyStats>();
+                if (stats != null && stats != this)
                 {
-                    stats.TakeDamage_magics(damageAll);
+                    stats.TakeDamage_magics(damageAll, trueDamage);
                 }
             }
 
             DebugDrawCircleXZ(center, radius, Color.red);
         }
-        TakeDamage_magics(damageAll + damage);
+        TakeDamage_magics(damageAll + damage, trueDamage);
     }    
 
-    public void TakeDamage_explosions(float damage, ArmorType damageType, int percent = 0)/// percent 0 : 일반, 1 : 전체, 2 : 현재, 3 : 잃은, 
+    public override void TakeDamage_explosions(float damage, ArmorType damageType, int percent = 0)/// percent 0 : 일반, 1 : 전체, 2 : 현재, 3 : 잃은, 
     {
+        if(isDead) return;
+        damage = damage * GetDamage(damageType, armorType) * (boss ? ExPercentage(percent) : Percentage(percent));
         
+        currentHealth = (int)Mathf.Max(currentHealth - damage, 0f);
+        Clear();
     }
 
-    public override void TakeDamageAll_percentage(float damageAll, float damage, float radius, int percent = 0) /// percent 0 : 일반, 1 : 전체, 2 : 현재, 3 : 잃은, 
+    public override void TakeDamageAll_percentage(float damageAll, float damage, float radius, int damageKind, int percent, bool boss = false, int armorDecrease = 0, ArmorType damageType = ArmorType.패기) /// percent 0 : 일반, 1 : 전체, 2 : 현재, 3 : 잃은, damageKind 0: 물리, 1: 마법, 2: 고정
     {
-        
+        if (radius != 0)
+        {
+            Vector3 center = transform.position;
+
+
+            // 원하는 레이어만 필터링
+            LayerMask enemyLayer = LayerMask.GetMask("Enemy");
+
+            Collider[] hits = Physics.OverlapSphere(center, radius, enemyLayer);
+
+            foreach (Collider col in hits)
+            {
+                EnemyStats stats = col.GetComponentInParent<EnemyStats>();
+                if (stats != null)
+                {
+                    stats.TakeDamage_percentage(damageAll, damageKind, percent, stats.boss, armorDecrease, damageType);
+                }
+            }
+
+            DebugDrawCircleXZ(center, radius, Color.red);
+        }
+        else
+            TakeDamage_percentage(damageAll + damage, damageKind, percent, boss, armorDecrease, damageType);
     }   
     
-     public void TakeDamage_percentage(float damage, int percent = 0)
+     private void TakeDamage_percentage(float damage, int damageKind, int percent, bool boss = false, int armorDecrease = 0, ArmorType damageType = ArmorType.패기) // damageKind 0: 물리, 1: 마법, 2: 고정, 3: 폭발(폭발은 따로 설정)
     {
-        
-    }
+        if(isDead) return;
 
+        if(this.boss == boss)
+        {
+            if(damageKind == 0) damage = damage * ArmorCalculate(Armor, armorDecrease);
+        
+            damage = damage / 100  * Percentage(percent) * DamageKind(damageKind, Armor, armorDecrease, damageType, armorType);
+        }    
+        
+        currentHealth = (int)Mathf.Max(currentHealth - damage, 0);
+        Clear();
+
+    }
 
     public void TakeStun(float Time)
     {
         walk.StunTime = Mathf.Max(walk.StunTime, Time);
     }
-
 
     public override void TakeStunAll(float TimeAll, float Time, float radius)
     {
@@ -201,11 +231,11 @@ public class EnemyStats : Actor
     /// </summary>
     public void Heal(float amount)
     {
-        CurrentHealth = Mathf.Min(CurrentHealth + amount, MaxHealth);
+        currentHealth = (int)Mathf.Min(currentHealth + amount, maxHealth);
     }
     public void Clear()
     {
-        if (CurrentHealth <= 0)
+        if (currentHealth <= 0)
         {
             if (boss)
             {

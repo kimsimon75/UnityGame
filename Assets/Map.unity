@@ -5558,11 +5558,11 @@ Camera:
     y: 0
     width: 1
     height: 1
-  near clip plane: 0.3
+  near clip plane: 25
   far clip plane: 1000
-  field of view: 98
+  field of view: 15
   orthographic: 0
-  orthographic size: 5
+  orthographic size: 15
   m_Depth: -1
   m_CullingMask:
     serializedVersion: 2
@@ -5586,13 +5586,13 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 296419440}
   serializedVersion: 2
-  m_LocalRotation: {x: 0.5735764, y: 0, z: 0, w: 0.8191521}
-  m_LocalPosition: {x: -1.619, y: 12, z: -10}
-  m_LocalScale: {x: 0.8, y: 0.8421053, z: 0.9411765}
+  m_LocalRotation: {x: 0.38268343, y: 0, z: 0, w: 0.92387956}
+  m_LocalPosition: {x: -1, y: 75, z: -37}
+  m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 322793761}
-  m_LocalEulerAnglesHint: {x: 70, y: 0, z: 0}
+  m_LocalEulerAnglesHint: {x: 45, y: 0, z: 0}
 --- !u!114 &296419444
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -5649,7 +5649,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 6d8293393a2d3f44f80751771bfb4cbd, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  moveSpeed: 17
+  moveSpeed: 20
   borderThickness: 10
   item: {fileID: 1428051400}
   scrollLimitsX: {x: -80, y: 80}
@@ -14902,6 +14902,7 @@ MonoBehaviour:
   targetPanel: {fileID: 1423719353}
   mainCam: {fileID: 296419442}
   screenOffset: {x: 0, y: 50, z: 0}
+  stickyTime: 0.15
 --- !u!114 &632404968
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -20946,6 +20947,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   Content: {fileID: 910292112}
+  radius: 64
 --- !u!1 &922469089
 GameObject:
   m_ObjectHideFlags: 0
@@ -31697,6 +31699,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   mainCam: {fileID: 296419442}
+  screenOffsetRatio: {x: 0, y: 0.005}
+  extraVerticalRatio: 0.05
 --- !u!1 &1428051400
 GameObject:
   m_ObjectHideFlags: 0
@@ -34365,7 +34369,7 @@ Transform:
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: 0.7071068, z: 0.7071068, w: 0}
   m_LocalPosition: {x: 0, y: 1, z: 0}
-  m_LocalScale: {x: 60, y: 160, z: 200.00009}
+  m_LocalScale: {x: 60, y: 160, z: 200}
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 878920415}
@@ -46673,6 +46677,10 @@ PrefabInstance:
       propertyPath: StoryCannon
       value: 
       objectReference: {fileID: 1934400162}
+    - target: {fileID: 4953642279901639027, guid: 3239a3b4a60079f4a9ff415367ebf115, type: 3}
+      propertyPath: outlineWidth
+      value: 1
+      objectReference: {fileID: 0}
     - target: {fileID: 6607070376067622337, guid: 3239a3b4a60079f4a9ff415367ebf115, type: 3}
       propertyPath: text
       value: 

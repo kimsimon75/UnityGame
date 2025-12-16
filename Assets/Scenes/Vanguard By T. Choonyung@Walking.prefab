@@ -357,10 +357,10 @@ PrefabInstance:
       addedObject: {fileID: 4502418236727225067}
     - targetCorrespondingSourceObject: {fileID: 919132149155446097, guid: c2a333950223d7b478a45dfdd6287fbe, type: 3}
       insertIndex: -1
-      addedObject: {fileID: 602179382080829358}
+      addedObject: {fileID: 8638222348737272748}
     - targetCorrespondingSourceObject: {fileID: 919132149155446097, guid: c2a333950223d7b478a45dfdd6287fbe, type: 3}
       insertIndex: -1
-      addedObject: {fileID: 8638222348737272748}
+      addedObject: {fileID: 1035223042619649652}
   m_SourcePrefab: {fileID: 100100000, guid: c2a333950223d7b478a45dfdd6287fbe, type: 3}
 --- !u!1 &82568960517778932 stripped
 GameObject:
@@ -395,9 +395,14 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   armorType: 3
   isDead: 0
+  originArmor: 0
+  deArmor: 0
+  deArmorTime: 0
   bar: {fileID: 0}
+  magicArmor: 0
+  magicalBuffer: 0
   MaxHealth: 0
-  CurrentHealth: 0
+  currentHealth: 0
   moveSpeed: 484
   boss: 0
 --- !u!114 &-1763031509130835581
@@ -456,12 +461,25 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   outlineMode: 0
   outlineColor: {r: 1, g: 0, b: 0, a: 1}
-  outlineWidth: 3
+  outlineWidth: 1
   precomputeOutline: 0
   bakeKeys: []
   bakeValues: []
---- !u!65 &602179382080829358
-BoxCollider:
+--- !u!114 &8638222348737272748
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 82568960517778932}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 67dd814c4c998f64ba456623b9ea6524, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  enableDebugLogs: 1
+--- !u!136 &1035223042619649652
+CapsuleCollider:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
@@ -478,18 +496,8 @@ BoxCollider:
   m_IsTrigger: 0
   m_ProvidesContacts: 0
   m_Enabled: 1
-  serializedVersion: 3
-  m_Size: {x: 1, y: 2, z: 1}
+  serializedVersion: 2
+  m_Radius: 0.6
+  m_Height: 2
+  m_Direction: 1
   m_Center: {x: 0, y: 1, z: 0}
---- !u!114 &8638222348737272748
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 82568960517778932}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 67dd814c4c998f64ba456623b9ea6524, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 

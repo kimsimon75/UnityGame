@@ -1,4 +1,5 @@
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -147,13 +148,13 @@ public class ItemManager : MonoBehaviour
         bool ctrl = Input.GetKey(KeyCode.LeftControl) || Input.GetKey(KeyCode.RightControl);
 
         // 3) 키별로 Ctrl 조합/일반 동작 분기
-        if (Input.GetKeyDown(KeyCode.Q)) { if (ctrl) ControlTrigger((int)DataManager.Num.Q); else if (!Count.activeInHierarchy)Trigger((int)DataManager.Num.Q); return; }
-        if (Input.GetKeyDown(KeyCode.W)) { if (ctrl) ControlTrigger((int)DataManager.Num.W); else if (!Count.activeInHierarchy)Trigger((int)DataManager.Num.W); return; }
-        if (Input.GetKeyDown(KeyCode.E)) { if (ctrl) ControlTrigger((int)DataManager.Num.E); else if (!Count.activeInHierarchy)Trigger((int)DataManager.Num.E); return; }
-        if (Input.GetKeyDown(KeyCode.D)) { if (!Count.activeInHierarchy) Trigger((int)DataManager.Num.D); return; }
-        if (Input.GetKeyDown(KeyCode.Z)) { if (ctrl) ControlTrigger((int)DataManager.Num.Z); else if (!Count.activeInHierarchy)Trigger((int)DataManager.Num.Z); return; }
-        if (Input.GetKeyDown(KeyCode.X)) { if (ctrl) ControlTrigger((int)DataManager.Num.X); else if (!Count.activeInHierarchy)Trigger((int)DataManager.Num.X); return; }
-        if (Input.GetKeyDown(KeyCode.C)) { if (ctrl) ControlTrigger((int)DataManager.Num.C); else if (!Count.activeInHierarchy)Trigger((int)DataManager.Num.C); return; }
+        if (Input.GetKeyDown(KeyCode.Q)) { if (ctrl) ControlTrigger((int)DataManager.Num.Q); else if (!Count.activeInHierarchy)TriggerMany((int)DataManager.Num.Q,1); return; }
+        if (Input.GetKeyDown(KeyCode.W)) { if (ctrl) ControlTrigger((int)DataManager.Num.W); else if (!Count.activeInHierarchy)TriggerMany((int)DataManager.Num.W,1); return; }
+        if (Input.GetKeyDown(KeyCode.E)) { if (ctrl) ControlTrigger((int)DataManager.Num.E); else if (!Count.activeInHierarchy)TriggerMany((int)DataManager.Num.E,1); return; }
+        if (Input.GetKeyDown(KeyCode.D)) { if (!Count.activeInHierarchy) TriggerMany((int)DataManager.Num.D, 1); return; }
+        if (Input.GetKeyDown(KeyCode.Z)) { if (ctrl) ControlTrigger((int)DataManager.Num.Z); else if (!Count.activeInHierarchy)TriggerMany((int)DataManager.Num.Z,1); return; }
+        if (Input.GetKeyDown(KeyCode.X)) { if (ctrl) ControlTrigger((int)DataManager.Num.X); else if (!Count.activeInHierarchy)TriggerMany((int)DataManager.Num.X,1); return; }
+        if (Input.GetKeyDown(KeyCode.C)) { if (ctrl) ControlTrigger((int)DataManager.Num.C); else if (!Count.activeInHierarchy)TriggerMany((int)DataManager.Num.C,1); return; }
         if (Input.GetKeyDown(KeyCode.F) && rank == (int)ItemRank.희귀함 - 1 && editItem == null && targetImage != null)
         {
             Item targetItem = list.FindItem(targetImage.transform.Find("Image").GetComponent<Image>().sprite.name, ItemRank.희귀함);
@@ -180,30 +181,33 @@ public class ItemManager : MonoBehaviour
         list.Clear();
     }
 
-    public void LoopTrigger()
+    public void TriggerMany(int rank, int amount)
     {
-        
+        StartCoroutine(Trigger(rank, amount));
     }
-    
-    public void Trigger(int target)
+    private IEnumerator Trigger(int rank, int amount)
     {
-        switch ((DataManager.Num)target)
+        for(int i=0;i<amount;i++)
+        switch ((DataManager.Num)rank)
         {
             case DataManager.Num.Q:
                 GetRankedItem(ItemRank.흔함);
+                yield return null;
                 break;
             case DataManager.Num.W:
                 GetRankedItem(ItemRank.특별함);
+                yield return null;
                 break;
             case DataManager.Num.E:
                 GetRankedItem(ItemRank.희귀함);
+                yield return null;
                 break;
             case DataManager.Num.Z:
             case DataManager.Num.X:
             case DataManager.Num.C:
                 if (isAllToggle)
                 {
-                    SetSoulParts = 1 << (target - (int)DataManager.Num.Z);
+                    SetSoulParts = 1 << (rank - (int)DataManager.Num.Z);
                     SetSouls(true);
                 }
                 else
@@ -212,7 +216,7 @@ public class ItemManager : MonoBehaviour
                     if (item.count > 0)
                     {
                         item.count -= 1;
-                        switch ((DataManager.Num)target)
+                        switch ((DataManager.Num)rank)
                         {
                             case DataManager.Num.Z:
                                 list.GetRandomItem(ItemRank.흔함);
@@ -235,22 +239,24 @@ public class ItemManager : MonoBehaviour
                         chat.Push($"영혼 파편이 없습니다.");
                     }
                 }
-
+                yield return null;
                 break;
             case DataManager.Num.D:
                 isAllToggle = !isAllToggle;
                 if(isAllToggle == true ) list.ChangeSouls();
                 GameManager.Instance.Images[(int)DataManager.Num.D].GetComponent<UnityEngine.UI.Outline>().enabled = isAllToggle;
                 SetSouls(isAllToggle);
+                yield return null;
                 break;
         }
+        yield return null;
     }
 
-    public void ControlTrigger(int target)
+    public void ControlTrigger(int rank)
     {
         CountScript script = Count.GetComponent<CountScript>();
 
-        script.SetNumber(target);
+        script.SetNumber(rank);
         GameManager.Instance.SetCountScript();
     }
 
@@ -268,6 +274,7 @@ public class ItemManager : MonoBehaviour
     private void GetRankedItem(ItemRank rank)
     {
         int neccesary = 0;
+        Item item = null;
         if (rank == ItemRank.흔함) neccesary = 1;
         if (rank == ItemRank.안흔함) neccesary = 1;
         else if (rank == ItemRank.특별함) neccesary = 2;
@@ -294,7 +301,6 @@ public class ItemManager : MonoBehaviour
 
                         int count = list.itemList[1].Count + list.itemList[2].Count;
                         rand = UnityEngine.Random.Range(0, 100);
-                        Item item;
 
                         if (rand < 50)
                         {
@@ -326,7 +332,7 @@ public class ItemManager : MonoBehaviour
                             return;
                         }
 
-                        Item item = list.GetRandomItem(ItemRank.특별함, false);
+                        item = list.GetRandomItem(ItemRank.특별함, false);
 
                         chat.Push($"중급 도박으로 <color=Yellow>{item.Rank}</color> 등급의 {item.Name} 획득.");
                     }
@@ -351,21 +357,27 @@ public class ItemManager : MonoBehaviour
                         {
                             if (UnityEngine.Random.Range(0, 100) < 50)
                             {
-                                Item item = list.GetRandomItem(ItemRank.희귀함, false);
+                                rand = UnityEngine.Random.Range(1, list.itemList[(int)ItemRank.희귀함].Count);
+                                item = list.itemList[(int)ItemRank.희귀함][rand];
+                                item.count++;
 
                                 chat.Push($"고급 도박으로 <color=#FF00FF>{item.Rank}</color> 등급의 {item.Name} 획득.");
                             }
                             else
                             {
-                                Item item = list.GetRandomItem(ItemRank.특별함, false);
+                                item = list.GetRandomItem(ItemRank.특별함, false);
 
                                 chat.Push($"고급 도박으로 <color=Yellow>{item.Rank}</color> 등급의 {item.Name} 획득.");
                             }
                         }
                     }
                     break;
+                    default:
+                    chat.Push("알 수 없는 아이템 명령어");
+                    break;
             }
-            GameManager.Instance.scrollView.ImageInit(list.currentItem[GameManager.Instance.Action.targetNumber]);
+            if(item != null && item.count == 1)
+                GameManager.Instance.scrollView.ImageInit(list.currentItem[GameManager.Instance.Action.targetNumber]);
             list.FindItem("기억 조각", ItemRank.All).count -= neccesary;
             Clear(editItem, false);
         }
@@ -655,7 +667,7 @@ public class ItemManager : MonoBehaviour
             ItemStatus[3].text = $"방어력 감소 : {editItem.NeutralizeDefense}";
             ItemStatus[4].text = $"마법 증폭 : {editItem.MagicalBuffer}%";
             ItemStatus[5].text = $"마법방어력 감소 : {editItem.MagicalDebuffer}%";
-            ItemStatus[6].text = $"방어무시 데미지 : {editItem.TrueDamage}%";
+            ItemStatus[6].text = $"방어무시 데미지 : {editItem.TrueDamage * 100}%";
             ItemStatus[7].text = $"체력 재생 : {DataManager.Instance.RoundX(editItem.HealthRegen,3)}";
             ItemStatus[8].text = $"마나 재생 : {DataManager.Instance.RoundX(editItem.ManaRegen , 3)}";
             ItemStatus[9].text = $"이동속도 감소 : {editItem.MoveSpeed}";
@@ -683,6 +695,8 @@ public class ItemManager : MonoBehaviour
 
             float attackRange = editItem.AttackRange;
 
+            int PercentKind = editItem.PercentKind;
+
             if (Probability != 0)
             {
                 s.AppendLine($"스킬 확률 : {Probability}%");
@@ -695,48 +709,14 @@ public class ItemManager : MonoBehaviour
                 if (Range != 0) s.AppendLine($"스킬 범위 : {Range * 100}");
                 if (boss == true)
                 {
-                    switch (PercentageCategory)
-                    {
-                        case 1:
-                            s.AppendLine($"보스에게 전체체력의 {Percent}에 해당하는 데미지를 입힙니다");
-                            break;
-                        case 2:
-                            s.AppendLine($"보스에게 현재체력의 {Percent}에 해당하는 데미지를 입힙니다");
-                            break;
-                        case 3:
-                            s.AppendLine($"보스에게 잃은체력의 {Percent}에 해당하는 데미지를 입힙니다");
-                            break;
-                    }
+                    s.AppendLine($"보스에게 {PercentCategory(PercentageCategory)}의 {Percent}%에 해당하는 데미지를 입힙니다");
                 }
                 else if (Percent != 0)
                 {
-                    if (Range > 0)
-                        switch (PercentageCategory)
-                        {
-                            case 1:
-                                s.AppendLine($"범위에 전체체력의 {Percent}에 해당하는 데미지를 입힙니다");
-                                break;
-                            case 2:
-                                s.AppendLine($"범위에 현재체력의 {Percent}에 해당하는 데미지를 입힙니다");
-                                break;
-                            case 3:
-                                s.AppendLine($"범위에 잃은체력의 {Percent}에 해당하는 데미지를 입힙니다");
-                                break;
-                        }
+                    if(PercentKind == 3)
+                        s.AppendLine($"단일 대상에게 {PercentCategory(PercentageCategory)}의 {Percent}%에 해당하는 폭발형 데미지를 입힙니다. (보스몹, 스토리에겐 {Percent * DataManager.exPercent[PercentageCategory]}의 마법데미지를 입힙니다.)");
                     else
-                        switch (PercentageCategory)
-                        {
-                            case 1:
-                                s.AppendLine($"단일 대상에게 전체체력의 {Percent}에 해당하는 데미지를 입힙니다");
-                                break;
-                            case 2:
-                                s.AppendLine($"단일 대상에게 현재체력의 {Percent}에 해당하는 데미지를 입힙니다");
-                                break;
-                            case 3:
-                                s.AppendLine($"단일 대상에게 잃은체력의 {Percent}에 해당하는 데미지를 입힙니다");
-                                break;
-                        }
-
+                        s.AppendLine($"{SkillRange(Range)} {PercentCategory(PercentageCategory)}의 {Percent}%에 해당하는 {SkillPercentKind(PercentKind)} 데미지를 입힙니다. {(Range == 0 ? "(보스몹, 스토리 제외)" : "")}"); 
                 }
                 if (damageUp != 0) s.AppendLine($"치명타 : {damageUp * 100}%");
 
@@ -759,6 +739,47 @@ public class ItemManager : MonoBehaviour
 
             ItemSkillExplanation.text = s.ToString();
 
+        }
+    }
+
+
+    private string PercentCategory(int percent)
+    {
+        switch(percent)
+        {
+            case 1:
+            return "전체체력";
+            case 2:
+            return "현재체력";
+            case 3:
+            return "잃은체력";
+            default:
+            return "";
+        }
+    }
+
+    private string SkillRange(float range)
+    {
+        switch(range)
+        {
+            case 0:
+            return "단일 대상에게";
+            default:
+            return "범위에";
+        }
+    }    
+    private string SkillPercentKind(int percentKind)
+    {
+        switch(percentKind)
+        {
+            case 0:
+            return "물리";
+            case 1:
+            return "마법";
+            case 2:
+            return "고정";
+            default:
+            return "";
         }
     }
 }

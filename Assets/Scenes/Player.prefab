@@ -263,12 +263,17 @@ MonoBehaviour:
   neutralizeDefense: 0
   MagicalBuffer: 0
   MagicalDebuffer: 0
-  TrueDamage: 0
+  TrueDamage: []
   MoveSpeeDebuff: 0
   TowerDamage: 0
   TowerAttackSpeed: 0
+  someSortOfSkillActive: []
+  someSortOfSkillDuration: 
+  someSortOfSkillCooltime: []
+  someSortOfSkillEffect: []
   text: {fileID: 0}
   action: {fileID: 0}
+  armorType: 0
 --- !u!114 &6492194153139732055
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -293,14 +298,12 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 8580f271ab2a6714c8cff00e9d945d9c, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  item: {fileID: 0}
-  targetNumber: 0
-  attackDisableTime: 0
   targetParent: {fileID: 0}
   statsTarget: {fileID: 0}
   mainCamera: {fileID: 0}
   StoryCannon: {fileID: 0}
   MagicZone: {fileID: 0}
+  Lightning: {fileID: 0}
 --- !u!114 &6341763169526158609
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -339,7 +342,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   outlineMode: 0
   outlineColor: {r: 0, g: 1, b: 0.03731489, a: 1}
-  outlineWidth: 3
+  outlineWidth: 1
   precomputeOutline: 0
   bakeKeys: []
   bakeValues: []

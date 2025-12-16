@@ -5,7 +5,7 @@ public class CannonBallMove : MonoBehaviour
 {
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     [NonSerialized] public Transform target;
-    [NonSerialized] public float speed = 10f;
+    [NonSerialized] public float speed = 30f;
 
     private int Damage;
     private ArmorType DamageType;
