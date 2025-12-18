@@ -1,0 +1,16 @@
+fileFormatVersion: 2
+guid: a12a8009a0de9984e8a42477a2718b62
+ShaderImporter:
+  externalObjects: {}
+  defaultTextures: []
+  nonModifiableTextures: []
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 196164
+  packageName: Dark Wizard
+  packageVersion: 1.0
+  assetPath: Assets/Dark Wizard/Stand/Standard_Two_Sided.shader
+  uploadId: 435496

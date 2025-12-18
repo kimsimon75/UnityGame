@@ -1,0 +1,15 @@
+fileFormatVersion: 2
+guid: 4eafef0c4d4d62c4ebe6594a388aa85b
+NativeFormatImporter:
+  externalObjects: {}
+  mainObjectFileID: 2100000
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 196164
+  packageName: Dark Wizard
+  packageVersion: 1.0
+  assetPath: Assets/Dark Wizard/Materials/Dark_Wizard_Black/Mat_Dark_Wizard_Head_Black.mat
+  uploadId: 435496

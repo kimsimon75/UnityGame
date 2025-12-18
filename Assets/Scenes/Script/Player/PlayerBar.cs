@@ -1,3 +1,4 @@
+using System;
 using TMPro;
 using Unity.Mathematics;
 using UnityEngine;
@@ -7,12 +8,14 @@ public class PlayerBar : MonoBehaviour
 {
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     private PlayerStats playerStats;
-    public Slider HPBar;
-    public Slider MPBar;
-    public TextMeshProUGUI[] HPText;
-    public TextMeshProUGUI[] MPText;
+    private Slider HPBar;
+    private Slider MPBar;
+    private TextMeshProUGUI[] HPText;
+    private TextMeshProUGUI[] MPText;
     void Start()
     {
+        HPBar = GameManager.Instance.HPBar;
+        MPBar = GameManager.Instance.MPBar;
         playerStats = GetComponent<PlayerStats>();
         HPText = HPBar.GetComponentsInChildren<TextMeshProUGUI>();
         MPText = MPBar.GetComponentsInChildren<TextMeshProUGUI>();

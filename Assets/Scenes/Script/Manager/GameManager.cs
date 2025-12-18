@@ -6,6 +6,7 @@ using UnityEngine.UI;
 using System.Linq;
 using System;
 using Unity.VisualScripting.Antlr3.Runtime.Misc;
+using System.Collections;
 
 public class GameManager : MonoBehaviour
 {
@@ -87,16 +88,24 @@ public class GameManager : MonoBehaviour
     [NonSerialized] public SkillCool[] skillCooldown = new SkillCool[DataManager.NumCount-1];
     [NonSerialized] public float[] skillIndicate = new float[DataManager.NumCount-1];
 
+    public GameObject Lightnings;
+    public GameObject Cannons;
+
+    public TextMeshProUGUI[] unitCountTexts;
+
     GameObject[] cooldownImage;
 
     public bool SkillToggle = false;
 
     public bool TeleportOn = false;
-
+    public Transform magicZone;
+    public Slider HPBar;
+    public Slider MPBar;
 
     void Awake()
     {
         Instance = this;
+        GetComponent<DataManager>().Init();
 
         keyValueImages =
            keyValue.GetComponentsInChildren<Image>(includeInactive: true)
@@ -110,10 +119,11 @@ public class GameManager : MonoBehaviour
 
     void Start()
     {
+         // 초기 채팅들 Push
         ring = GetComponent<AoeIndicatorLite>();
         timeLeft = 0f;
-        roundText.text = "라운드 시작 전";
         item.SetList();
+        roundText.text = "라운드 시작 전";
         item.list.GetMemoriesParts(1);
         item.list.GetSoulParts(5);
         item.list.GetRandomItem(ItemRank.안흔함);
@@ -164,6 +174,8 @@ public class GameManager : MonoBehaviour
 
     void Update()
     {
+
+        item.list.FindItem("기억 조각", ItemRank.All).count = 1000;
         timeLeft -= Time.deltaTime;
         pawnTime -= Time.deltaTime;
         pawnCooltime -= Time.deltaTime;

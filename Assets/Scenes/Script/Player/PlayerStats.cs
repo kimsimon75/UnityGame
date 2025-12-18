@@ -5,7 +5,7 @@ using UnityEngine;
 
 public class PlayerStats : MonoBehaviour
 {
-    public int UnitCount;
+    [NonSerialized] public int UnitCount;
     [NonSerialized] public int[] CurrentHealth;
     [NonSerialized] public int[] MaxHealth;
     [NonSerialized] public int[] CurrentMana;
@@ -29,33 +29,33 @@ public class PlayerStats : MonoBehaviour
     [NonSerialized] public float[] doublePhysics;
     [NonSerialized] public float MoveSpeed;
     [NonSerialized] public float[] Radius;
-    public int player = 1;
+    [NonSerialized] public int player = 1;
     [NonSerialized] public float detectRange = 6f;
 
-    public int neutralizeDefense = 0;
-    public int MagicalBuffer;
-    public int MagicalDebuffer;
-    public float[] TrueDamage;
-    public int MoveSpeeDebuff;
-    public int TowerDamage;
-    public int TowerAttackSpeed;
+    [NonSerialized]public int neutralizeDefense = 0;
+    [NonSerialized]public int MagicalBuffer;
+    [NonSerialized]public int MagicalDebuffer;
+    [NonSerialized]public float[] TrueDamage;
+    [NonSerialized]public int MoveSpeeDebuff;
+    [NonSerialized]public int TowerDamage;
+    [NonSerialized]public int TowerAttackSpeed;
 
-    public float[] someSortOfSkillActive;
+    [NonSerialized]public float[] someSortOfSkillActive;
 
-    public int[] someSortOfSkillDuration;
+    [NonSerialized]public int[] someSortOfSkillDuration;
 
-    public float[] someSortOfSkillCooltime;
+    [NonSerialized]public float[] someSortOfSkillCooltime;
 
-    public SkillCool[] someSortOfSkillCooldown;
+    [NonSerialized]public SkillCool[] someSortOfSkillCooldown;
 
-    public float[] someSortOfSkillEffect;
+    [NonSerialized]public float[] someSortOfSkillEffect;
 
 
 
-    public TextMeshProUGUI text;
-    public ActionScript action;
+    [NonSerialized]public TextMeshProUGUI text;
+    [NonSerialized]public ActionScript action;
 
-    public ArmorType armorType;
+    [NonSerialized]public ArmorType armorType;
 
     void Awake()
     {
@@ -139,7 +139,7 @@ public class PlayerStats : MonoBehaviour
             attackCooldown[i] = 1f;
         }
 
- 
+        text = GameManager.Instance.unitCountTexts[player -1];
     }
 
     void Update()

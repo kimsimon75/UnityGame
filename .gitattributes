@@ -1,25 +1,21 @@
-# .gitattributes
-# =========================
-# 텍스트 파일은 저장소에는 LF, 체크아웃 시 OS 맞춤
+# 텍스트는 LF로 통일
 * text=auto eol=lf
 
-# C#/Shader/Unity 스크립트 강제 LF
-*.cs      text eol=lf
-*.shader  text eol=lf
-*.cginc   text eol=lf
-*.compute text eol=lf
-*.hlsl    text eol=lf
-
-# 바이너리
-*.png  binary
-*.jpg  binary
-*.fbx  binary
-*.psd  binary
-*.wav  binary
-
-
-*.psd filter=lfs diff=lfs merge=lfs -text
-*.fbx filter=lfs diff=lfs merge=lfs -text
-*.wav filter=lfs diff=lfs merge=lfs -text
-*.png filter=lfs diff=lfs merge=lfs -text
-*.jpg filter=lfs diff=lfs merge=lfs -text
+# 바이너리는 변환 금지
+*.png binary
+*.jpg binary
+*.gif binary
+*.mp3 binary
+*.wav binary
+*.fbx binary
+*.obj binary
+*.unity binary
+*.prefab binary
+*.mat binary
+*.asset binary
+*.controller binary
+*.anim binary
+*.meta binary
+*.dll binary
+*.exe binary
+*.gz  binary

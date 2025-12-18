@@ -18,6 +18,8 @@ public class HitPoint : StateMachineBehaviour
     private float attackDelay;
     public float hitTiming = .45f;
     private float duration = .15f;
+    
+    KillMyself killer ;
     public override void OnStateEnter(Animator animator, AnimatorStateInfo stateInfo, int layerIndex)
     {
         lastLoop = -1;
@@ -33,11 +35,21 @@ public class HitPoint : StateMachineBehaviour
 
         action.attackDisableTime[action.targetNumber] = Time.time + attackDelay;
 
+        killer = action.Clone.GetComponent<KillMyself>();
+        if (killer == null) killer = action.Clone.AddComponent<KillMyself>();
+
     }
 
     public override void OnStateUpdate(Animator animator, AnimatorStateInfo stateInfo, int layerIndex)
     {
         if (action.IsAttackDisabledFor(action.targetNumber)) return;
+
+        if (action.target[action.targetNumber] == null || !action.target[action.targetNumber].gameObject.activeInHierarchy /* || t.IsDead */)
+        {
+            action.Clone.SetActive(false);
+            animator.CrossFade("Idle", 0.0f, layerIndex); // 네 Idle 상태명으로
+            return;
+        }
 
         // 1) 전이 중이면 '우리가 붙어있는 상태가 Next인지' 확인하고, 맞으면 nextInfo로 교체
         AnimatorStateInfo info = stateInfo; // 기본은 전달받은 stateInfo
@@ -61,7 +73,7 @@ public class HitPoint : StateMachineBehaviour
 
         if (!hashitThisLoop && progress >= hitTiming)
         {
-            if (action.target[action.targetNumber] == null) return;
+            if (action.target[action.targetNumber] == null || !action.target[action.targetNumber].gameObject.activeInHierarchy) return;
 
             // ⚠ LightningBoltScript 사용법 수정: Start/EndObject를 '대상 오브젝트'로 지정하고
             // 오프셋은 Start/EndPosition으로 줘야 null 에러가 안 납니다.
@@ -70,8 +82,6 @@ public class HitPoint : StateMachineBehaviour
             lb.EndPosition = new Vector3(0, 1, 0);
 
             // 수명은 타이머로 처리 (애니메이터와 독립, 지연 없음)
-            var killer = action.Clone.GetComponent<KillMyself>();
-            if (killer == null) killer = action.Clone.AddComponent<KillMyself>();
             killer.Init(duration);   // duration = 0.15f 등
 
             action.Clone.SetActive(true);

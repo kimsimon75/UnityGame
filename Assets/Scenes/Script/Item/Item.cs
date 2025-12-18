@@ -684,7 +684,7 @@ public class List
         , 0f, 0, 0, 0, 0, 0f, 0f,5f
         ,0f, ArmorType.일반
         ,false , 0, 0, 0f, 0f, 0f},
-        { "헌터 국왕",new []{new ItemIngredient("헌터 국왕", ItemRank.희귀함, 1),new ItemIngredient("무기의 달인", ItemRank.희귀함, 1),new ItemIngredient("행성", ItemRank.희귀함, 1),new ItemIngredient("기억 조각", ItemRank.All, 3)},
+        { "헌터 국왕",new []{new ItemIngredient("헌터 국왕", ItemRank.희귀함, 1),new ItemIngredient("무기의 달인", ItemRank.희귀함, 1),new ItemIngredient("추적자", ItemRank.희귀함, 1),new ItemIngredient("기억 조각", ItemRank.All, 3)},
         0, 0, 0, 0, 0, 0f, 0f, 0f, 0, 0, 10, 0
         , 0f, 0, 0, 0, 0, 0f, 0f,5f
         ,0f, ArmorType.일반
@@ -1055,7 +1055,7 @@ public class List
         int rand = UnityEngine.Random.Range(rank == ItemRank.희귀함 ? 1 : 0, itemList[(int)rank].Count);
 
         Item item;
-        if(rank == ItemRank.희귀함 && UnityEngine.Random.Range(0, 100) <4)
+        if((rank == ItemRank.희귀함 || rank == ItemRank.특별함) && UnityEngine.Random.Range(0, 100) <4)
             item = FindItem("이브", ItemRank.히든);
         else
             item = itemList[(int)rank][rand];
@@ -1066,26 +1066,12 @@ public class List
             GotItem.Enqueue(item);
             SetUnity(item);
         }
+        SetCannon(item);
         if (logOut)
         {
-            string hex = ColorUtility.ToHtmlStringRGB(Color.black);
-            switch (rank)
-            {
-                case ItemRank.흔함:
-                    hex = ColorUtility.ToHtmlStringRGB(Color.green);
-                    break;
-                case ItemRank.안흔함:
-                    hex = ColorUtility.ToHtmlStringRGB(Color.purple);
-                    break;
-                case ItemRank.특별함:
-                    hex = ColorUtility.ToHtmlStringRGB(Color.yellow);
-                    break;
-                case ItemRank.희귀함:
-                    hex = "FF00FF";
-                    break;
-            }
+            string hex = ColorUtility.ToHtmlStringRGB(ItemManager.GetColor(item));
             GameManager.Instance.scrollView.ImageInit(currentItem[GameManager.Instance.Action.targetNumber]);
-            ItemManager.chat.Push($"<color=#{hex}>{rank}</color> 등급의 {item.Name} 획득");
+            ItemManager.chat.Push($"<color=#{hex}>{item.Rank}</color> 등급의 {item.Name} 획득");
         }
         ItemManager.Clear(ItemManager.GetEditItem(), false);
        return item;
@@ -1203,6 +1189,7 @@ public class List
                 {
                     GotItem.Remove(findItem);
                     DeleteUnrankedItem(findItem);
+                    UnSetCannon(findItem);
                 }
             }
 
@@ -1213,6 +1200,7 @@ public class List
                 SetUnity(item);
                 GameManager.Instance.scrollView.ImageInit(currentItem[GameManager.Instance.Action.targetNumber]);
             }
+            SetCannon(item);
             ItemManager.Clear(null, false);
         }
         return enough;
@@ -1230,9 +1218,12 @@ public class List
             }
             return itemDict;
         }
-
+        Item WillBeItem = null;
+        if(ItemManager.willBeGet != -1)
+            WillBeItem = itemList[(int)ItemRank.특별함][ItemManager.willBeGet];
         if (item.NecessaryItem.Count() == 0) return itemDict;
         bool isOkay = false;
+        bool notNow = false;
         foreach (ItemIngredient nItem in item.NecessaryItem)
         {
             itemDict.Add((FindItem(nItem.ItemName, nItem.Rank), nItem.Rank), nItem.Count);
@@ -1247,12 +1238,19 @@ public class List
                 string Key = kvp.Key.Item1;
                 ItemRank Key2 = kvp.Key.Item2;
                 ItemIngredient[] NecessaryItem = dict[(Key, Key2)].NecessaryItem;
-                if (NecessaryItem == Array.Empty<ItemIngredient>()) continue;
+                if (NecessaryItem == null || NecessaryItem.Length == 0) continue;
                 if (FindItem(NecessaryItem[0].ItemName, NecessaryItem[0].Rank).NecessaryItem == Array.Empty<ItemIngredient>()) continue;
-                if (dict[(kvp.Key.Item1, kvp.Key.Item2)].count < kvp.Value)
+                int extra = 0;
+                if(ItemManager.willBeGet != -1 && FindItem(kvp.Key.Item1, kvp.Key.Item2) == WillBeItem && kvp.Value == dict[(Key, Key2)].count + 1)
+                {
+                    extra++;
+                    notNow = true;
+                }
+
+                if (extra + dict[(Key, Key2)].count < kvp.Value)
                 {
                     isOkay = false;
-                    int necessaryCount = Mathf.Max(kvp.Value - dict[(Key, Key2)].count, 0);
+                    int necessaryCount = Mathf.Max(kvp.Value - dict[(Key, Key2)].count - extra, 0);
                     foreach (ItemIngredient nItem in dict[(Key, Key2)].NecessaryItem)
                     {
                         if (itemDict.ContainsKey((nItem.ItemName, nItem.Rank)))
@@ -1268,7 +1266,7 @@ public class List
                 }
             }
         }
-        if (combine)
+        if (!notNow && combine)
         {
             foreach (KeyValuePair<(string, ItemRank), int> nItem in itemDict)
             {
@@ -1285,6 +1283,7 @@ public class List
                     {
                         GotItem.Remove(items);
                         DeleteUnrankedItem(items);
+                        UnSetCannon(items);
                     }
                 }
 
@@ -1296,6 +1295,7 @@ public class List
                     SetUnity(item);
                     GameManager.Instance.scrollView.ImageInit(currentItem[GameManager.Instance.Action.targetNumber]);
                 }
+                SetCannon(item);
 
                 ItemManager.Clear(null, false);
             }
@@ -1325,7 +1325,6 @@ public class List
                 ItemIngredient[] NecessaryItem = dict[(Key, key2)].NecessaryItem;
                 if (NecessaryItem == Array.Empty<ItemIngredient>()) continue;
                 if (FindItem(NecessaryItem[0].ItemName, NecessaryItem[0].Rank).NecessaryItem == Array.Empty<ItemIngredient>()) continue;
-                Item targetItem = FindItem(NecessaryItem[0].ItemName, NecessaryItem[0].Rank);
                 isOkay = false;
                 int necessaryCount = kvp.Value;
                 foreach (ItemIngredient nItem in dict[(Key, key2)].NecessaryItem)
@@ -1522,6 +1521,53 @@ public class List
                 StatsDown(item, i);
                 DeleteRankedItem(item, i);  
             }
+        }
+    }
+
+    
+    private void SetCannon(Item item)
+    {
+        switch(item.Rank)
+        {
+            case ItemRank.흔함:
+                Cannon.SetCannon(1, 0);
+                break;
+            case ItemRank.안흔함:
+                Cannon.SetCannon(5, 1);
+                break;
+            case ItemRank.특별함:
+                Cannon.SetCannon(25, 5);
+                break;
+            case ItemRank.희귀함:
+                Cannon.SetCannon(100, 25);
+                break;
+            case ItemRank.전설적인:
+                break;
+            case ItemRank.히든:
+                break;
+        }
+    }
+
+    private void UnSetCannon(Item item)
+    {
+        switch(item.Rank)
+        {
+            case ItemRank.흔함:
+                Cannon.SetCannon(-1, 0);
+                break;
+            case ItemRank.안흔함:
+                Cannon.SetCannon(-5, -1);
+                break;
+            case ItemRank.특별함:
+                Cannon.SetCannon(-25, -5);
+                break;
+            case ItemRank.희귀함:
+                Cannon.SetCannon(-100, -25);
+                break;
+            case ItemRank.전설적인:
+                break;
+            case ItemRank.히든:
+                break;
         }
     }
 

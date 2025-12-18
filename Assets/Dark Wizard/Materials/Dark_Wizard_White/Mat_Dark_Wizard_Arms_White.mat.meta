@@ -1,0 +1,15 @@
+fileFormatVersion: 2
+guid: c5345a306e220824283f034e9d803bbf
+NativeFormatImporter:
+  externalObjects: {}
+  mainObjectFileID: 2100000
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 196164
+  packageName: Dark Wizard
+  packageVersion: 1.0
+  assetPath: Assets/Dark Wizard/Materials/Dark_Wizard_White/Mat_Dark_Wizard_Arms_White.mat
+  uploadId: 435496

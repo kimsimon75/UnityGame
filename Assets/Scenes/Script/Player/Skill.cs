@@ -5,9 +5,8 @@ using UnityEngine.AI;
 
 public class Skill : MonoBehaviour
 {
-    PlayerStats stats;
-    public Camera cam;
-    public LayerMask groundMask;
+    private PlayerStats stats;
+    private Camera cam;
     private NavMeshAgent agent;
     // Start is called once before the first execution of Update after the MonoBehaviour is created
 

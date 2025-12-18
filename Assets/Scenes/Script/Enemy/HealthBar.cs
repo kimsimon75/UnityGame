@@ -45,9 +45,9 @@ public class HealthBar : MonoBehaviour
         if (!worldBar)
         {
             // a) 내 부모 중에 Summoner가 있을 때
-            GameManager summoner = GetComponentInParent<GameManager>();
+            GameManager summoner = GameManager.Instance;
             if (summoner)
-                worldBar = summoner.transform.Find("Player1Zone/MagicZone/Player UI/WorldBars");
+                worldBar = summoner.transform.Find("Player1Zone/Player UI/WorldBars");
             else
                 Debug.LogError("[HealthBar] Screen-space Canvas를 찾지 못했습니다. 인스펙터에 summoner 할당하세요.");
 

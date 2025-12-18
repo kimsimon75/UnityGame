@@ -138,9 +138,10 @@ public class DataManager : MonoBehaviour
         3,
     };
     static public DataManager Instance = null;
-    void Awake()
+
+    public void Init()
     {
-        Instance = this;
+                Instance = this;
         imageDict = new Dictionary<Sprite, ItemRank>();
 
         sprites = new Sprite[3][]
@@ -176,6 +177,10 @@ public class DataManager : MonoBehaviour
                 Resources.Load<Sprite>("Key/로테이션"),
             }
         };
+
+    }
+    void Awake()
+    {
 
     }
 

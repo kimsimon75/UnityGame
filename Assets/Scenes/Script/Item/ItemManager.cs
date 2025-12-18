@@ -283,7 +283,7 @@ public class ItemManager : MonoBehaviour
         if (list.FindItem("기억 조각", ItemRank.All).count >= neccesary)
         {
             int rand = UnityEngine.Random.Range(0, 100);
-            Color color = Color.black;
+            Color color;
             switch (rank)
             {
                 case ItemRank.흔함:
@@ -298,8 +298,6 @@ public class ItemManager : MonoBehaviour
                             chat.Push($"<color=#{hex}>히든</color> 등급의 함선 획득.");
                             return;
                         }
-
-                        int count = list.itemList[1].Count + list.itemList[2].Count;
                         rand = UnityEngine.Random.Range(0, 100);
 
                         if (rand < 50)
@@ -347,37 +345,24 @@ public class ItemManager : MonoBehaviour
                     }
                     else
                     {
-                        if (UnityEngine.Random.Range(0, 100) < 4)
-                        {
-                            SetUpState(list.FindItem("이브", ItemRank.히든));
-                            string hex = UnityEngine.ColorUtility.ToHtmlStringRGB(Color.skyBlue);
-                            chat.Push($"<color=#{hex}>히든</color> 등급의 이브 획득.");
-                        }
-                        else
                         {
                             if (UnityEngine.Random.Range(0, 100) < 50)
                             {
-                                rand = UnityEngine.Random.Range(1, list.itemList[(int)ItemRank.희귀함].Count);
-                                item = list.itemList[(int)ItemRank.희귀함][rand];
-                                item.count++;
-
-                                chat.Push($"고급 도박으로 <color=#FF00FF>{item.Rank}</color> 등급의 {item.Name} 획득.");
+                                item = list.GetRandomItem(ItemRank.희귀함, false);
                             }
                             else
                             {
                                 item = list.GetRandomItem(ItemRank.특별함, false);
-
-                                chat.Push($"고급 도박으로 <color=Yellow>{item.Rank}</color> 등급의 {item.Name} 획득.");
                             }
                         }
+                        Color color1 = GetColor(item);
+                        chat.Push($"고급 도박으로 <color=#{UnityEngine.ColorUtility.ToHtmlStringRGBA(color1)}>{item.Rank}</color> 등급의 {item.Name} 획득");
                     }
                     break;
                     default:
                     chat.Push("알 수 없는 아이템 명령어");
                     break;
             }
-            if(item != null && item.count == 1)
-                GameManager.Instance.scrollView.ImageInit(list.currentItem[GameManager.Instance.Action.targetNumber]);
             list.FindItem("기억 조각", ItemRank.All).count -= neccesary;
             Clear(editItem, false);
         }
@@ -388,7 +373,10 @@ public class ItemManager : MonoBehaviour
     public void SetUpState(Item item)
     {
         item.count++;
-        if (item.count == 1) list.GotItem.Enqueue(item);
+        if (item.count == 1)
+        {
+            list.GotItem.Enqueue(item);
+        }
         Clear(editItem, false);
     }
 
@@ -408,6 +396,7 @@ public class ItemManager : MonoBehaviour
 
     public void Clear(Item item, bool ClearStatus)
     {
+        if(item != null && item.Rank == 0) return;
         editItem = item;
         list.Clear();
 
@@ -417,7 +406,7 @@ public class ItemManager : MonoBehaviour
             ItemList.SetActive(true);
         }
 
-        if (item == null)
+        if (item == null) // 아이템 누르기 전 메뉴창
         {
             string str = "Items/row1";
 
@@ -460,7 +449,8 @@ public class ItemManager : MonoBehaviour
                     int all = 0;
                     foreach (KeyValuePair<(string, ItemRank), int> kvp in dict)
                     {
-                        all += Mathf.Max(0, kvp.Value - list.FindItem(kvp.Key.Item1, kvp.Key.Item2).count);
+                        if(kvp.Key.Item2 == ItemRank.흔함)
+                            all += Mathf.Max(0, kvp.Value - list.FindItem(kvp.Key.Item1, kvp.Key.Item2).count);
                     }
                     countText[1].text = all.ToString();
 
@@ -510,14 +500,13 @@ public class ItemManager : MonoBehaviour
                     images[i].transform.Find("number1").gameObject.SetActive(true);
                     TextMeshProUGUI countText = images[i].GetComponentInChildren<TextMeshProUGUI>();
                     countText.text = it.count.ToString();
-
                     i++;
                 }
             }
                 
         }
 
-        else
+        else // 아이템 눌렀을 때
         {
             Item targetItem = item;
             List<Item> parentItems = targetItem.GetParent();
@@ -535,6 +524,7 @@ public class ItemManager : MonoBehaviour
             images[10 * 2].sprite = item.Resource;
             UnityEngine.UI.Outline targetItemLine = buttons[10 * 2].GetComponent<UnityEngine.UI.Outline>();
             Dictionary<(string, ItemRank), int> Colordict = list.CombineAllItem(targetItem, false);
+            Debug.Log(Colordict);
 
             int all = 0;
             foreach (KeyValuePair<(string, ItemRank), int> kvp in Colordict)
@@ -602,10 +592,6 @@ public class ItemManager : MonoBehaviour
                         all += neccesary;
                     }
                     else countText.text = "0";
-                }
-                foreach (KeyValuePair<(string, ItemRank), int> kvp in Colordict)
-                {
-                    Debug.Log($"{kvp.Key.Item1}, {kvp.Key.Item2}, {kvp.Value}");
                 }
 
                 images[10 * 5 + j].sprite = list.FindItem("만물석", ItemRank.All).Resource;

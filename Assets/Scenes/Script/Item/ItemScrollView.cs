@@ -47,7 +47,6 @@ public class ItemScrollView : MonoBehaviour
     {
         int count = items.Count;
         int panelCount = panels.Count;
-        Debug.Log("Set");
         if (count > panelCount)
         {
             for (int i = 0; i < count - panelCount; i++) AddImage();
@@ -133,8 +132,6 @@ public class ItemScrollView : MonoBehaviour
             panels[i].transform.Find("Item").GetComponent<Image>().sprite = item.Resource;
 
             texts[i++].text = item.count.ToString();
-
-            Debug.Log(item.Name);
         }
     }
 }

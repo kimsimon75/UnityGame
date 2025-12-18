@@ -22,16 +22,15 @@ public class ActionScript : MonoBehaviour
     public int TargetNumberMax => targetNumberMax;
     [NonSerialized] public Transform[] target = new Transform[targetNumberMax];
     [NonSerialized] public int targetNumber = 5;
-    public NavMeshHit point;
+    [NonSerialized] public NavMeshHit point;
     [NonSerialized] public float[] attackDisableTime = new float[targetNumberMax];
     [NonSerialized] public bool[] isStop = new bool[targetNumberMax];
-    public Actor targetParent = null;
     private bool OnTheStory = false;
-    public Transform statsTarget = null;
-    public Camera mainCamera;
+    [NonSerialized] public Transform statsTarget = null;
+    [NonSerialized] public Camera mainCamera;
 
-    public Transform StoryCannon;
-    public Transform MagicZone;
+    [NonSerialized] public Transform StoryCannon;
+    private Transform MagicZone;
 
     private float zoomSpeed = 10f;
     private float minDistance = 30f;
@@ -40,7 +39,7 @@ public class ActionScript : MonoBehaviour
     private float targetDistance;
     private float zoomVelocity;
     private float smoothTimeZoom = 0.10f;
-    public GameObject Lightning;
+    [NonSerialized] public GameObject Lightning;
     [NonSerialized] public GameObject Clone;
     ItemScrollView ScrollView;
 
@@ -55,8 +54,11 @@ public class ActionScript : MonoBehaviour
         agent = GetComponent<NavMeshAgent>();
         move = GetComponent<AgentMove>();
         stats = GetComponent<PlayerStats>();
+        Lightning = GameManager.Instance.Lightnings;
+        StoryCannon = GameManager.Instance.Cannons.transform;
 
         TriggerHold();
+        mainCamera = Camera.main;
         targetDistance = mainCamera.fieldOfView;
         mainCamera.transform.position = transform.position + camOffset;
 
@@ -68,7 +70,16 @@ public class ActionScript : MonoBehaviour
         Clone.GetComponent<LightningBoltScript>().StartObject = gameObject;
         Clone.SetActive(false);
         ScrollView = GameManager.Instance.scrollView;
+        MagicZone = GameManager.Instance.magicZone;
 
+        if(item == null)
+        {
+            Debug.Log("item = null");
+        }
+        if(item.list == null)
+        {
+            Debug.Log("itemlist = null");
+        }
         var targetQueue = item.list.currentItem[targetNumber];
         if (targetQueue == null || targetQueue.Count == 0)
         {
@@ -154,7 +165,13 @@ public class ActionScript : MonoBehaviour
             }
             else
             {
-                    statsTarget = GameManager.Instance.Detector.hit.transform;
+                LayerMask mask = LayerMask.GetMask("Enemy", "Cannon");
+                Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
+
+                if (Physics.Raycast(ray, out RaycastHit hitInfo, 100f, mask))
+                {
+                    statsTarget = hitInfo.transform;
+                }
             }
 
         }

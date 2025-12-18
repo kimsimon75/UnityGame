@@ -1,0 +1,19 @@
+﻿<Solution>
+  <Project Path="Unity.ShaderGraph.Editor.csproj" />
+  <Project Path="UnityGLTF.Interactivity.Runtime.csproj" />
+  <Project Path="Unity.RenderPipelines.Universal.Editor.csproj" />
+  <Project Path="GLTFSerialization.csproj" />
+  <Project Path="UnityGLTF.Interactivity.VisualScripting.Export.Editor.csproj" />
+  <Project Path="Assembly-CSharp.csproj" />
+  <Project Path="Unity.VisualScripting.Flow.csproj" />
+  <Project Path="UnityEditor.UI.csproj" />
+  <Project Path="UnityGLTF.Plugins.Experimental.csproj" />
+  <Project Path="UnityGLTFScripts.csproj" />
+  <Project Path="UnityGLTF.ShaderGraph.csproj" />
+  <Project Path="UnityGLTFEditor.csproj" />
+  <Project Path="Assembly-CSharp-Editor.csproj" />
+  <Project Path="UnityGLTF.Helpers.csproj" />
+  <Project Path="UnityGLTF.Interactivity.VisualScripting.Editor.csproj" />
+  <Project Path="UnityGltf.RenderPipelines.csproj" />
+  <Project Path="UnityGLTF.Interactivity.VisualScripting.Runtime.csproj" />
+</Solution>
