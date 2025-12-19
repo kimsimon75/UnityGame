@@ -135,7 +135,7 @@ public class ItemManager : MonoBehaviour
 
     void Update()
     {
-        if(!GameManager.Instance.itemList.activeSelf)
+        if(!GameManager.Instance.items.activeSelf)
             return;
         if (Input.GetKeyDown(KeyCode.BackQuote))
         {
@@ -330,7 +330,7 @@ public class ItemManager : MonoBehaviour
                             return;
                         }
 
-                        item = list.GetRandomItem(ItemRank.특별함, false);
+                        item = list.GetRandomItem(ItemRank.특별함, false, false);
 
                         chat.Push($"중급 도박으로 <color=Yellow>{item.Rank}</color> 등급의 {item.Name} 획득.");
                     }
@@ -348,11 +348,11 @@ public class ItemManager : MonoBehaviour
                         {
                             if (UnityEngine.Random.Range(0, 100) < 50)
                             {
-                                item = list.GetRandomItem(ItemRank.희귀함, false);
+                                item = list.GetRandomItem(ItemRank.희귀함, false, true);
                             }
                             else
                             {
-                                item = list.GetRandomItem(ItemRank.특별함, false);
+                                item = list.GetRandomItem(ItemRank.특별함, false, true);
                             }
                         }
                         Color color1 = GetColor(item);
@@ -364,7 +364,6 @@ public class ItemManager : MonoBehaviour
                     break;
             }
             list.FindItem("기억 조각", ItemRank.All).count -= neccesary;
-            Clear(editItem, false);
         }
         else chat.Push("기억 조각이 부족합니다");
 
@@ -376,6 +375,8 @@ public class ItemManager : MonoBehaviour
         if (item.count == 1)
         {
             list.GotItem.Enqueue(item);
+            list.SetUnity(item);
+            GameManager.Instance.scrollView.ImageInit(list.currentItem[GameManager.Instance.Action.targetNumber]);
         }
         Clear(editItem, false);
     }
@@ -397,6 +398,7 @@ public class ItemManager : MonoBehaviour
     public void Clear(Item item, bool ClearStatus)
     {
         if(item != null && item.Rank == 0) return;
+        if(!gameObject.activeSelf) return;
         editItem = item;
         list.Clear();
 
@@ -405,6 +407,8 @@ public class ItemManager : MonoBehaviour
             editItemStatus.SetActive(false);
             ItemList.SetActive(true);
         }
+
+        if(!ItemList.activeSelf) return;
 
         if (item == null) // 아이템 누르기 전 메뉴창
         {
@@ -445,7 +449,7 @@ public class ItemManager : MonoBehaviour
                     else
                         images[i].sprite = sprite;
                     TextMeshProUGUI[] countText = images[i].GetComponentsInChildren<TextMeshProUGUI>();
-                    Dictionary<(string, ItemRank), int> dict = list.CombineAllItem(Items[i], false);
+                    Dictionary<(string, ItemRank), int> dict = list.CombineAllItem(Items[i]);
                     int all = 0;
                     foreach (KeyValuePair<(string, ItemRank), int> kvp in dict)
                     {
@@ -523,8 +527,7 @@ public class ItemManager : MonoBehaviour
 
             images[10 * 2].sprite = item.Resource;
             UnityEngine.UI.Outline targetItemLine = buttons[10 * 2].GetComponent<UnityEngine.UI.Outline>();
-            Dictionary<(string, ItemRank), int> Colordict = list.CombineAllItem(targetItem, false);
-            Debug.Log(Colordict);
+            Dictionary<(string, ItemRank), int> Colordict = list.CombineAllItem(targetItem);
 
             int all = 0;
             foreach (KeyValuePair<(string, ItemRank), int> kvp in Colordict)
@@ -608,6 +611,12 @@ public class ItemManager : MonoBehaviour
 
         }
 
+    }
+
+    public void FakeClear(Item item)
+    {
+        if(editItem != null)return;
+        if(rank != (int)item.Rank) return;
     }
 
     public  Item GetEditItem() { return  editItem; }

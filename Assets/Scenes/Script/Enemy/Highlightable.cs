@@ -21,11 +21,6 @@ public class Highlightable : MonoBehaviour
         // 반드시 켜져 있어야 OnEnable()에서 머티리얼이 붙음
         if (!_outline.enabled) _outline.enabled = true;
 
-        // 두께 0이면 아무 색도 안 보임 → 기본값 보정
-        if (_outline.OutlineWidth <= 0f) _outline.OutlineWidth = 2f;
-
-        _orig = _outline.OutlineColor;
-
     }
     public void RemoveTintRequest()
     {

@@ -47,7 +47,7 @@ public class ActionScript : MonoBehaviour
     void Start()
     {
         item = GameManager.Instance.ItemManager;
-        itemList = GameManager.Instance.itemList;
+        itemList = GameManager.Instance.items;
         anim = GetComponent<Animator>();
         attack = GetComponent<PlayerAttack>();
         hold = GetComponent<HoldScanner>();

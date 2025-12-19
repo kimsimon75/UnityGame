@@ -35,7 +35,7 @@ public class KeyButton : MonoBehaviour, IPointerClickHandler, IPointerEnterHandl
         }
         else if (eventData.button == PointerEventData.InputButton.Left)
         {
-            if (GameManager.Instance.itemList.activeSelf) { itemManager.TriggerMany(number,1); }
+            if (GameManager.Instance.items.activeSelf) { itemManager.TriggerMany(number,1); }
             else
             {
                 GameManager.Instance.Trigger(number);

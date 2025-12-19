@@ -4,7 +4,7 @@ using UnityEngine.UI;
 using static MyMathf;
 public class ItemScript : MonoBehaviour
 {
-    GameObject obj;
+    GameObject items;
     ItemManager item;
     private Image[] keyValueImages;
 
@@ -20,7 +20,7 @@ public class ItemScript : MonoBehaviour
         skillCooldown = GameManager.Instance.skillCooldown;
         someSortOfSkillCooldown = GameManager.Instance.player.someSortOfSkillCooldown;
         item = GameManager.Instance.ItemManager;
-        obj = item.transform.Find("Items").gameObject;
+        items = GameManager.Instance.items;
 
         keyValueImages = GameManager.Instance.Images;
         for (int i = 0; i < sprites.Length; i++)
@@ -58,9 +58,9 @@ public class ItemScript : MonoBehaviour
             {
                 keyValueImages[i].GetComponent<UnityEngine.UI.Outline>().enabled = false;
             }
-                obj.SetActive(!obj.activeSelf);
+            items.SetActive(!items.activeSelf);
 
-            if (obj.activeSelf)
+            if (items.activeSelf)
             {
                 for (int i = 0; i < DataManager.NumCount; i++)
                 {
@@ -78,7 +78,7 @@ public class ItemScript : MonoBehaviour
             }
         }
 
-        if(Input.GetKeyDown(KeyCode.D) && !obj.activeSelf)
+        if(Input.GetKeyDown(KeyCode.D) && !items.activeSelf)
         {
             SetKey();
         }
@@ -86,13 +86,13 @@ public class ItemScript : MonoBehaviour
 
         for (int i = 0; i < DataManager.NumCount-1; i++)
         {
-            darkImg[i].fillAmount = GameManager.Instance.itemList.activeSelf ? 0 : 
+            darkImg[i].fillAmount = GameManager.Instance.items.activeSelf ? 0 : 
             (GameManager.Instance.SkillToggle ? (someSortOfSkillCooldown[i].Remaining / GameManager.Instance.player.someSortOfSkillCooltime[i]) :
              (skillCooldown[i].Remaining / GameManager.Instance.skillCoolInit[i]));
         }
 
 
-        if (!GameManager.Instance.itemList.gameObject.activeInHierarchy) return;
+        if (!GameManager.Instance.items.gameObject.activeInHierarchy) return;
 
         if (TryGetNumericKey(out int number))
         {

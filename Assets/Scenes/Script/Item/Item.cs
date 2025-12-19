@@ -59,6 +59,7 @@ public sealed class Item : IComparable<Item>
     public float DamageUp { get; private set; }
     public float AttackRange { get; private set; }
     public List<Item> parents { get; private set; }
+    public Dictionary<(string, ItemRank), int> ItemIngredientDict;
 
     public Item(string name, ItemIngredient[] neccesaryItem, ItemRank rank, byte id, Sprite resource,
     int attackPower, int additionalAttackPower, int neutralizeDefense, int magicalBuffer, int magicalDebuffer, float trueDamage, float healthRegen, float manaRegen, int moveSpeed, int attackSpeed, int towerDamage, int towerAttackSpeed,
@@ -1050,22 +1051,17 @@ public class List
         GameManager.Instance.scrollView.ImageInit(currentItem[GameManager.Instance.Action.targetNumber]);
     }
 
-    public Item GetRandomItem(ItemRank rank, bool logOut = true)
+    public Item GetRandomItem(ItemRank rank, bool logOut = true, bool rareGacha = false )
     {
         int rand = UnityEngine.Random.Range(rank == ItemRank.희귀함 ? 1 : 0, itemList[(int)rank].Count);
 
         Item item;
-        if((rank == ItemRank.희귀함 || rank == ItemRank.특별함) && UnityEngine.Random.Range(0, 100) <4)
+        if((rank == ItemRank.희귀함 || rank == ItemRank.특별함) && UnityEngine.Random.Range(0, 100) <4 && rareGacha)
             item = FindItem("이브", ItemRank.히든);
         else
             item = itemList[(int)rank][rand];
 
-        item.count++;
-        if (item.count == 1)
-        {
-            GotItem.Enqueue(item);
-            SetUnity(item);
-        }
+        ItemManager.SetUpState(item);
         SetCannon(item);
         if (logOut)
         {
@@ -1073,7 +1069,6 @@ public class List
             GameManager.Instance.scrollView.ImageInit(currentItem[GameManager.Instance.Action.targetNumber]);
             ItemManager.chat.Push($"<color=#{hex}>{item.Rank}</color> 등급의 {item.Name} 획득");
         }
-        ItemManager.Clear(ItemManager.GetEditItem(), false);
        return item;
     }
     public void GetSoulParts(int count)
@@ -1110,7 +1105,6 @@ public class List
         if (count <= 0) return;
         int Mana = Mathf.Min((int)((GameManager.Instance.GetRound() * 1.5f) + 20) * count, 100);
         GameManager.Instance.energy.currentEnergy += Mana;
-        ItemManager.Clear(ItemManager.GetEditItem(), false);
     }
 
     public void ChangeSouls()
@@ -1193,24 +1187,18 @@ public class List
                 }
             }
 
-            item.count++;
-            if (item.count == 1)
-            {
-                GotItem.Enqueue(item);
-                SetUnity(item);
-                GameManager.Instance.scrollView.ImageInit(currentItem[GameManager.Instance.Action.targetNumber]);
-            }
+            
+            ItemManager.SetUpState(item);
             SetCannon(item);
             ItemManager.Clear(null, false);
         }
         return enough;
     }
 
-    public Dictionary<(string, ItemRank), int> CombineAllItem(Item item, bool combine)
+    public Dictionary<(string, ItemRank), int> CombineAllItem(Item item)
     {
-        
         Dictionary<(string, ItemRank), int> itemDict = new Dictionary<(string, ItemRank), int>();
-        if (item.Name == "행운의 토큰" && item.Rank == ItemRank.희귀함 && combine == true)
+        if (item.Name == "행운의 토큰" && item.Rank == ItemRank.희귀함)
         {
             if (item.count >= 3)
             {
@@ -1223,7 +1211,6 @@ public class List
             WillBeItem = itemList[(int)ItemRank.특별함][ItemManager.willBeGet];
         if (item.NecessaryItem.Count() == 0) return itemDict;
         bool isOkay = false;
-        bool notNow = false;
         foreach (ItemIngredient nItem in item.NecessaryItem)
         {
             itemDict.Add((FindItem(nItem.ItemName, nItem.Rank), nItem.Rank), nItem.Count);
@@ -1244,7 +1231,6 @@ public class List
                 if(ItemManager.willBeGet != -1 && FindItem(kvp.Key.Item1, kvp.Key.Item2) == WillBeItem && kvp.Value == dict[(Key, Key2)].count + 1)
                 {
                     extra++;
-                    notNow = true;
                 }
 
                 if (extra + dict[(Key, Key2)].count < kvp.Value)
@@ -1266,42 +1252,60 @@ public class List
                 }
             }
         }
-        if (!notNow && combine)
-        {
-            foreach (KeyValuePair<(string, ItemRank), int> nItem in itemDict)
-            {
-                if (dict[(nItem.Key.Item1, nItem.Key.Item2)].count < nItem.Value) return itemDict;
-            }
-            if ((itemDict.ContainsKey(("만물석", ItemRank.All)) && itemDict[("만물석", ItemRank.All)] <= dict[("만물석", ItemRank.All)].count) || !itemDict.ContainsKey(("만물석", ItemRank.All)))
-            {
-                foreach (KeyValuePair<(string, ItemRank), int> nItem in itemDict)
-                {
-                    Item items = dict[nItem.Key];
-
-                    items.count -= nItem.Value;
-                    if (items.count == 0)
-                    {
-                        GotItem.Remove(items);
-                        DeleteUnrankedItem(items);
-                        UnSetCannon(items);
-                    }
-                }
-
-                item.count++;
-
-                if (item.count == 1)
-                {
-                    GotItem.Enqueue(item);
-                    SetUnity(item);
-                    GameManager.Instance.scrollView.ImageInit(currentItem[GameManager.Instance.Action.targetNumber]);
-                }
-                SetCannon(item);
-
-                ItemManager.Clear(null, false);
-            }
-        }
+        item.ItemIngredientDict = itemDict;
         return itemDict;
     }
+
+    public void CombineSmart(Item item)
+    {
+        var itemDict = item.ItemIngredientDict;
+
+        foreach (var kvp in itemDict.ToList())
+        {
+            if (kvp.Key.Item2 != ItemRank.흔함) continue;
+
+            int need = kvp.Value;
+            int have = dict[(kvp.Key.Item1, ItemRank.흔함)].count;
+
+            int shortage = Mathf.Max(need - have, 0);   // 부족분(0 이상)
+            int useCommon = need - shortage;            // 실제로 소모할 흔함 재료
+
+            // 흔함 재료 요구량을 "소모량"으로 바꿈
+            if (useCommon <= 0) itemDict.Remove((kvp.Key.Item1, ItemRank.흔함));
+            else itemDict[(kvp.Key.Item1, ItemRank.흔함)] = useCommon;
+
+            // 부족분은 만물석으로 대체
+            if (shortage > 0)
+            {
+                var key = ("만물석", ItemRank.All);
+                if (itemDict.ContainsKey(key)) itemDict[key] += shortage;
+                else itemDict.Add(key, shortage);
+            }
+        }
+
+        // 재료 충분한지 체크
+        foreach (var kvp in itemDict)
+            if (dict[(kvp.Key.Item1, kvp.Key.Item2)].count < kvp.Value) return;
+
+        // 실제 차감
+        foreach (var kvp in itemDict)
+        {
+            Item items = dict[kvp.Key];
+            items.count -= kvp.Value;
+
+            if (items.count <= 0)
+            {
+                GotItem.Remove(items);
+                DeleteUnrankedItem(items);
+                UnSetCannon(items);
+            }
+        }
+
+        ItemManager.SetUpState(item);
+        SetCannon(item);
+        ItemManager.Clear(null, false);
+    }
+
 
     public Dictionary<(string, ItemRank), int> DissolutionAll(Item item)
     {
@@ -1321,7 +1325,6 @@ public class List
             {
                 string Key = kvp.Key.Item1;
                 ItemRank key2 = kvp.Key.Item2;
-                Debug.Log($"{Key}, {key2}");
                 ItemIngredient[] NecessaryItem = dict[(Key, key2)].NecessaryItem;
                 if (NecessaryItem == Array.Empty<ItemIngredient>()) continue;
                 if (FindItem(NecessaryItem[0].ItemName, NecessaryItem[0].Rank).NecessaryItem == Array.Empty<ItemIngredient>()) continue;
@@ -1349,23 +1352,23 @@ public class List
         {
             UnitySet(0, item);
         }
-        if (item.Rank != ItemRank.상위 && item.BossPercentAttack == true)
+        else if (item.Rank != ItemRank.상위 && item.BossPercentAttack == true)
         {
             UnitySet(1, item);
         }
-        if (item.Rank != ItemRank.상위 && item.MultiStun != 0)
+        else if (item.Rank != ItemRank.상위 && item.MultiStun != 0)
         {
             UnitySet(2, item);
         }
-        if (item.Rank != ItemRank.상위 && item.Percent != 0 && item.PercentCategory == 1)
+        else if (item.Rank != ItemRank.상위 && item.Percent != 0 && item.PercentCategory == 1)
         {
             UnitySet(3, item);
         }
-        if (item.Rank == ItemRank.상위)
+        else if (item.Rank == ItemRank.상위)
         {
             UnitySet(4, item);
         }
-        if (item.Rank != ItemRank.상위 && (
+        else if (item.Rank != ItemRank.상위 && (
             item.Percent == 0 &&
             item.BossPercentAttack == false &&
             item.MultiStun == 0))
@@ -1385,6 +1388,10 @@ public class List
     {
         if (item.Rank <= ItemRank.흔함) return;
         int shift = item.Rank - ItemRank.안흔함;
+        if(item.Name == "함선" && item.Rank == ItemRank.히든)
+            shift = ItemRank.특별함 - ItemRank.안흔함;
+        if(item.Name == "이브" && item.Rank == ItemRank.히든)
+            shift = ItemRank.희귀함 - ItemRank.안흔함;
         if (shift < 0 || shift >= 31)
         {
             Debug.LogError($"Rank shift 값이 비정상입니다: {shift}");
@@ -1642,6 +1649,7 @@ public class List
 
     public float SetSkill(Actor actor, Item item)//확률, 단일 물리 데미지, 범위 물리 데미지, 단일 마법데미지, 범위 마법 데미지, 단일 스턴, 범위 스턴, 스킬 범위,단일 퍼센트 데미지, 끝딜 퍼센트 데미지, 전퍼, 현퍼, 잃퍼
     {
+        if(item.Range == 0 && actor.isDead) return 0;
         string name = item.Name;
 
         ItemRank rank = item.Rank;
@@ -1668,6 +1676,8 @@ public class List
 
         int rand = UnityEngine.Random.Range(0, 10000);
 
+        bool SkillOn = false;
+
         for(int i=0;i<item.count;i++)
         if (rand < Mathf.Ceil(Probability * 100))
         {
@@ -1680,22 +1690,20 @@ public class List
             actor.TakeDamageAll_magics(MultiMagic, MonoMagic, Range, false);
 
             actor.TakeDamageAll_percentage(Percent, Percent, Range,percentKind, PercentageCategory, BossPercentAttack);
-        }
 
-        rand = UnityEngine.Random.Range(0, 10000);
-
-        float MultiPercentage = (1f - Mathf.Pow(1f - Probability / 100f, item.count)) * 100; // 다중 확률
-        
-        if (MultiPercentage * 100 >= rand)
-        {
             if(name == "좀비" && rank == ItemRank.안흔함)
                 {
-                    FindItem(name, rank).count++;
-                    ItemManager.Clear(ItemManager.editItem, false);
-                    GameManager.Instance.scrollView.ImageInit(currentItem[GameManager.Instance.Action.targetNumber]);
+                    SkillOn = true;
                 }
-            DamagePercentage += DamageUp;
         }
+
+        if (SkillOn)
+        {
+            DamagePercentage += DamageUp;
+            if(name == "좀비" && rank == ItemRank.안흔함 && actor.isDead)
+                ItemManager.SetUpState(item);
+        }
+        
         return DamagePercentage;
     }
 }

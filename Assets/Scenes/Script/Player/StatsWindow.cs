@@ -1,3 +1,4 @@
+using System;
 using System.Text;
 using TMPro;
 using UnityEngine;
@@ -5,17 +6,19 @@ using UnityEngine;
 public class StatsWindow : MonoBehaviour
 {
     // Start is called once before the first execution of Update after the MonoBehaviour is created
-    public PlayerStats stats;
-    public ActionScript action;
-    private TextMeshProUGUI texts;
+    [NonSerialized] public PlayerStats stats;
+    [NonSerialized] public ActionScript action;
+    private TextMeshProUGUI PlayerStats;
     void Start()
     {
-        texts = GetComponentInChildren<TextMeshProUGUI>();
+        PlayerStats = GameManager.Instance.PlayerStats;
     }
 
     // Update is called once per frame
     void Update()
     {
+        action = GetComponent<ActionScript>();
+        stats = GetComponent<PlayerStats>();
 
         int targetNumber = action.targetNumber;
         StringBuilder stringBuilder = new StringBuilder();
@@ -40,7 +43,7 @@ public class StatsWindow : MonoBehaviour
         }
         else if (keyValue != DataManager.NumCount -1)
         {
-            if (GameManager.Instance.itemList.activeSelf)
+            if (GameManager.Instance.items.activeSelf)
             {
                 switch ((DataManager.Num)keyValue)
                 {
@@ -141,6 +144,6 @@ public class StatsWindow : MonoBehaviour
             stringBuilder.AppendLine("스킬들을 변경합니다.");
         }
 
-        texts.text = stringBuilder.ToString();
+        PlayerStats.text = stringBuilder.ToString();
     }
 }

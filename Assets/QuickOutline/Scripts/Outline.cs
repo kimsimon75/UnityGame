@@ -99,18 +99,18 @@ public class Outline : MonoBehaviour {
     needsUpdate = true;
   }
 
-  void OnEnable() {
-    foreach (var renderer in renderers) {
-
-      // Append outline shaders
-      var materials = renderer.sharedMaterials.ToList();
-
-      materials.Add(outlineMaskMaterial);
-      materials.Add(outlineFillMaterial);
-
-      renderer.materials = materials.ToArray();
-    }
+ void OnEnable() {
+  foreach (var renderer in renderers) {
+    var materials = renderer.sharedMaterials.ToList();
+    materials.Add(outlineMaskMaterial);
+    materials.Add(outlineFillMaterial);
+    renderer.materials = materials.ToArray();
   }
+
+  UpdateMaterialProperties(); // ✅ 첫 렌더 전에 바로 적용
+  needsUpdate = false;
+}
+
 
   void OnValidate() {
 

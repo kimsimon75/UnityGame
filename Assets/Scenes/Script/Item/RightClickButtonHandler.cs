@@ -49,33 +49,23 @@ public class RightClickButtonHandler : MonoBehaviour, IPointerClickHandler, IPoi
         {
             if (Input.GetKey(KeyCode.LeftControl) || Input.GetKey(KeyCode.RightControl))
             {
-
-                Debug.Log("Ctrl + 오른쪽 클릭됨!");
                 // 여기에 Ctrl+우클릭용 로직
                 CtrlRightClickTrigger(img);
             }
             else
             {
-                Debug.Log("오른쪽 클릭됨!");
                 RightButtonTrigger(img); // 여기에 원하는 트리거 함수 호출
             }
         }
     }
     void RightButtonTrigger(Image image)
     {
-        // 원하는 행동 수행
-        Debug.Log("Right-click triggered!");
         if (!item.list.CombineItem(item.list.FindItem(image.sprite.name, DataManager.Instance.imageDict[image.sprite])))
             Debug.LogError("아이템이 모자라거나 만물석임");
     }
     void CtrlRightClickTrigger(Image image)
     {
-        Dictionary<(string, ItemRank), int> dict = item.list.CombineAllItem(item.list.FindItem(image.sprite.name, DataManager.Instance.imageDict[image.sprite]), true);
-
-        foreach (KeyValuePair<(string, ItemRank), int> kvp in dict)
-        {
-            Debug.Log($"{kvp.Key}, {kvp.Value}");
-        }
+        item.list.CombineSmart(item.list.FindItem(image.sprite.name, DataManager.Instance.imageDict[image.sprite]));
     }
 
     void LeftButtonTrigger()
@@ -104,7 +94,7 @@ public class RightClickButtonHandler : MonoBehaviour, IPointerClickHandler, IPoi
         if (editItem == findItem)
         {
             GridLayoutGroup grid = GetComponentInParent<GridLayoutGroup>();
-            Transform EditItemStatus = GameManager.Instance.itemList.transform.Find("Panel");
+            Transform EditItemStatus = GameManager.Instance.items.transform.Find("Panel");
             EditItemStatus.gameObject.SetActive(true);
             grid.gameObject.SetActive(false);
             item.SetStatus();

@@ -35,7 +35,7 @@ public class GameManager : MonoBehaviour
     public Summoner summoner;
     public ItemManager item; // 절대 private로 전환 금지
 
-    public GameObject itemList;
+    public GameObject items;
     public ItemScrollView scrollView;
     AoeIndicatorLite ring;
 
@@ -101,6 +101,7 @@ public class GameManager : MonoBehaviour
     public Transform magicZone;
     public Slider HPBar;
     public Slider MPBar;
+    public TextMeshProUGUI PlayerStats;
 
     void Awake()
     {
@@ -111,7 +112,7 @@ public class GameManager : MonoBehaviour
            keyValue.GetComponentsInChildren<Image>(includeInactive: true)
                    .Where(img => img.GetComponent<Button>() != null)
                    .ToArray();
-        itemList = item.transform.Find("Items").gameObject;
+        items = item.transform.Find("Items").gameObject;
 
         Detector = item.GetComponent<TargetDetector>();
 
@@ -186,7 +187,7 @@ public class GameManager : MonoBehaviour
         사십타임 -= Time.deltaTime;
         오십타임 -= Time.deltaTime;
 
-        if (itemList.activeSelf)
+        if (items.activeSelf)
         {
 
         }
@@ -267,9 +268,9 @@ public class GameManager : MonoBehaviour
                 Destroy(CrossInstance);
             }
 
+            if (round == 1) item.list.GetRandomItem(ItemRank.안흔함);
             if (round == 3) item.list.GetRandomItem(ItemRank.안흔함);
-            if (round == 5) item.list.GetRandomItem(ItemRank.안흔함);
-            if (round == 6)
+            if (round == 4)
             {
                 string hex = UnityEngine.ColorUtility.ToHtmlStringRGB(Color.yellow);
                 Item willBeGetItem = item.list.itemList[(int)ItemRank.특별함][item.willBeGet];
@@ -467,7 +468,7 @@ public class GameManager : MonoBehaviour
 
     public void Trigger(int target)
     {
-        if (!itemList.activeSelf)
+        if (!items.activeSelf)
         {   
             if(target == DataManager.NumCount -1)
             {

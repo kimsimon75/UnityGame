@@ -177,6 +177,10 @@ GameObject:
   - component: {fileID: 9171972106197886182}
   - component: {fileID: 4953642279901639027}
   - component: {fileID: 4700063571031959167}
+  - component: {fileID: -5978863832478311813}
+  - component: {fileID: 485068865811147293}
+  - component: {fileID: 4152920502377767403}
+  - component: {fileID: 3537431804210956098}
   m_Layer: 0
   m_Name: Player-maria
   m_TagString: Player
@@ -258,22 +262,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: becc8457131c8f2499b633d97e256e65, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  UnitCount: 0
-  player: 1
-  neutralizeDefense: 0
-  MagicalBuffer: 0
-  MagicalDebuffer: 0
-  TrueDamage: []
-  MoveSpeeDebuff: 0
-  TowerDamage: 0
-  TowerAttackSpeed: 0
-  someSortOfSkillActive: []
-  someSortOfSkillDuration: 
-  someSortOfSkillCooltime: []
-  someSortOfSkillEffect: []
-  text: {fileID: 0}
-  action: {fileID: 0}
-  armorType: 0
 --- !u!114 &6492194153139732055
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -298,12 +286,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 8580f271ab2a6714c8cff00e9d945d9c, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  targetParent: {fileID: 0}
-  statsTarget: {fileID: 0}
-  mainCamera: {fileID: 0}
-  StoryCannon: {fileID: 0}
-  MagicZone: {fileID: 0}
-  Lightning: {fileID: 0}
 --- !u!114 &6341763169526158609
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -358,6 +340,56 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 3052bac91073aca4c957bf34b87505c2, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+--- !u!114 &-5978863832478311813
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 652869683901623835}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 57b9da6a664763046b23309f185b1b8e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::PlayerBar
+--- !u!114 &485068865811147293
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 652869683901623835}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 29ccc004c0703284f8e991cb323bc269, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::Skill
+--- !u!114 &4152920502377767403
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 652869683901623835}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 7b5ff7ed3057afd42b131646d2b06b26, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::StatsWindow
+  stats: {fileID: 0}
+  action: {fileID: 0}
+--- !u!114 &3537431804210956098
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 652869683901623835}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a9506cc9e6b0b574fa6756c56377df2c, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::Teleport
 --- !u!1 &682624066094022980
 GameObject:
   m_ObjectHideFlags: 0
@@ -578,6 +610,8 @@ SkinnedMeshRenderer:
   m_RayTracingAccelStructBuildFlagsOverride: 0
   m_RayTracingAccelStructBuildFlags: 1
   m_SmallMeshCulling: 1
+  m_ForceMeshLod: -1
+  m_MeshLodSelectionBias: 0
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
@@ -599,9 +633,11 @@ SkinnedMeshRenderer:
   m_AutoUVMaxDistance: 0.5
   m_AutoUVMaxAngle: 89
   m_LightmapParameters: {fileID: 0}
+  m_GlobalIlluminationMeshLod: 0
   m_SortingLayerID: 0
   m_SortingLayer: 0
   m_SortingOrder: 0
+  m_MaskInteraction: 0
   serializedVersion: 2
   m_Quality: 0
   m_UpdateWhenOffscreen: 0
@@ -1398,6 +1434,8 @@ SkinnedMeshRenderer:
   m_RayTracingAccelStructBuildFlagsOverride: 0
   m_RayTracingAccelStructBuildFlags: 1
   m_SmallMeshCulling: 1
+  m_ForceMeshLod: -1
+  m_MeshLodSelectionBias: 0
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
@@ -1419,9 +1457,11 @@ SkinnedMeshRenderer:
   m_AutoUVMaxDistance: 0.5
   m_AutoUVMaxAngle: 89
   m_LightmapParameters: {fileID: 0}
+  m_GlobalIlluminationMeshLod: 0
   m_SortingLayerID: 0
   m_SortingLayer: 0
   m_SortingOrder: 0
+  m_MaskInteraction: 0
   serializedVersion: 2
   m_Quality: 0
   m_UpdateWhenOffscreen: 0
