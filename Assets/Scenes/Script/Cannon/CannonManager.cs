@@ -5,14 +5,14 @@ public class CannonManager : MonoBehaviour
 {
     Cannon[] cannons;
     // Start is called once before the first execution of Update after the MonoBehaviour is created
-    void Awake()
+    public void Init()
     {
         
+        cannons = GetComponentsInChildren<Cannon>();
         
     }
     void Start()
     {
-        cannons = GetComponentsInChildren<Cannon>();
     }
 
     // Update is called once per frame

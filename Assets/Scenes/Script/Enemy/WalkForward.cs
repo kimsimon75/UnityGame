@@ -9,15 +9,14 @@ public class WalkForward : MonoBehaviour
     private Vector3 targetPosition;    // 이동할 목표 위치
     private float moveSpeed;
 
-    private GameObject begin;
+    private Transform begin;
     private List<Vector3> waypoints;
     private int currentIndex = 0;
     public float StunTime = 0;
 
 
     private float rotationSpeed = 5f;
-    private float mapSize;
-    public GameObject map;
+    private GameObject map;
     private Animator anim;
 
     void Awake()
@@ -30,16 +29,14 @@ public class WalkForward : MonoBehaviour
     void Start()
     {
 
-        moveSpeed = GetComponent<EnemyStats>().GetDamageInfo().moveSpeed / 100;
+        Vector3 center = GameManager.Instance.PlayerZone.transform.position;
+        moveSpeed = GetComponent<EnemyStats>().GetDamageInfo().moveSpeed *0.01f;
 
-        mapSize = map.GetComponent<Renderer>().bounds.size.x;
-
-        float position = mapSize * 7 / 20;
 
 
         if (begin == null)
         {
-            begin = GameObject.Find("MagicZone");  // ✅ 이름으로 자동 연결
+            begin = GameManager.Instance.magicZone;  // ✅ 이름으로 자동 연결
             if (begin == null)
             {
                 Debug.LogError("MagicZone 오브젝트를 찾을 수 없습니다!");
@@ -47,13 +44,14 @@ public class WalkForward : MonoBehaviour
             }
         }
 
-        Vector3 origin = begin.transform.position;
+        Vector3 origin = begin.position;
+        float position = center.x - origin.x;
         waypoints = new List<Vector3>
         {
-            origin + new Vector3(0, 0, -position),
-            origin + new Vector3(position, 0, -position),
-            origin + new Vector3(position, 0, 0),
-            origin + new Vector3(1, 0, 0)
+            center + new Vector3(-position, 0, -position),
+            center + new Vector3(position, 0, -position),
+            center + new Vector3(position, 0, position),
+            center + new Vector3(1 - position, 0, position)
         };
 
         if (waypoints.Count > 0)

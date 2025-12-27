@@ -97,7 +97,7 @@ public class RightClickButtonHandler : MonoBehaviour, IPointerClickHandler, IPoi
             Transform EditItemStatus = GameManager.Instance.items.transform.Find("Panel");
             EditItemStatus.gameObject.SetActive(true);
             grid.gameObject.SetActive(false);
-            item.SetStatus();
+            item.GetComponent<ItemStatus>().SetStatus();
         }
         else if (editItem == null)
         {

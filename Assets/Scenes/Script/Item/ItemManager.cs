@@ -34,9 +34,6 @@ public class ItemManager : MonoBehaviour
     private Texture2D tex;
 
     private int rank = 0;
-    public PlayerStats stats;
-    public CannonManager cannon;
-
     public GameObject ItemList;
     public GameObject editItemStatus;
     public Image statusItem;
@@ -55,8 +52,49 @@ public class ItemManager : MonoBehaviour
     public GameObject targetImage;
 
     public Stack<Item> itemStack = new Stack<Item>();
+    void Update()
+    {
+        if(!GameManager.Instance.items.activeSelf)
+            return;
+        if (Input.GetKeyDown(KeyCode.BackQuote))
+        {
+            if (itemStack.Count == 0) Clear(null, true);
+            else Clear(itemStack.Pop(), true);
+            return;
+        }
 
-    void Awake()
+        // 2) Ctrl 상태 캐시
+        bool ctrl = Input.GetKey(KeyCode.LeftControl) || Input.GetKey(KeyCode.RightControl);
+
+        // 3) 키별로 Ctrl 조합/일반 동작 분기
+        if (Input.GetKeyDown(KeyCode.Q)) { if (ctrl) ControlTrigger((int)DataManager.Num.Q); else if (!Count.activeInHierarchy)TriggerMany((int)DataManager.Num.Q,1); return; }
+        if (Input.GetKeyDown(KeyCode.W)) { if (ctrl) ControlTrigger((int)DataManager.Num.W); else if (!Count.activeInHierarchy)TriggerMany((int)DataManager.Num.W,1); return; }
+        if (Input.GetKeyDown(KeyCode.E)) { if (ctrl) ControlTrigger((int)DataManager.Num.E); else if (!Count.activeInHierarchy)TriggerMany((int)DataManager.Num.E,1); return; }
+        if (Input.GetKeyDown(KeyCode.D)) { if (!Count.activeInHierarchy) TriggerMany((int)DataManager.Num.D, 1); return; }
+        if (Input.GetKeyDown(KeyCode.Z)) { if (ctrl) ControlTrigger((int)DataManager.Num.Z); else if (!Count.activeInHierarchy)TriggerMany((int)DataManager.Num.Z,1); return; }
+        if (Input.GetKeyDown(KeyCode.X)) { if (ctrl) ControlTrigger((int)DataManager.Num.X); else if (!Count.activeInHierarchy)TriggerMany((int)DataManager.Num.X,1); return; }
+        if (Input.GetKeyDown(KeyCode.C)) { if (ctrl) ControlTrigger((int)DataManager.Num.C); else if (!Count.activeInHierarchy)TriggerMany((int)DataManager.Num.C,1); return; }
+        if (Input.GetKeyDown(KeyCode.F) && rank == (int)ItemRank.희귀함 - 1 && editItem == null && targetImage != null)
+        {
+            Item targetItem = list.FindItem(targetImage.transform.Find("Image").GetComponent<Image>().sprite.name, ItemRank.희귀함);
+            if (targetItem.count > 0)
+            {
+                if (RerollCount > 0)
+                {
+                    targetItem.count--;
+                    list.ChangeItem(targetItem);
+                    Clear(editItem, false);
+                }           
+                else
+                    chat.Push("횟수가 부족하여 리롤을 할 수 없습니다");
+            }
+
+
+        }
+        
+    }
+
+    public void SetList()
     {
         images = ItemList.GetComponentsInChildren<Image>().Where(img => img.gameObject.name.ToLower().Contains("image")).ToArray();
         buttons = ItemList.GetComponentsInChildren<Button>().Where(img => img.gameObject.name.ToLower().Contains("button")).ToArray();
@@ -125,59 +163,7 @@ public class ItemManager : MonoBehaviour
         {
             image.AddComponent<MyButtonTrigger>();
         }
-
-    }
-
-    void Start()
-    {
-
-    }
-
-    void Update()
-    {
-        if(!GameManager.Instance.items.activeSelf)
-            return;
-        if (Input.GetKeyDown(KeyCode.BackQuote))
-        {
-            if (itemStack.Count == 0) Clear(null, true);
-            else Clear(itemStack.Pop(), true);
-            return;
-        }
-
-        // 2) Ctrl 상태 캐시
-        bool ctrl = Input.GetKey(KeyCode.LeftControl) || Input.GetKey(KeyCode.RightControl);
-
-        // 3) 키별로 Ctrl 조합/일반 동작 분기
-        if (Input.GetKeyDown(KeyCode.Q)) { if (ctrl) ControlTrigger((int)DataManager.Num.Q); else if (!Count.activeInHierarchy)TriggerMany((int)DataManager.Num.Q,1); return; }
-        if (Input.GetKeyDown(KeyCode.W)) { if (ctrl) ControlTrigger((int)DataManager.Num.W); else if (!Count.activeInHierarchy)TriggerMany((int)DataManager.Num.W,1); return; }
-        if (Input.GetKeyDown(KeyCode.E)) { if (ctrl) ControlTrigger((int)DataManager.Num.E); else if (!Count.activeInHierarchy)TriggerMany((int)DataManager.Num.E,1); return; }
-        if (Input.GetKeyDown(KeyCode.D)) { if (!Count.activeInHierarchy) TriggerMany((int)DataManager.Num.D, 1); return; }
-        if (Input.GetKeyDown(KeyCode.Z)) { if (ctrl) ControlTrigger((int)DataManager.Num.Z); else if (!Count.activeInHierarchy)TriggerMany((int)DataManager.Num.Z,1); return; }
-        if (Input.GetKeyDown(KeyCode.X)) { if (ctrl) ControlTrigger((int)DataManager.Num.X); else if (!Count.activeInHierarchy)TriggerMany((int)DataManager.Num.X,1); return; }
-        if (Input.GetKeyDown(KeyCode.C)) { if (ctrl) ControlTrigger((int)DataManager.Num.C); else if (!Count.activeInHierarchy)TriggerMany((int)DataManager.Num.C,1); return; }
-        if (Input.GetKeyDown(KeyCode.F) && rank == (int)ItemRank.희귀함 - 1 && editItem == null && targetImage != null)
-        {
-            Item targetItem = list.FindItem(targetImage.transform.Find("Image").GetComponent<Image>().sprite.name, ItemRank.희귀함);
-            if (targetItem.count > 0)
-            {
-                if (RerollCount > 0)
-                {
-                    targetItem.count--;
-                    list.ChangeItem(targetItem);
-                    Clear(editItem, false);
-                }           
-                else
-                    chat.Push("횟수가 부족하여 리롤을 할 수 없습니다");
-            }
-
-
-        }
-        
-    }
-
-    public void SetList()
-    {
-        list = new List(stats, cannon, this);
+        list = new List(GameManager.Instance.playerStats, GameManager.Instance.cannonManager, this);
         list.Clear();
     }
 
@@ -340,7 +326,9 @@ public class ItemManager : MonoBehaviour
                 case ItemRank.희귀함:
                     if (rand < 30)
                     {
-                        SetUpState(list.FindItem("행운의 토큰", ItemRank.희귀함));
+                        item = list.FindItem("행운의 토큰", ItemRank.희귀함);
+                        item.count++;
+                         Clear(editItem, false);
                         chat.Push("<color=red>획득에 실패하여 행운의 토큰을 얻습니다</color>");
                     }
                     else
@@ -376,8 +364,10 @@ public class ItemManager : MonoBehaviour
         {
             list.GotItem.Enqueue(item);
             list.SetUnity(item);
-            GameManager.Instance.scrollView.ImageInit(list.currentItem[GameManager.Instance.Action.targetNumber]);
+            GameManager.Instance.scrollView.ImageInit(list.currentItem[GameManager.Instance.action.targetNumber], true);
         }
+        else
+            GameManager.Instance.scrollView.ImageInit(list.currentItem[GameManager.Instance.action.targetNumber], false);
         Clear(editItem, false);
     }
 
@@ -514,6 +504,7 @@ public class ItemManager : MonoBehaviour
         {
             Item targetItem = item;
             List<Item> parentItems = targetItem.GetParent();
+            int all = 0;
             for (int i = 0; i < parentItems.Count; i++)
             {
                 images[i].sprite = parentItems[i].Resource;
@@ -523,13 +514,27 @@ public class ItemManager : MonoBehaviour
                 line.effectColor = GetColor(parentItems[i]);
 
                 line.effectDistance = new Vector2(4, 4);
+
+                GameObject gameObject = images[i].transform.Find("number2").gameObject;
+
+                gameObject.SetActive(true);
+
+                
+                Dictionary<(string, ItemRank), int> dict = list.CombineAllItem(parentItems[i]);
+                all = 0;
+                foreach (KeyValuePair<(string, ItemRank), int> kvp in dict)
+                {
+                    if(kvp.Key.Item2 == ItemRank.흔함)
+                        all += Mathf.Max(0, kvp.Value - list.FindItem(kvp.Key.Item1, kvp.Key.Item2).count);
+                }
+                gameObject.GetComponentInChildren<TextMeshProUGUI>().text = all.ToString();
             }
 
             images[10 * 2].sprite = item.Resource;
             UnityEngine.UI.Outline targetItemLine = buttons[10 * 2].GetComponent<UnityEngine.UI.Outline>();
             Dictionary<(string, ItemRank), int> Colordict = list.CombineAllItem(targetItem);
 
-            int all = 0;
+            all = 0;
             foreach (KeyValuePair<(string, ItemRank), int> kvp in Colordict)
             {
                 all += Mathf.Max(0, kvp.Value - list.FindItem(kvp.Key.Item1, kvp.Key.Item2).count);
@@ -562,9 +567,9 @@ public class ItemManager : MonoBehaviour
             {
                 Dictionary<(string, ItemRank), int> dict = list.DissolutionAll(targetItem);
 
-                object[,] common = list.table[(int)ItemRank.흔함];
-                string[] names = Enumerable.Range(0, common.GetLength(0))   // 모든 행 인덱스
-                                .Select(i => (string)common[i, 0])
+                List<ItemDef> common = list.table[(int)ItemRank.흔함];
+                string[] names = Enumerable.Range(0, common.Count)   // 모든 행 인덱스
+                                .Select(i => common[i].Name)
                                 .ToArray();
                 int j = 0;
                 foreach (string name in names)
@@ -647,134 +652,5 @@ public class ItemManager : MonoBehaviour
                 return Color.skyBlue;
         }
 
-    }
-
-    public void SetStatus()
-    {
-        if (!ItemList.activeSelf && editItemStatus.activeSelf)
-        {
-            statusItem.sprite = editItem.Resource;
-            editItemName.text = $"아이템명 : {editItem.Name}";
-
-            ItemStatus[0].text = $"등급 : {editItem.Rank}";
-            ItemStatus[1].text = $"기본 공격력 증가 : {editItem.AttackPower}";
-            ItemStatus[2].text = $"추가 공격력 : {editItem.AdditionalAttackPower}%";
-            ItemStatus[3].text = $"방어력 감소 : {editItem.NeutralizeDefense}";
-            ItemStatus[4].text = $"마법 증폭 : {editItem.MagicalBuffer}%";
-            ItemStatus[5].text = $"마법방어력 감소 : {editItem.MagicalDebuffer}%";
-            ItemStatus[6].text = $"방어무시 데미지 : {editItem.TrueDamage * 100}%";
-            ItemStatus[7].text = $"체력 재생 : {DataManager.Instance.RoundX(editItem.HealthRegen,3)}";
-            ItemStatus[8].text = $"마나 재생 : {DataManager.Instance.RoundX(editItem.ManaRegen , 3)}";
-            ItemStatus[9].text = $"이동속도 감소 : {editItem.MoveSpeed}";
-            ItemStatus[10].text = $"공격속도 증가 : {editItem.AttackSpeed}%";
-            ItemStatus[11].text = $"타워 공격력 증가 : {editItem.TowerDamage}";
-            ItemStatus[12].text = $"타워 공격속도 증가 : {editItem.TowerAttackSpeed}%";
-            ItemStatus[13].text = $"공격 유형 : {editItem.AttackType}";
-
-            StringBuilder s = new StringBuilder();
-
-            float Probability = editItem.Probability;
-
-            int MonoPhysics = editItem.MonoPhysics;
-            int MultiPhysics = editItem.MultiPhysics;
-            int MonoMagic = editItem.MonoMagic;
-            int MultiMagic = editItem.MultiMagic;
-            float MonoStun = editItem.MonoStun;
-            float MultiStun = editItem.MultiStun;
-            float Range = editItem.Range;
-            float Percent = editItem.Percent;
-            bool boss = editItem.BossPercentAttack;
-            float DoublePhysics = editItem.DoublePhysics;
-            float damageUp = editItem.DamageUp;
-            int PercentageCategory = editItem.PercentCategory;
-
-            float attackRange = editItem.AttackRange;
-
-            int PercentKind = editItem.PercentKind;
-
-            if (Probability != 0)
-            {
-                s.AppendLine($"스킬 확률 : {Probability}%");
-                if (MonoPhysics != 0) s.AppendLine($"단일 물리 데미지 : {MonoPhysics}");
-                if (MultiPhysics != 0) s.AppendLine($"범위 물리 데미지 : {MultiPhysics}");
-                if (MonoMagic != 0) s.AppendLine($"단일 마법 데미지 : {MonoMagic}");
-                if (MultiMagic != 0) s.AppendLine($"범위 마법 데미지 : {MultiMagic}");
-                if (MonoStun != 0) s.AppendLine($"단일 스턴 : {MonoStun}초");
-                if (MultiStun != 0) s.AppendLine($"범위 스턴 : {MultiStun}초");
-                if (Range != 0) s.AppendLine($"스킬 범위 : {Range * 100}");
-                if (boss == true)
-                {
-                    s.AppendLine($"보스에게 {PercentCategory(PercentageCategory)}의 {Percent}%에 해당하는 데미지를 입힙니다");
-                }
-                else if (Percent != 0)
-                {
-                    if(PercentKind == 3)
-                        s.AppendLine($"단일 대상에게 {PercentCategory(PercentageCategory)}의 {Percent}%에 해당하는 폭발형 데미지를 입힙니다. (보스몹, 스토리에겐 {Percent * DataManager.exPercent[PercentageCategory]}의 마법데미지를 입힙니다.)");
-                    else
-                        s.AppendLine($"{SkillRange(Range)} {PercentCategory(PercentageCategory)}의 {Percent}%에 해당하는 {SkillPercentKind(PercentKind)} 데미지를 입힙니다. {(Range == 0 ? "(보스몹, 스토리 제외)" : "")}"); 
-                }
-                if (damageUp != 0) s.AppendLine($"치명타 : {damageUp * 100}%");
-
-                switch ((editItem.Name, editItem.Rank))
-                {
-                    case ("좀비", ItemRank.안흔함):
-                        s.AppendLine($"스킬 발동시 적 유닛이 사망하면 좀비 아이템 1개 추가");
-                        break;
-                }
-
-            }
-            else if (attackRange != 0)
-            {
-                s.AppendLine($"공격 범위(넓은 범위 우선) : {attackRange * 100}");
-                if (DoublePhysics != 0) s.AppendLine($"공격력 비례 물리 데미지(짭플) : {DoublePhysics * 100}%");
-            }
-            else
-                s.AppendLine("스킬이 없습니다");
-
-
-            ItemSkillExplanation.text = s.ToString();
-
-        }
-    }
-
-
-    private string PercentCategory(int percent)
-    {
-        switch(percent)
-        {
-            case 1:
-            return "전체체력";
-            case 2:
-            return "현재체력";
-            case 3:
-            return "잃은체력";
-            default:
-            return "";
-        }
-    }
-
-    private string SkillRange(float range)
-    {
-        switch(range)
-        {
-            case 0:
-            return "단일 대상에게";
-            default:
-            return "범위에";
-        }
-    }    
-    private string SkillPercentKind(int percentKind)
-    {
-        switch(percentKind)
-        {
-            case 0:
-            return "물리";
-            case 1:
-            return "마법";
-            case 2:
-            return "고정";
-            default:
-            return "";
-        }
     }
 }

@@ -19,7 +19,7 @@ public class PlayerStats : MonoBehaviour
     [NonSerialized] public float[] attackSpeedBonus;
 
     [NonSerialized] public float[] attackSpeedBonusBonus;
-    [NonSerialized] public float blendingTime = 0.1f;
+    [NonSerialized] public float blendingTime = 0f;
     [NonSerialized] public float[] attackCooldown;
     [NonSerialized] public float[] attackDelay;
     [NonSerialized] public float lastAttackTime = float.MinValue;
@@ -33,8 +33,8 @@ public class PlayerStats : MonoBehaviour
     [NonSerialized] public float detectRange = 6f;
 
     [NonSerialized]public int neutralizeDefense = 0;
-    [NonSerialized]public int MagicalBuffer;
-    [NonSerialized]public int MagicalDebuffer;
+    [NonSerialized]public float MagicalBuffer = 0f;
+    [NonSerialized]public float MagicalDebuffer = 0.90f;
     [NonSerialized]public float[] TrueDamage;
     [NonSerialized]public int MoveSpeeDebuff;
     [NonSerialized]public int TowerDamage;
@@ -57,30 +57,33 @@ public class PlayerStats : MonoBehaviour
 
     [NonSerialized]public ArmorType armorType;
 
+    private ItemManager itemManager;
+
     void Awake()
     {
-        action = GameManager.Instance.Action;
+        action = GetComponent<ActionScript>();
+        itemManager = GameManager.Instance.ItemManager;
 
-        CurrentHealth = new int[action.TargetNumberMax];
-        MaxHealth = new int[action.TargetNumberMax];
-        CurrentMana = new int[action.TargetNumberMax];
+        CurrentHealth = new int[DataManager.targetNumberMax];
+        MaxHealth = new int[DataManager.targetNumberMax];
+        CurrentMana = new int[DataManager.targetNumberMax];
 
-        MaxMana = new int[action.TargetNumberMax];
+        MaxMana = new int[DataManager.targetNumberMax];
 
-        HealthRegen = new float[action.TargetNumberMax];
-        manaRegen = new float[action.TargetNumberMax];
+        HealthRegen = new float[DataManager.targetNumberMax];
+        manaRegen = new float[DataManager.targetNumberMax];
 
-        hpRegenBuffer =  new float[action.TargetNumberMax];
-        mpRegenBuffer = new float[action.TargetNumberMax];
+        hpRegenBuffer =  new float[DataManager.targetNumberMax];
+        mpRegenBuffer = new float[DataManager.targetNumberMax];
 
-        attackCooldown = new float[action.TargetNumberMax];
-        attackDelay = new float[action.TargetNumberMax];
+        attackCooldown = new float[DataManager.targetNumberMax];
+        attackDelay = new float[DataManager.targetNumberMax];
 
-        damage = new int[action.TargetNumberMax];
-        doublePhysics = new float[action.TargetNumberMax];
-        Radius = new float[action.TargetNumberMax];
+        damage = new int[DataManager.targetNumberMax];
+        doublePhysics = new float[DataManager.targetNumberMax];
+        Radius = new float[DataManager.targetNumberMax];
 
-        TrueDamage = new float[action.TargetNumberMax];
+        TrueDamage = new float[DataManager.targetNumberMax];
 
         someSortOfSkillActive = new float[DataManager.NumCount-1];
         someSortOfSkillDuration = new int[DataManager.NumCount-1];
@@ -88,15 +91,15 @@ public class PlayerStats : MonoBehaviour
         someSortOfSkillCooldown = new SkillCool[DataManager.NumCount-1];
         someSortOfSkillEffect = new float[DataManager.NumCount-1];
 
-        attackSpeedBonus = new float[action.TargetNumberMax];
+        attackSpeedBonus = new float[DataManager.targetNumberMax];
 
-        attackSpeedBonusBonus = new float[action.TargetNumberMax];
-        damageBonus = new float[action.TargetNumberMax];
+        attackSpeedBonusBonus = new float[DataManager.targetNumberMax];
+        damageBonus = new float[DataManager.targetNumberMax];
 
         armorType = ArmorType.패기;
 
         UnitCount = 0;
-        for (int i = 0; i < action.TargetNumberMax; i++)
+        for (int i = 0; i < DataManager.targetNumberMax; i++)
         {
             MaxHealth[i] = 100;
             CurrentHealth[i] = 0;
@@ -139,13 +142,18 @@ public class PlayerStats : MonoBehaviour
             attackCooldown[i] = 1f;
         }
 
+    }
+
+    void Start()
+    {
         text = GameManager.Instance.unitCountTexts[player -1];
+        
     }
 
     void Update()
     {
         text.text = $"{UnitCount}";
-        for(int i=0;i<action.TargetNumberMax;i++)
+        for(int i=0;i<DataManager.targetNumberMax;i++)
         attackCooldown[i] = attackDelay[i] / (1 + attackSpeedBonus[i] * 0.01f + attackSpeedBonusBonus[i] * 0.01f);
 
         Animator anim = GetComponent<Animator>();
@@ -194,15 +202,50 @@ public class PlayerStats : MonoBehaviour
         }
     }
 
-    public void HealthTrigger(int targetNum)
+    public void HealthTrigger(int targetNum, Transform target)
     {
+        Actor actor = target.GetComponent<Actor>();
         if (CurrentHealth[targetNum] == MaxHealth[targetNum])
         {
+            foreach(Item item in itemManager.list.currentItem[targetNum])
+            {
+                if(!item.HaveRegenSkill && item.RegenStun == 0)
+                continue;
+                Debug.Log("Hello");
+
+                actor.TakeStunAll(item.RegenStun, 0, item.RegenRange);
+                actor.TakeDamageAll_physics(
+                    item.RegenDamage[(int)RegenKind.HealthRegen, (int)DamageKind.physics,(int)DamageTarget.MultiDamage],
+                    item.RegenDamage[(int)RegenKind.HealthRegen, (int)DamageKind.physics, (int)DamageTarget.MonoDamage],
+                    item.RegenRange,
+                    ArmorType.일반,
+                    0,
+                    neutralizeDefense);
+                actor.TakeDamageAll_magics(
+                    item.RegenDamage[(int)RegenKind.HealthRegen, (int)DamageKind.magics,(int)DamageTarget.MultiDamage],
+                    item.RegenDamage[(int)RegenKind.HealthRegen, (int)DamageKind.magics, (int)DamageTarget.MonoDamage],
+                    item.RegenRange,
+                    false);
+                
+                for(int i=0;i<(int)PercentageCategory.count;i++)
+                {
+                    for(int j=0;j<(int)PercentKind.count;j++)
+                    {
+                        actor.TakeDamageAll_percentage(
+                            item.RegenPercent[(int)RegenKind.HealthRegen, i, j],
+                            0,
+                            item.RegenRange,
+                            (PercentKind)j,
+                            (PercentageCategory)i);
+                    }
+                }
+
+            }
             CurrentHealth[targetNum] = 0;
         }
     }
 
-    public void ManaTrigger(int targetNum)
+    public void ManaTrigger(int targetNum, Transform target)
     {
         if (CurrentMana[targetNum] == MaxMana[targetNum])
         {
@@ -220,7 +263,7 @@ public class PlayerStats : MonoBehaviour
 
     public (int[] damage, float[] damageBonus, float attackCooldown, float attackSpeedBonus,
      int neutralizeDefense, float HealthRegen, float manaRegen,
-      int MagicalBuffer, int MagicalDebuffer, float TrueDamage, int MoveSpeeDebuff, float[] doublePhysics, float[] Radius)
+      float MagicalBuffer, float MagicalDebuffer, float TrueDamage, int MoveSpeeDebuff, float[] doublePhysics, float[] Radius)
       GetStats()
     {
         return (damage, damageBonus, attackCooldown[action.targetNumber], attackSpeedBonus[action.targetNumber] + attackSpeedBonusBonus[action.targetNumber]

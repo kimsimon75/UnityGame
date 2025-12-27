@@ -13,7 +13,7 @@ public class DataManager : MonoBehaviour
     public const int 삼십라운드 = 30;
     public const int 사십라운드 = 41;
     public const int 오십라운드 = 51;
-
+    public const int targetNumberMax = 6;
     public static readonly int[] exPercent = new int[] {0, 100000, 10000, 100000};
 
     public Dictionary<Sprite, ItemRank> imageDict;
@@ -141,7 +141,7 @@ public class DataManager : MonoBehaviour
 
     public void Init()
     {
-                Instance = this;
+        Instance = this;
         imageDict = new Dictionary<Sprite, ItemRank>();
 
         sprites = new Sprite[3][]

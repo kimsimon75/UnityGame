@@ -23,7 +23,7 @@ public class EnemyStats : Actor
         // 게임 시작할 때 현재 체력을 최대치로 초기화
         currentHealth = maxHealth;
 
-        player = GameManager.Instance.player;
+        player = GameManager.Instance.playerStats;
 
         if (round <= 60)
         {
@@ -51,6 +51,8 @@ public class EnemyStats : Actor
 
     public override void TakeDamageAll_physics(int damageAll, int damage, float radius, ArmorType damageType, float DoublePhysicsDamagePercentage, int armorDecrease)
     {
+        if(damageAll == 0 && damage == 0)
+        return;
         int pureDamageAll = damageAll;
         int doubledDamage = 0;
         if (DoublePhysicsDamagePercentage > 0)
@@ -95,6 +97,8 @@ public class EnemyStats : Actor
     } 
     public override void TakeDamageAll_magics(int damageAll, int damage, float radius, bool trueDamage = false)
     {
+        if(damageAll == 0 && damage == 0)
+        return;
         if (radius != 0)
         {
             Vector3 center = transform.position;
@@ -119,17 +123,20 @@ public class EnemyStats : Actor
         TakeDamage_magics(damageAll + damage, trueDamage);
     }    
 
-    public override void TakeDamage_explosions(float damage, ArmorType damageType, int percent = 0)/// percent 0 : 일반, 1 : 전체, 2 : 현재, 3 : 잃은, 
+    public override void TakeDamage_explosions(float damage, ArmorType damageType, PercentageCategory percentageCategory = 0)
     {
         if(isDead) return;
-        damage = damage * GetDamage(damageType, armorType) * (boss ? ExPercentage(percent) : Percentage(percent));
+        damage = damage * GetDamage(damageType, armorType) * (boss ? ExPercentage(percentageCategory) : Percentage(percentageCategory));
         
         currentHealth = (int)Mathf.Max(currentHealth - damage, 0f);
         Clear();
     }
 
-    public override void TakeDamageAll_percentage(float damageAll, float damage, float radius, int damageKind, int percent, bool boss = false, int armorDecrease = 0, ArmorType damageType = ArmorType.패기) /// percent 0 : 일반, 1 : 전체, 2 : 현재, 3 : 잃은, damageKind 0: 물리, 1: 마법, 2: 고정
+    public override void TakeDamageAll_percentage(float damageAll, float damage, float radius, PercentKind percentKind, 
+    PercentageCategory percentageCategory, bool boss = false, int armorDecrease = 0, ArmorType damageType = ArmorType.패기) /// percent 0 : 일반, 1 : 전체, 2 : 현재, 3 : 잃은, damageKind 0: 물리, 1: 마법, 2: 고정
     {
+        if(damageAll == 0 && damage == 0)
+        return;
         if (radius != 0)
         {
             Vector3 center = transform.position;
@@ -142,28 +149,28 @@ public class EnemyStats : Actor
 
             foreach (Collider col in hits)
             {
-                EnemyStats stats = col.GetComponentInParent<EnemyStats>();
-                if (stats != null)
+                EnemyStats enemyStats = col.GetComponentInParent<EnemyStats>();
+                if (enemyStats != null)
                 {
-                    stats.TakeDamage_percentage(damageAll, damageKind, percent, stats.boss, armorDecrease, damageType);
+                    enemyStats.TakeDamage_percentage(damageAll, percentKind, percentageCategory, enemyStats.boss, armorDecrease, damageType);
                 }
             }
 
             DebugDrawCircleXZ(center, radius, Color.red);
         }
         else
-            TakeDamage_percentage(damageAll + damage, damageKind, percent, boss, armorDecrease, damageType);
+            TakeDamage_percentage(damageAll + damage, percentKind, percentageCategory, boss, armorDecrease, damageType);
     }   
     
-     private void TakeDamage_percentage(float damage, int damageKind, int percent, bool boss = false, int armorDecrease = 0, ArmorType damageType = ArmorType.패기) // damageKind 0: 물리, 1: 마법, 2: 고정, 3: 폭발(폭발은 따로 설정)
+     private void TakeDamage_percentage(float damage, PercentKind percentKind, PercentageCategory percentageCategory, bool boss = false, int armorDecrease = 0, ArmorType damageType = ArmorType.패기) // damageKind 0: 물리, 1: 마법, 2: 고정, 3: 폭발(폭발은 따로 설정)
     {
         if(isDead) return;
 
         if(this.boss == boss)
         {
-            if(damageKind == 0) damage = damage * ArmorCalculate(Armor, armorDecrease);
+            if(percentKind == 0) damage = damage * ArmorCalculate(Armor, armorDecrease);
         
-            damage = damage / 100  * Percentage(percent) * DamageKind(damageKind, Armor, armorDecrease, damageType, armorType);
+            damage = damage / 100  * Percentage(percentageCategory) * DamageKind(percentKind, Armor, armorDecrease, damageType, armorType);
         }    
         
         currentHealth = (int)Mathf.Max(currentHealth - damage, 0);
@@ -171,13 +178,15 @@ public class EnemyStats : Actor
 
     }
 
-    public void TakeStun(float Time)
+    private void TakeStun(float Time)
     {
         walk.StunTime = Mathf.Max(walk.StunTime, Time);
     }
 
     public override void TakeStunAll(float TimeAll, float Time, float radius)
     {
+        if(TimeAll == 0 && Time == 0)
+        return;
         Vector3 center = transform.position;
 
         // 원하는 레이어만 필터링

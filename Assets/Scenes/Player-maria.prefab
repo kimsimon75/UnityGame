@@ -175,12 +175,12 @@ GameObject:
   - component: {fileID: 3863094559441856791}
   - component: {fileID: 6341763169526158609}
   - component: {fileID: 9171972106197886182}
-  - component: {fileID: 4953642279901639027}
   - component: {fileID: 4700063571031959167}
   - component: {fileID: -5978863832478311813}
   - component: {fileID: 485068865811147293}
   - component: {fileID: 4152920502377767403}
   - component: {fileID: 3537431804210956098}
+  - component: {fileID: -7934980018345065288}
   m_Layer: 0
   m_Name: Player-maria
   m_TagString: Player
@@ -236,7 +236,7 @@ NavMeshAgent:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 652869683901623835}
   m_Enabled: 1
-  m_AgentTypeID: -1372625422
+  m_AgentTypeID: 0
   m_Radius: 0.5
   m_Speed: 5
   m_Acceleration: 800
@@ -310,24 +310,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: a4efd1e366906e14ca55a61583607d20, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
---- !u!114 &4953642279901639027
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 652869683901623835}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 5fea29bb7c508c244a1f805a5fd3fc4d, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  outlineMode: 0
-  outlineColor: {r: 0, g: 1, b: 0.03731489, a: 1}
-  outlineWidth: 1
-  precomputeOutline: 0
-  bakeKeys: []
-  bakeValues: []
 --- !u!114 &4700063571031959167
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -376,8 +358,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 7b5ff7ed3057afd42b131646d2b06b26, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::StatsWindow
-  stats: {fileID: 0}
-  action: {fileID: 0}
 --- !u!114 &3537431804210956098
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -390,6 +370,24 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: a9506cc9e6b0b574fa6756c56377df2c, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Teleport
+--- !u!114 &-7934980018345065288
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 652869683901623835}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 23e382cd86785d343b5301f61bf59449, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::Outline
+  outlineMode: 0
+  outlineColor: {r: 0, g: 0.9811321, b: 0.044188913, a: 1}
+  outlineWidth: 1
+  precomputeOutline: 0
+  bakeKeys: []
+  bakeValues: []
 --- !u!1 &682624066094022980
 GameObject:
   m_ObjectHideFlags: 0

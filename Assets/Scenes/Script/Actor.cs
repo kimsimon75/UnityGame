@@ -103,13 +103,13 @@ public abstract class Actor : MonoBehaviour
 
     public abstract void TakeDamageAll_magics(int damageAll, int damage, float radius, bool trueDamage = false);
 
-    public abstract void TakeDamageAll_percentage(float damageAll, float damage, float radius, int damageKind, int percentCategory, bool boss = false, int armorDecrease = 0, ArmorType damageType = ArmorType.패기);
+    public abstract void TakeDamageAll_percentage(float damageAll, float damage, float radius, PercentKind damageKind, PercentageCategory percentCategory, bool boss = false, int armorDecrease = 0, ArmorType damageType = ArmorType.패기);
 
     public abstract void TakeStunAll(float TimeAll, float Time, float radius);
 
     public abstract void TakePoisonAll(float Time, int Armor, float radius);
 
-    public abstract void TakeDamage_explosions(float damage, ArmorType damageType, int percentCategory = 0);
+    public abstract void TakeDamage_explosions(float damage, ArmorType damageType, PercentageCategory percentCategory = 0);
 
     protected void Timeline()
     {
@@ -124,15 +124,15 @@ public abstract class Actor : MonoBehaviour
         Armor = originArmor - deArmor;
     }
 
-    protected float Percentage(int percent)
+    protected float Percentage(PercentageCategory percent)
     {
         switch(percent)
         {
-            case 1:
+            case PercentageCategory.max:
                 return maxHealth;
-            case 2:
+            case PercentageCategory.current:
                 return currentHealth;
-            case 3:
+            case PercentageCategory.loss:
                 return maxHealth - currentHealth;
             default:
                 return 1;
@@ -140,15 +140,15 @@ public abstract class Actor : MonoBehaviour
         }
     }
 
-    protected float ExPercentage(int percent)
+    protected float ExPercentage(PercentageCategory percent)
     {
         switch(percent)
         {
-            case 1:
+            case PercentageCategory.max:
                 return DataManager.exPercent[1];
-            case 2:
+            case PercentageCategory.current:
                 return DataManager.exPercent[2];
-            case 3:
+            case PercentageCategory.loss:
                 return DataManager.exPercent[3];
             default:
                 return DataManager.exPercent[0];
@@ -156,17 +156,17 @@ public abstract class Actor : MonoBehaviour
         }
     }
 
-    protected float DamageKind(int damageKind, int Armor = 0, int armorDecrease = 0, ArmorType damageType = ArmorType.고정, ArmorType armorType = ArmorType.고정)
+    protected float DamageKind(PercentKind damageKind, int Armor = 0, int armorDecrease = 0, ArmorType damageType = ArmorType.고정, ArmorType armorType = ArmorType.고정)
     {
         switch(damageKind)
         {
-            case 0:
+            case PercentKind.physics:
                 return ArmorCalculate(Armor, armorDecrease);
-            case 1:
+            case PercentKind.magics:
                 return GetMagicDamage();
-            case 2:
+            case PercentKind.trueDamage:
                 return 1;
-            case 3:
+            case PercentKind.explosions:
                 return GetDamage(damageType, armorType);
             default:
                 Debug.Assert(true);

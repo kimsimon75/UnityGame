@@ -17,14 +17,11 @@ public class ActionScript : MonoBehaviour
     private PlayerStats stats;
     private ItemManager item;
     private GameObject itemList;
-    private const int targetNumberMax = 6;
-
-    public int TargetNumberMax => targetNumberMax;
-    [NonSerialized] public Transform[] target = new Transform[targetNumberMax];
+    [NonSerialized] public Transform[] target;
     [NonSerialized] public int targetNumber = 5;
     [NonSerialized] public NavMeshHit point;
-    [NonSerialized] public float[] attackDisableTime = new float[targetNumberMax];
-    [NonSerialized] public bool[] isStop = new bool[targetNumberMax];
+    [NonSerialized] public float[] attackDisableTime;
+    [NonSerialized] public bool[] isStop;
     private bool OnTheStory = false;
     [NonSerialized] public Transform statsTarget = null;
     [NonSerialized] public Camera mainCamera;
@@ -33,8 +30,8 @@ public class ActionScript : MonoBehaviour
     private Transform MagicZone;
 
     private float zoomSpeed = 10f;
-    private float minDistance = 30f;
-    private float maxDistance = 110f;
+    private float minDistance = 5f;
+    private float maxDistance = 20f;
     private Vector3 camOffset = new Vector3(0, 75f, -75f);
     private float targetDistance;
     private float zoomVelocity;
@@ -42,10 +39,12 @@ public class ActionScript : MonoBehaviour
     [NonSerialized] public GameObject Lightning;
     [NonSerialized] public GameObject Clone;
     ItemScrollView ScrollView;
+    LayerMask teleportRayMask; 
 
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
     {
+        teleportRayMask = LayerMask.GetMask("Floor1Geo", "Floor2Geo");
         item = GameManager.Instance.ItemManager;
         itemList = GameManager.Instance.items;
         anim = GetComponent<Animator>();
@@ -55,7 +54,11 @@ public class ActionScript : MonoBehaviour
         move = GetComponent<AgentMove>();
         stats = GetComponent<PlayerStats>();
         Lightning = GameManager.Instance.Lightnings;
-        StoryCannon = GameManager.Instance.Cannons.transform;
+        StoryCannon = GameManager.Instance.StoryCannons.transform;
+
+        target = new Transform[DataManager.targetNumberMax];
+        attackDisableTime = new float[DataManager.targetNumberMax];
+        isStop = new bool[DataManager.targetNumberMax];
 
         TriggerHold();
         mainCamera = Camera.main;
@@ -86,7 +89,6 @@ public class ActionScript : MonoBehaviour
             Debug.Log("아이템 없음");
             return;
         }
-        ScrollView.ImageInit(targetQueue);
     }
 
     // Update is called once per frame
@@ -137,7 +139,7 @@ public class ActionScript : MonoBehaviour
                 Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
                 if (Physics.Raycast(ray, out RaycastHit hitInfo, 100f, enemyLayer))
                 {
-                    for(int i=0;i<targetNumberMax;i++)
+                    for(int i=0;i<DataManager.targetNumberMax;i++)
                     target[i] = hitInfo.transform;
                     TriggerAttack();
                 }
@@ -147,21 +149,18 @@ public class ActionScript : MonoBehaviour
                 }
                 isAllReady = false;
             }
-            else if(GameManager.Instance.TeleportOn)
+            else if (GameManager.Instance.TeleportOn)
             {
-                float height = gameObject.transform.position.y;
                 Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
-                Plane plane = new Plane(Vector3.up, new Vector3(0, height, 0));
-                
-                if (plane.Raycast(ray, out float enter))
-                {
-                    Vector3 point = ray.GetPoint(enter);
-                    GetComponent<Skill>().Teleport(point);
-                    // point는 항상 y = fixedY
-                    TriggerHold();
-                    GameManager.Instance.Images[(int)DataManager.Num.Q].GetComponent<UnityEngine.UI.Outline>().enabled = false;
-                }
 
+                // ✅ 진짜 표면(바닥/벽위 콜라이더)을 맞춘 지점
+                if (Physics.Raycast(ray, out RaycastHit hit, 5000f, teleportRayMask, QueryTriggerInteraction.Ignore))
+                {
+                    GetComponent<Skill>().Teleport(hit.point);  // hit.point는 y가 "맞은 표면 높이" 그대로임
+                    TriggerHold();
+                    GameManager.Instance.Images[(int)DataManager.Num.Q]
+                        .GetComponent<UnityEngine.UI.Outline>().enabled = false;
+                }
             }
             else
             {
@@ -183,7 +182,6 @@ public class ActionScript : MonoBehaviour
 
             if (Physics.Raycast(ray, out RaycastHit hitInfo, 100f, enemyLayer))
             {
-                Debug.Log("here");
                 target[targetNumber] = hitInfo.transform;
                 TriggerAttack();
             }
@@ -238,19 +236,19 @@ public class ActionScript : MonoBehaviour
         }
 
         if (!itemList.gameObject.activeInHierarchy)
-            for (int i = 0; i < targetNumberMax; i++)
+            for (int i = 0; i < DataManager.targetNumberMax; i++)
             {
                 if (Input.GetKeyDown(KeyCode.Alpha1 + i))
                 {
                     targetNumber = i;
-                    ScrollView.ImageInit(item.list.currentItem[targetNumber]);
+                    ScrollView.ImageInit(item.list.currentItem[targetNumber], true);
                     TriggerHold();
                 }
 
                 if (Input.GetKeyDown(KeyCode.Keypad1 + i))
                 {
                     targetNumber = i;
-                    ScrollView.ImageInit(item.list.currentItem[targetNumber]);
+                    ScrollView.ImageInit(item.list.currentItem[targetNumber], true);
                     TriggerHold();
                 }
             }
@@ -310,7 +308,7 @@ public class ActionScript : MonoBehaviour
 
         target[targetNumber] = null;
         isStop[targetNumber] = false;
-        anim.CrossFade("Walking", stats.blendingTime);
+        anim.CrossFade("Walking", 0);
 
     }
 
@@ -319,9 +317,11 @@ public class ActionScript : MonoBehaviour
         attack.enabled = false;
         hold.enabled = false;
         agent.isStopped = true;
+        
+        move.enabled = false;
         target[targetNumber] = null;
         isStop[targetNumber] = true;
-        anim.CrossFade("Idle", stats.blendingTime);
+        anim.CrossFade("Idle", 0);
     }
     
     
@@ -329,5 +329,6 @@ public class ActionScript : MonoBehaviour
     {
         return Time.time < attackDisableTime[target];
     }
+    
 
 }

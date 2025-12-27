@@ -52,7 +52,7 @@ namespace DigitalRuby.LightningBolt
         public GameObject EndObject;
 
         [Tooltip("The end position where the lightning will end at. This is in world space if EndObject is null, otherwise this is offset from EndObject position.")]
-        public Vector3 EndPosition;
+        public Vector3 EndPosition = new Vector3(0, 1f, 0);
 
         [Range(0, 8)]
         [Tooltip("How manu generations? Higher numbers create more line segments.")]

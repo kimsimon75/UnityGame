@@ -37,7 +37,7 @@ public class Highlightable : MonoBehaviour
 
         // QuickOutline은 프로퍼티 세터가 needsUpdate=true로 바꿔서
         // 다음 프레임 Update()에서 UpdateMaterialProperties()가 자동 호출됨.
-        Color blue   = new Color(0.2f, 0.6f, 1f, _orig.a);
+        Color blue   = new Color(0.2f, 0.6f, 1f, 1f);
 
         _outline.OutlineColor = blue;
 

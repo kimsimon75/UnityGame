@@ -23,7 +23,7 @@ Material:
   m_Name: "ChatGPT Image 2025\uB144 6\uC6D4 18\uC77C \uC624\uD6C4 05_03_52"
   m_Shader: {fileID: 4800000, guid: c8ac38757aa078846bb399d2ed3f4a37, type: 3}
   m_Parent: {fileID: 2100000, guid: 35a40be02a0315d42b60a21e90dd465e, type: 2}
-  m_ModifiedSerializedProperties: 2
+  m_ModifiedSerializedProperties: 26
   m_ValidKeywords: []
   m_InvalidKeywords:
   - _EMISSION
@@ -44,7 +44,8 @@ Material:
         m_Offset: {x: 0.5, y: 0.5}
     m_Ints: []
     m_Floats: []
-    m_Colors: []
+    m_Colors:
+    - _Color: {r: 1, g: 1, b: 1, a: 1}
   m_BuildTextureStacks: []
   m_AllowLocking: 1
 --- !u!114 &4051345389603516065

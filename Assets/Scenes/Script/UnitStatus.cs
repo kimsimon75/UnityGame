@@ -7,11 +7,11 @@ public class UnitStatus : MonoBehaviour
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     public TextMeshProUGUI[] text;
     public Slider slider;
-    public ActionScript action;
+    private ActionScript action;
     public GameObject status;
     void Start()
     {
-        
+        action = GameManager.Instance.action;
 
     }
 
@@ -50,7 +50,7 @@ public class UnitStatus : MonoBehaviour
                 slider.gameObject.SetActive(false);
                 var Info = target.GetComponentInParent<Cannon>().GetDamageInfo();
                 text[0].text = $"공격력 : {Info.Item1}";
-                text[1].text = $"공격 속도 : {1/Info.Item2}({Info.Item4}%)";
+                text[1].text = $"공격 속도 : {(1/Info.Item2).ToString("F3")}({Info.Item4}%)";
                 text[2].text = $"공격 타입 : {Info.Item3}";
             }
             else

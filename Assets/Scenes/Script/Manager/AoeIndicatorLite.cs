@@ -24,8 +24,7 @@ public class AoeIndicatorLite : MonoBehaviour
         {
             var h = _hit[0];
             ring.position = h.point; // y를 항상 고정
-            float meshFactor = (float)DataManager.Instance.RoundX(0.9f / 1.875f, 10); // ≈ 0.48
-            ring.localScale = new Vector3(radius * 2f *meshFactor , 1f, radius * 2f * meshFactor );
+            ring.localScale = new Vector3(radius * 2f , 1f, radius * 2f);
         }
     }
 

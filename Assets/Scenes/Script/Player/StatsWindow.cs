@@ -8,17 +8,19 @@ public class StatsWindow : MonoBehaviour
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     [NonSerialized] public PlayerStats stats;
     [NonSerialized] public ActionScript action;
-    private TextMeshProUGUI PlayerStats;
+    private TextMeshProUGUI PlayerStatsText;
     void Start()
     {
-        PlayerStats = GameManager.Instance.PlayerStats;
+        PlayerStatsText = GameManager.Instance.PlayerStatsText;
+        action = GetComponent<ActionScript>();
+        stats = GetComponent<PlayerStats>();
     }
 
     // Update is called once per frame
     void Update()
     {
-        action = GetComponent<ActionScript>();
-        stats = GetComponent<PlayerStats>();
+        
+        PlayerStatsText.SetVerticesDirty();       
 
         int targetNumber = action.targetNumber;
         StringBuilder stringBuilder = new StringBuilder();
@@ -28,17 +30,17 @@ public class StatsWindow : MonoBehaviour
         {
             var status = stats.GetStats();
             stringBuilder.AppendLine($"부대 {stats.action.targetNumber + 1}");
-            stringBuilder.AppendLine($"공격력 : {status.Item1[targetNumber]} + {(status.Item1[targetNumber] * status.Item2[targetNumber]).ToString("F0")}");
-            stringBuilder.AppendLine($"공격 속도 : {(1 / status.Item3).ToString("F3")}");
-            stringBuilder.AppendLine($"공속 보너스 : {status.Item4}%");
-            stringBuilder.AppendLine($"공격력 비례 물리피해(짭플) : {status.Item12[targetNumber]}");
+            stringBuilder.AppendLine($"공격력 : {status.Item1[targetNumber]} + {status.Item1[targetNumber] * status.Item2[targetNumber]:F0}");
+            stringBuilder.AppendLine($"공격 속도 : {1 / status.Item3:F3}");
+            stringBuilder.AppendLine($"공속 보너스 : {status.Item4:F3}%");
+            stringBuilder.AppendLine($"공격력 비례 물리피해(짭플) : {status.Item12[targetNumber]:F3}");
             stringBuilder.AppendLine($"공격 범위 : {status.Item13[targetNumber] * 100}");
             stringBuilder.AppendLine($"방어력 감소 : {status.Item5}");
-            stringBuilder.AppendLine($"체력 재생 : {DataManager.Instance.RoundX(status.Item6, 3)}");
-            stringBuilder.AppendLine($"마나 재생 : {DataManager.Instance.RoundX(status.Item7, 3)}");
-            stringBuilder.AppendLine($"마법증폭 : {status.Item8}");
-            stringBuilder.AppendLine($"마법방어력 감소 : {status.Item9}");
-            stringBuilder.AppendLine($"방어무시 : {status.Item10 * 100}%");
+            stringBuilder.AppendLine($"체력 재생 : {status.Item6:F3}");
+            stringBuilder.AppendLine($"마나 재생 : {status.Item7:F3}");
+            stringBuilder.AppendLine($"마법증폭 : {(1 + status.Item8) * 100}%");
+            stringBuilder.AppendLine($"마법방어력 감소 : {(1 - status.Item9) * 100:F3}%");
+            stringBuilder.AppendLine($"방어무시 : {status.Item10 * 100:F3}%");
             stringBuilder.AppendLine($"이동속도 감소 : {status.Item11}");
         }
         else if (keyValue != DataManager.NumCount -1)
@@ -115,7 +117,7 @@ public class StatsWindow : MonoBehaviour
                 switch ((DataManager.Num)keyValue)
                 {
                     case DataManager.Num.Q:
-                        S += $"{stats.someSortOfSkillEffect[0]*100}거리를 도약합니다.";
+                        S += $"{stats.someSortOfSkillEffect[0]}거리를 도약합니다.";
                         break;
                     case DataManager.Num.W:
                         S += $"{stats.someSortOfSkillDuration[1]}초동안 공격속도를 {stats.someSortOfSkillEffect[1]}% 증가시킵니다.";
@@ -144,6 +146,6 @@ public class StatsWindow : MonoBehaviour
             stringBuilder.AppendLine("스킬들을 변경합니다.");
         }
 
-        PlayerStats.text = stringBuilder.ToString();
+        PlayerStatsText.text = stringBuilder.ToString();
     }
 }

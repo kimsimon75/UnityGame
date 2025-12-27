@@ -18,7 +18,7 @@ public class ItemScript : MonoBehaviour
     void Start()
     {
         skillCooldown = GameManager.Instance.skillCooldown;
-        someSortOfSkillCooldown = GameManager.Instance.player.someSortOfSkillCooldown;
+        someSortOfSkillCooldown = GameManager.Instance.playerStats.someSortOfSkillCooldown;
         item = GameManager.Instance.ItemManager;
         items = GameManager.Instance.items;
 
@@ -87,7 +87,7 @@ public class ItemScript : MonoBehaviour
         for (int i = 0; i < DataManager.NumCount-1; i++)
         {
             darkImg[i].fillAmount = GameManager.Instance.items.activeSelf ? 0 : 
-            (GameManager.Instance.SkillToggle ? (someSortOfSkillCooldown[i].Remaining / GameManager.Instance.player.someSortOfSkillCooltime[i]) :
+            (GameManager.Instance.SkillToggle ? (someSortOfSkillCooldown[i].Remaining / GameManager.Instance.playerStats.someSortOfSkillCooltime[i]) :
              (skillCooldown[i].Remaining / GameManager.Instance.skillCoolInit[i]));
         }
 

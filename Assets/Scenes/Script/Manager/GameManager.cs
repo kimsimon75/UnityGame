@@ -5,16 +5,12 @@ using Unity.VisualScripting;
 using UnityEngine.UI;
 using System.Linq;
 using System;
-using Unity.VisualScripting.Antlr3.Runtime.Misc;
-using System.Collections;
 
 public class GameManager : MonoBehaviour
 {
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     public static GameManager Instance;
-    [SerializeField] private ActionScript action;
-    public ActionScript Action => action; // 프로퍼티로 외부 노출
-
+    [NonSerialized] public ActionScript action;
     private const float init = 35f;
     private const float bossInit = 75f;
     private float timeLeft = float.MinValue;  // 타이머 시작 시간 (초)
@@ -61,7 +57,11 @@ public class GameManager : MonoBehaviour
     public GameObject 사십;
     public GameObject 오십;
 
-    public PlayerStats player;
+    [NonSerialized] public PlayerStats playerStats;
+    [NonSerialized] public GameObject player;
+
+    public GameObject[] playerUnit;
+    [NonSerialized] public int playerCharacter = 1;
 
     EnemyStats pawnEnemy;
     EnemyStats go_pawnEnemy;
@@ -89,7 +89,8 @@ public class GameManager : MonoBehaviour
     [NonSerialized] public float[] skillIndicate = new float[DataManager.NumCount-1];
 
     public GameObject Lightnings;
-    public GameObject Cannons;
+    public GameObject StoryCannons;
+    [NonSerialized] public CannonManager cannonManager;
 
     public TextMeshProUGUI[] unitCountTexts;
 
@@ -101,12 +102,22 @@ public class GameManager : MonoBehaviour
     public Transform magicZone;
     public Slider HPBar;
     public Slider MPBar;
-    public TextMeshProUGUI PlayerStats;
+    public TextMeshProUGUI PlayerStatsText;
+
+    public Transform PlayerSummon;
 
     void Awake()
     {
         Instance = this;
         GetComponent<DataManager>().Init();
+        player = Instantiate(playerUnit[playerCharacter],PlayerSummon.transform.position,Quaternion.Euler(0, 180, 0),PlayerZone.transform);
+        action = player.GetComponent<ActionScript>();
+        playerStats = player.GetComponent<PlayerStats>();
+
+        scrollView.Init();
+        cannonManager = PlayerZone.GetComponent<CannonManager>();
+        cannonManager.Init();
+
 
         keyValueImages =
            keyValue.GetComponentsInChildren<Image>(includeInactive: true)
@@ -115,15 +126,11 @@ public class GameManager : MonoBehaviour
         items = item.transform.Find("Items").gameObject;
 
         Detector = item.GetComponent<TargetDetector>();
+        item.SetList();
 
-    }
-
-    void Start()
-    {
-         // 초기 채팅들 Push
+                 // 초기 채팅들 Push
         ring = GetComponent<AoeIndicatorLite>();
         timeLeft = 0f;
-        item.SetList();
         roundText.text = "라운드 시작 전";
         item.list.GetMemoriesParts(1);
         item.list.GetSoulParts(5);
@@ -171,12 +178,19 @@ public class GameManager : MonoBehaviour
         skillIndicate[(int)DataManager.Num.Z] = 0f;
         skillIndicate[(int)DataManager.Num.X] = 6f;
         skillIndicate[(int)DataManager.Num.C] = 0f;
+
+    }
+
+    void Start()
+    {
+
     }
 
     void Update()
     {
 
         item.list.FindItem("기억 조각", ItemRank.All).count = 1000;
+
         timeLeft -= Time.deltaTime;
         pawnTime -= Time.deltaTime;
         pawnCooltime -= Time.deltaTime;
@@ -198,14 +212,14 @@ public class GameManager : MonoBehaviour
             {
                 GameObject CooldownTimer = cooldownImage[i];
     
-                if ((SkillToggle ? player.someSortOfSkillCooldown[i] : skillCooldown[i]).Remaining <= 0)
+                if ((SkillToggle ? playerStats.someSortOfSkillCooldown[i] : skillCooldown[i]).Remaining <= 0)
                 {
                     CooldownTimer.SetActive(false);
                 }
                 else
                 {
                     CooldownTimer.GetComponentInChildren<TextMeshProUGUI>(true).text = 
-                    ((int)(SkillToggle ? player.someSortOfSkillCooldown[i] : skillCooldown[i]).Remaining + 1).ToString();
+                    ((int)(SkillToggle ? playerStats.someSortOfSkillCooldown[i] : skillCooldown[i]).Remaining + 1).ToString();
                     CooldownTimer.SetActive(true);
                 }
             }
@@ -274,15 +288,9 @@ public class GameManager : MonoBehaviour
             {
                 string hex = UnityEngine.ColorUtility.ToHtmlStringRGB(Color.yellow);
                 Item willBeGetItem = item.list.itemList[(int)ItemRank.특별함][item.willBeGet];
+                item.SetUpState(willBeGetItem);
                 item.chat.Push($"<color=#{hex}>{ItemRank.특별함}</color> 등급의 {willBeGetItem.Name} 획득");
-                willBeGetItem.count++;
                 item.willBeGet = -1;
-                if(willBeGetItem.count == 1)
-                {
-                    item.list.GotItem.Enqueue(willBeGetItem);
-                    item.list.SetUnity(willBeGetItem);
-                }
-                scrollView.ImageInit(item.list.currentItem[action.targetNumber]);
             }
             if (round == 41)
             {
@@ -489,7 +497,7 @@ public class GameManager : MonoBehaviour
             }
             else if(SkillToggle) 
             {
-                if(player.someSortOfSkillCooldown[target].IsReady)
+                if(playerStats.someSortOfSkillCooldown[target].IsReady)
                 {                
                     if(target == (int)DataManager.Num.Q)
                     {
@@ -518,7 +526,7 @@ public class GameManager : MonoBehaviour
                 }
                 else
                 {
-                    if (Detector.hit.transform.GetComponent<Actor>() != null)
+                    if (Detector.hit.transform != null && Detector.hit.transform.GetComponent<Actor>() != null)
                     {
                         SkillDetail(skillNum, Detector.hit);
                         energy.currentEnergy -= skillEnergy[skillNum];
@@ -540,7 +548,7 @@ public class GameManager : MonoBehaviour
             case DataManager.Num.Q:
                 hitInfo.transform.GetComponent<Actor>().TakeStunAll(0, 5, 0);
                 hitInfo.transform.GetComponent<Actor>().TakeDamageAll_magics(0, 12500000, 0);
-                hitInfo.transform.GetComponent<Actor>().TakeDamageAll_percentage(0, 7, 0, 1, 1);
+                hitInfo.transform.GetComponent<Actor>().TakeDamageAll_percentage(0, 7, 0, PercentKind.magics, PercentageCategory.current);
                 break;
             case DataManager.Num.W:
                 hitInfo.transform.GetComponent<Actor>().TakeStunAll(0, 2, 0);

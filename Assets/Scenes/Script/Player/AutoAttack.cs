@@ -40,7 +40,7 @@ public class AutoAttack : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        for (int i = 0; i < GameManager.Instance.Action.TargetNumberMax; i++)
+        for (int i = 0; i < DataManager.targetNumberMax; i++)
         {
             if (i == action.targetNumber) continue;
             if (action.isStop[i]) continue;
@@ -63,8 +63,8 @@ public class AutoAttack : MonoBehaviour
                     if (action.target[i].gameObject.activeInHierarchy)
                     {
                         // 공격 실행
-                        stats.HealthTrigger(i);
-                        stats.ManaTrigger(i);
+                        stats.HealthTrigger(i,action.target[i]);
+                        stats.ManaTrigger(i,action.target[i]);
                         stats.CurrentHealth[i] += 1;
                         stats.CurrentMana[i] += 1;
                         float damageUp = 0;

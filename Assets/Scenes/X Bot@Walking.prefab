@@ -349,13 +349,13 @@ PrefabInstance:
       addedObject: {fileID: -1850970230921455203}
     - targetCorrespondingSourceObject: {fileID: 919132149155446097, guid: fb23401386c9f2d4f8f6ebf93d261351, type: 3}
       insertIndex: -1
-      addedObject: {fileID: 4630813172371640193}
-    - targetCorrespondingSourceObject: {fileID: 919132149155446097, guid: fb23401386c9f2d4f8f6ebf93d261351, type: 3}
-      insertIndex: -1
       addedObject: {fileID: 6589472610035353128}
     - targetCorrespondingSourceObject: {fileID: 919132149155446097, guid: fb23401386c9f2d4f8f6ebf93d261351, type: 3}
       insertIndex: -1
       addedObject: {fileID: 5372309591557442687}
+    - targetCorrespondingSourceObject: {fileID: 919132149155446097, guid: fb23401386c9f2d4f8f6ebf93d261351, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 3862516588075504658}
   m_SourcePrefab: {fileID: 100100000, guid: fb23401386c9f2d4f8f6ebf93d261351, type: 3}
 --- !u!1 &2248246416939278454 stripped
 GameObject:
@@ -382,7 +382,7 @@ MonoBehaviour:
   bar: {fileID: 0}
   magicArmor: 0
   magicalBuffer: 0
-  MaxHealth: 0
+  maxHealth: 0
   currentHealth: 0
   moveSpeed: 484
   boss: 0
@@ -464,24 +464,6 @@ Rigidbody:
   m_Interpolate: 0
   m_Constraints: 0
   m_CollisionDetection: 0
---- !u!114 &4630813172371640193
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 2248246416939278454}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 5fea29bb7c508c244a1f805a5fd3fc4d, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  outlineMode: 0
-  outlineColor: {r: 1, g: 0, b: 0, a: 1}
-  outlineWidth: 1
-  precomputeOutline: 0
-  bakeKeys: []
-  bakeValues: []
 --- !u!114 &6589472610035353128
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -518,3 +500,21 @@ CapsuleCollider:
   m_Height: 2
   m_Direction: 1
   m_Center: {x: 0, y: 1, z: 0}
+--- !u!114 &3862516588075504658
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2248246416939278454}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 23e382cd86785d343b5301f61bf59449, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::Outline
+  outlineMode: 0
+  outlineColor: {r: 1, g: 0, b: 0, a: 1}
+  outlineWidth: 1
+  precomputeOutline: 0
+  bakeKeys: []
+  bakeValues: []

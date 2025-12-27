@@ -15,7 +15,8 @@ public class ItemScrollView : MonoBehaviour
 
     [Range(1, 256)] public int radius = 64;
     // Start is called once before the first execution of Update after the MonoBehaviour is created
-    void Awake()
+
+    public void Init()
     {
         panels = new List<GameObject>();
         texts = new List<TextMeshProUGUI>();
@@ -30,11 +31,15 @@ public class ItemScrollView : MonoBehaviour
                     tex.SetPixel(x, y, Color.white);
             }
         tex.Apply();
+    }
+    void Awake()
+    {
+
 
     }
     void Start()
     {
-        actionScript = GameManager.Instance.Action;
+        actionScript = GameManager.Instance.action;
     }
 
     // Update is called once per frame
@@ -43,7 +48,7 @@ public class ItemScrollView : MonoBehaviour
 
     }
 
-    public void ImageInit(PriorityQueue<Item> items)
+    public void ImageInit(PriorityQueue<Item> items, bool ImageSet)
     {
         int count = items.Count;
         int panelCount = panels.Count;
@@ -55,7 +60,7 @@ public class ItemScrollView : MonoBehaviour
         {
             for (int i = 0; i < panelCount - count; i++) RemoveImage();
         }
-        SetImage(items);
+        SetImage(items, ImageSet);
     }
 
     private void AddImage()
@@ -123,15 +128,20 @@ public class ItemScrollView : MonoBehaviour
         Destroy(panel);
     }
 
-    private void SetImage(PriorityQueue<Item> items)
+    private void SetImage(PriorityQueue<Item> items, bool ImageSet)
     {
         int i = 0;
         foreach (Item item in items.EnumerateByPriority())
         {
-            panels[i].GetComponent<UnityEngine.UI.Outline>().effectColor = GameManager.Instance.ItemManager.GetColor(item);
-            panels[i].transform.Find("Item").GetComponent<Image>().sprite = item.Resource;
+            texts[i].text = item.count.ToString();
 
-            texts[i++].text = item.count.ToString();
+            if(ImageSet)
+            {
+                panels[i].GetComponent<UnityEngine.UI.Outline>().effectColor = GameManager.Instance.ItemManager.GetColor(item);
+                panels[i].transform.Find("Item").GetComponent<Image>().sprite = item.Resource;
+            }
+
+            i++;
         }
     }
 }

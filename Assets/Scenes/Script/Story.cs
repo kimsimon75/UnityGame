@@ -99,8 +99,8 @@ public class Story : Actor
                     StartCoroutine(item.list.GetRandomItems(ItemRank.안흔함, 2));
                     if(GameManager.Instance.GetRound() < 30)
                     {
+                        GameManager.Instance.chat.Push("파괴왕 달성");
                         item.list.GetMemoriesParts(2);
-                        GameManager.Instance.chat.Push("파괴왕을 달성하여");
                     }
                     break;
                 case 12:
@@ -127,6 +127,7 @@ public class Story : Actor
     public override void TakeDamageAll_physics(int damageAll, int damage, float detectRange, ArmorType damageType, float DoublePhysicsDamagePercentage, int armorDecrease)// damageAll만 사용
     {
         if (isDead) return;
+        if(damageAll == 0 && damage == 0)return;
 
         damageAll = (int)(damageAll * GetDamage(damageType, armorType));
         damage = (int)(damage * GetDamage(damageType, armorType));            
@@ -148,24 +149,27 @@ public class Story : Actor
     public override void TakeDamageAll_magics(int damageAll, int damage, float radius, bool trueDamage = false)
     {
         if(isDead) return;
+        if(damageAll == 0 && damage == 0)return;
         if(trueDamage)
             currentHealth = Mathf.Max(currentHealth - damage - damageAll, 0);
         else
             currentHealth = Mathf.Max(currentHealth - (damage + damageAll) * GetMagicDamage(), 0);
         Clear();
     }
-    public override void TakeDamageAll_percentage(float damageAll, float damage, float radius, int damageKind, int percent, bool boss = false, int armorDecrease = 0, ArmorType damageType = ArmorType.패기)
+    public override void TakeDamageAll_percentage(float damageAll, float damage, float radius, PercentKind percentKind, PercentageCategory percentageCategory, bool boss = false, int armorDecrease = 0, ArmorType damageType = ArmorType.패기)
     {
         if(isDead) return;
-        Debug.Log((damageAll + damage) / 100f * Percentage(percent) * DamageKind(damageKind,Armor,armorDecrease));
-        currentHealth = Mathf.Max(currentHealth - (damageAll + damage) / 100f * Percentage(percent) * DamageKind(damageKind,Armor,armorDecrease,damageType,armorType), 0);
+        if(damageAll == 0 && damage == 0)return;
+        Debug.Log((damageAll + damage) / 100f * Percentage(percentageCategory) * DamageKind(percentKind,Armor,armorDecrease));
+        currentHealth = Mathf.Max(currentHealth - (damageAll + damage) / 100f * Percentage(percentageCategory) * DamageKind(percentKind,Armor,armorDecrease,damageType,armorType), 0);
         Clear();
     }
 
-    public override void TakeDamage_explosions(float damage, ArmorType damageType, int percent)
+    public override void TakeDamage_explosions(float damage, ArmorType damageType, PercentageCategory percentageCategory)
     {
         if(isDead) return;
-        damage = damage * GetDamage(damageType, armorType) * ExPercentage(percent);
+        if( damage == 0)return;
+        damage = damage * GetDamage(damageType, armorType) * ExPercentage(percentageCategory);
         TakeDamageAll_magics((int)damage, 0, 0, false);
     }
 

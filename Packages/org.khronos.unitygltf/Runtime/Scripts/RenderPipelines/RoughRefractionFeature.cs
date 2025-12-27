@@ -21,7 +21,6 @@ namespace UnityGLTF
 #if !UNITY_2022_3_OR_NEWER
 	    [SerializeField]
 #endif
-		private Downsampling downsampling = Downsampling.None;
 
 	    class CustomRenderPass : CopyColorPass
 	    {
@@ -205,19 +204,6 @@ namespace UnityGLTF
 #endif
 	    }
 	    
-#if UNITY_2022_3_OR_NEWER
-		public override void SetupRenderPasses(ScriptableRenderer renderer, in RenderingData renderingData)
-		{
-#pragma warning disable 618
-			m_RoughRefractionPassNonRG.Setup(renderer.cameraColorTargetHandle, downsampling);
-#pragma warning restore 618
-		}
-
-		public void OnDestroy()
-		{
-			m_RoughRefractionPassNonRG?.Dispose();
-		}
-#endif
 		
 #if UNITY_2023_3_OR_NEWER
 		private RoughRefractionPassRG m_RoughRefractionPassRG;
