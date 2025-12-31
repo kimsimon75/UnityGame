@@ -11,7 +11,7 @@ public class UnitStatus : MonoBehaviour
     public GameObject status;
     void Start()
     {
-        action = GameManager.Instance.action;
+        action = GameManager.Instance.action[DataManager.targetNumberMax -1];
 
     }
 

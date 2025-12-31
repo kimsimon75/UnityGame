@@ -1,3 +1,4 @@
+using System;
 using Unity.VisualScripting;
 using UnityEngine;
 
@@ -15,21 +16,22 @@ public enum ArmorType
 
 public abstract class Actor : MonoBehaviour
 {
-    public ArmorType armorType = ArmorType.일반;
-    public bool isDead = false;
+    [NonSerialized] public ArmorType armorType = ArmorType.일반;
+    [NonSerialized] public bool isDead = false;
 
-    public int originArmor = 0;
-    public int deArmor = 0;
-    public float deArmorTime = 0;
+    [NonSerialized] public int originArmor = 0;
+    [NonSerialized] public int deArmor = 0;
+    [NonSerialized] public float deArmorTime = 0;
 
     protected int Armor = 0;
-    public GameObject bar;
+    [NonSerialized] public GameObject bar;
 
-    public float magicArmor;
-    public float magicalBuffer;
+    [NonSerialized] public float magicArmor;
+    [NonSerialized] public float magicalBuffer;
 
-    public float maxHealth;
-    public float currentHealth;
+    [NonSerialized] public float maxHealth;
+    [NonSerialized] public float currentHealth;
+    protected int armorDecrease = 0;
 
     protected virtual void Start()
     {
@@ -99,7 +101,7 @@ public abstract class Actor : MonoBehaviour
             return 2 - Mathf.Pow(0.94f, armorDecrease - Armor);
     }
 
-    public abstract void TakeDamageAll_physics(int damageAll, int damage, float radius, ArmorType damageType, float DoublePhysicsDamagePercentage, int armorDecrease);/// percent 0 : 일반, 1 : 전체, 2 : 현재, 3 : 잃은,
+    public abstract void TakeDamageAll_physics(int damageAll, int damage, float radius, ArmorType damageType, float DoublePhysicsDamagePercentage);/// percent 0 : 일반, 1 : 전체, 2 : 현재, 3 : 잃은,
 
     public abstract void TakeDamageAll_magics(int damageAll, int damage, float radius, bool trueDamage = false);
 
@@ -121,7 +123,7 @@ public abstract class Actor : MonoBehaviour
         {
             deArmor = 0;
         }
-        Armor = originArmor - deArmor;
+        Armor = originArmor - deArmor - armorDecrease;
     }
 
     protected float Percentage(PercentageCategory percent)

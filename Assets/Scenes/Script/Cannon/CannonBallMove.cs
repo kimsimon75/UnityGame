@@ -39,7 +39,7 @@ public class CannonBallMove : MonoBehaviour
         if (target!=null && other.gameObject == target.gameObject)
         {
             Actor stats = other.transform.GetComponent<Actor>();
-                stats.TakeDamageAll_physics(0, Damage, 0, DamageType ,0 ,0 );
+                stats.TakeDamageAll_physics(0, Damage, 0, DamageType ,0 );
             Destroy(gameObject); // 또는 다른 처리
         }
     }

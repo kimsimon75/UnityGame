@@ -124,7 +124,7 @@ public class Story : Actor
         Armor = story[level][1] - deArmor;
     }
 
-    public override void TakeDamageAll_physics(int damageAll, int damage, float detectRange, ArmorType damageType, float DoublePhysicsDamagePercentage, int armorDecrease)// damageAll만 사용
+    public override void TakeDamageAll_physics(int damageAll, int damage, float detectRange, ArmorType damageType, float DoublePhysicsDamagePercentage)// damageAll만 사용
     {
         if (isDead) return;
         if(damageAll == 0 && damage == 0)return;

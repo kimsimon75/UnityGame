@@ -163,7 +163,7 @@ public class ItemManager : MonoBehaviour
         {
             image.AddComponent<MyButtonTrigger>();
         }
-        list = new List(GameManager.Instance.playerStats, GameManager.Instance.cannonManager, this);
+        list = new List(GameManager.Instance.playerStats[DataManager.targetNumberMax - 1], GameManager.Instance.cannonManager, this);
         list.Clear();
     }
 
@@ -363,11 +363,15 @@ public class ItemManager : MonoBehaviour
         if (item.count == 1)
         {
             list.GotItem.Enqueue(item);
+            if(item.MoveSpeed != 0 || item.NeutralizeDefense != 0)
+                list.DebuffItem.Enqueue(item);
             list.SetUnity(item);
-            GameManager.Instance.scrollView.ImageInit(list.currentItem[GameManager.Instance.action.targetNumber], true);
+            if(list.currentItem == null)Debug.Log("current item 없음");
+            if(GameManager.Instance.originStatFor6 == null) Debug.Log("originstatfor6 없음");
+            GameManager.Instance.scrollView.ImageInit(list.currentItem[GameManager.Instance.originStatFor6.targetNumber], true);
         }
         else
-            GameManager.Instance.scrollView.ImageInit(list.currentItem[GameManager.Instance.action.targetNumber], false);
+            GameManager.Instance.scrollView.ImageInit(list.currentItem[GameManager.Instance.originStatFor6.targetNumber], false);
         Clear(editItem, false);
     }
 

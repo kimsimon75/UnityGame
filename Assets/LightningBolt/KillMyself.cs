@@ -17,7 +17,7 @@ public class KillMyself : MonoBehaviour
     {
         info += Time.deltaTime;
 
-        float progress01 = info / player.attackCooldown[player.GetComponent<ActionScript>().targetNumber] % 1f;
+        float progress01 = info / player.attackCooldown[GameManager.Instance.originStatFor6.targetNumber] % 1f;
         if (progress01 >= threshold01)
         {
             gameObject.SetActive(false);

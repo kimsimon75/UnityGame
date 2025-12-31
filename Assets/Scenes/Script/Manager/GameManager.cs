@@ -10,7 +10,8 @@ public class GameManager : MonoBehaviour
 {
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     public static GameManager Instance;
-    [NonSerialized] public ActionScript action;
+    [NonSerialized] public ActionScript[] action = new ActionScript[DataManager.targetNumberMax];
+    [NonSerialized] public OriginStatFor6 originStatFor6;
     private const float init = 35f;
     private const float bossInit = 75f;
     private float timeLeft = float.MinValue;  // 타이머 시작 시간 (초)
@@ -57,10 +58,10 @@ public class GameManager : MonoBehaviour
     public GameObject 사십;
     public GameObject 오십;
 
-    [NonSerialized] public PlayerStats playerStats;
-    [NonSerialized] public GameObject player;
+    [NonSerialized] public PlayerStats[] playerStats = new PlayerStats[DataManager.targetNumberMax];
+    [NonSerialized] public GameObject[] player = new GameObject[DataManager.targetNumberMax];
 
-    public GameObject[] playerUnit;
+    public GameObject[] playerUnit = new GameObject[DataManager.targetNumberMax];
     [NonSerialized] public int playerCharacter = 1;
 
     EnemyStats pawnEnemy;
@@ -105,15 +106,24 @@ public class GameManager : MonoBehaviour
     public TextMeshProUGUI PlayerStatsText;
 
     public Transform PlayerSummon;
+    
+    [NonSerialized] public int UnitCount;
 
     void Awake()
     {
         Instance = this;
         GetComponent<DataManager>().Init();
-        player = Instantiate(playerUnit[playerCharacter],PlayerSummon.transform.position,Quaternion.Euler(0, 180, 0),PlayerZone.transform);
-        action = player.GetComponent<ActionScript>();
-        playerStats = player.GetComponent<PlayerStats>();
+        for(int i=0;i<DataManager.targetNumberMax;i++)
+        {
+            player[i] = Instantiate(playerUnit[playerCharacter],PlayerSummon.transform.position,Quaternion.Euler(0, 180, 0),PlayerZone.transform);
+            action[i] = player[i].GetComponent<ActionScript>();
+            playerStats[i] = player[i].GetComponent<PlayerStats>();
 
+            player[i].GetComponent<SetPlayer>().Init(i);
+        }
+
+
+        UnitCount = 0;
         scrollView.Init();
         cannonManager = PlayerZone.GetComponent<CannonManager>();
         cannonManager.Init();
@@ -212,14 +222,14 @@ public class GameManager : MonoBehaviour
             {
                 GameObject CooldownTimer = cooldownImage[i];
     
-                if ((SkillToggle ? playerStats.someSortOfSkillCooldown[i] : skillCooldown[i]).Remaining <= 0)
+                if ((SkillToggle ? playerStats[DataManager.targetNumberMax -1].someSortOfSkillCooldown[i] : skillCooldown[i]).Remaining <= 0)
                 {
                     CooldownTimer.SetActive(false);
                 }
                 else
                 {
                     CooldownTimer.GetComponentInChildren<TextMeshProUGUI>(true).text = 
-                    ((int)(SkillToggle ? playerStats.someSortOfSkillCooldown[i] : skillCooldown[i]).Remaining + 1).ToString();
+                    ((int)(SkillToggle ? playerStats[DataManager.targetNumberMax -1].someSortOfSkillCooldown[i] : skillCooldown[i]).Remaining + 1).ToString();
                     CooldownTimer.SetActive(true);
                 }
             }
@@ -303,7 +313,8 @@ public class GameManager : MonoBehaviour
             {
                 EnemyStats boss = summoner.BossSummoner(Boss);
                 timeLeft = bossInit - 1;
-                boss.moveSpeed = 230f;
+                boss.baseMoveSpeed = 230f;
+                boss.moveSpeed = 230;
 
             }
             else
@@ -497,7 +508,7 @@ public class GameManager : MonoBehaviour
             }
             else if(SkillToggle) 
             {
-                if(playerStats.someSortOfSkillCooldown[target].IsReady)
+                if(playerStats[DataManager.targetNumberMax -1].someSortOfSkillCooldown[target].IsReady)
                 {                
                     if(target == (int)DataManager.Num.Q)
                     {
@@ -505,7 +516,7 @@ public class GameManager : MonoBehaviour
                         keyValueImages[(int)DataManager.Num.Q].GetComponent<UnityEngine.UI.Outline>().enabled = true;
                     }
                     else
-                        action.GetComponent<Skill>().ApplyAttackBuff(target);
+                        action[DataManager.targetNumberMax -1].GetComponent<Skill>().ApplyAttackBuff(target);
                 }
                 else chat.Push($"스킬이 준비중입니다.");
             }

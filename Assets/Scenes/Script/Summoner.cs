@@ -18,7 +18,7 @@ public class Summoner : MonoBehaviour
     }
     void Start()
     {
-        player = GameManager.Instance.playerStats;
+        player = GameManager.Instance.playerStats[DataManager.targetNumberMax - 1];
         if (summonInterval == 0)
             summonInterval = 0.65f;
 
@@ -33,7 +33,7 @@ public class Summoner : MonoBehaviour
 
         GameObject target = Instantiate(Boss, spawnPos, rot, gameObject.transform);
         target.transform.localScale *= 3;
-        tmp.text = $"{++player.UnitCount}";
+        tmp.text = $"{++GameManager.Instance.UnitCount}";
 
         EnemyStats enemy = target.GetComponent<EnemyStats>();
 
@@ -59,7 +59,7 @@ public class Summoner : MonoBehaviour
 
             GameObject enemy = Instantiate(characterPrefab, spawnPos, rot, gameObject.transform);
             enemy.GetComponent<EnemyStats>().SetRound(GameManager.Instance.GetRound());
-            tmp.text = $"{++player.UnitCount}";
+            tmp.text = $"{++GameManager.Instance.UnitCount}";
             yield return new WaitForSeconds(summonInterval);
         }
     }

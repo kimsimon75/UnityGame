@@ -7,7 +7,6 @@ using UnityEngine.UI;
 public class ItemScrollView : MonoBehaviour
 {
     public GameObject Content;
-    ActionScript actionScript;
     List<GameObject> panels;
     List<TextMeshProUGUI> texts;
 
@@ -37,11 +36,6 @@ public class ItemScrollView : MonoBehaviour
 
 
     }
-    void Start()
-    {
-        actionScript = GameManager.Instance.action;
-    }
-
     // Update is called once per frame
     void Update()
     {

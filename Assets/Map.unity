@@ -3577,8 +3577,8 @@ Transform:
   m_GameObject: {fileID: 180540941}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 0, y: 2, z: 0}
-  m_LocalScale: {x: 20, y: 2, z: 20}
+  m_LocalPosition: {x: 0, y: 1, z: 0}
+  m_LocalScale: {x: 20, y: 0.5, z: 20}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 894860648}
@@ -4528,8 +4528,8 @@ Transform:
   m_GameObject: {fileID: 221251458}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 0, y: 2, z: 0}
-  m_LocalScale: {x: 10, y: 4, z: 110}
+  m_LocalPosition: {x: 0, y: 1, z: 0}
+  m_LocalScale: {x: 10, y: 1, z: 110}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 894860648}
@@ -21172,8 +21172,8 @@ Transform:
   m_GameObject: {fileID: 1044319254}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 50, y: 2, z: 0}
-  m_LocalScale: {x: 10, y: 4, z: 110}
+  m_LocalPosition: {x: 50, y: 1, z: 0}
+  m_LocalScale: {x: 10, y: 1, z: 110}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 894860648}
@@ -27644,8 +27644,8 @@ Transform:
   m_GameObject: {fileID: 1356774801}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 0, y: 2, z: -50}
-  m_LocalScale: {x: 110, y: 4, z: 10}
+  m_LocalPosition: {x: 0, y: 1, z: -50}
+  m_LocalScale: {x: 110, y: 1, z: 10}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 894860648}
@@ -29862,8 +29862,8 @@ Transform:
   m_GameObject: {fileID: 1460438548}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 0, y: 2, z: 0}
-  m_LocalScale: {x: 110, y: 4, z: 10}
+  m_LocalPosition: {x: 0, y: 1, z: 0}
+  m_LocalScale: {x: 110, y: 1, z: 10}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 894860648}
@@ -31643,6 +31643,7 @@ GameObject:
   - component: {fileID: 1544451112}
   - component: {fileID: 1544451114}
   - component: {fileID: 1544451115}
+  - component: {fileID: 1544451116}
   m_Layer: 6
   m_Name: Story
   m_TagString: Enemy
@@ -31659,7 +31660,7 @@ Transform:
   m_GameObject: {fileID: 1544451109}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0.7071068, z: 0.7071068, w: 0}
-  m_LocalPosition: {x: 0, y: 7, z: 0}
+  m_LocalPosition: {x: 0, y: 4.5, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
@@ -31699,16 +31700,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 8b44cddfb9a1f364cb37371472c54380, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  armorType: 3
-  isDead: 0
-  originArmor: 0
-  deArmor: 0
-  deArmorTime: 0
-  bar: {fileID: 0}
-  magicArmor: 0
-  magicalBuffer: 0
-  maxHealth: 0
-  currentHealth: 0
   level: 0
 --- !u!114 &1544451113
 MonoBehaviour:
@@ -31737,7 +31728,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 67dd814c4c998f64ba456623b9ea6524, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  enableDebugLogs: 1
 --- !u!114 &1544451115
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -31756,6 +31746,18 @@ MonoBehaviour:
   precomputeOutline: 0
   bakeKeys: []
   bakeValues: []
+--- !u!114 &1544451116
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1544451109}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 8db2b460456f2f74fb23be5375fe4948, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::BuffController
 --- !u!1 &1551034493
 GameObject:
   m_ObjectHideFlags: 0
@@ -38039,8 +38041,8 @@ Transform:
   m_GameObject: {fileID: 1857601146}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: -50, y: 2, z: 0}
-  m_LocalScale: {x: 10, y: 4, z: 110}
+  m_LocalPosition: {x: -50, y: 1, z: 0}
+  m_LocalScale: {x: 10, y: 1, z: 110}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 894860648}
@@ -39908,8 +39910,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 98ff2bddcac341e44b340d3662ca5995, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  characterPrefab: {fileID: 5931842725892409784, guid: 22c260ee014a0a94096f76d4bd8637fe, type: 3}
-  NormalUnit: {fileID: 82568960517778932, guid: b588777d510141a4c9adce1de3387571, type: 3}
+  characterPrefab: {fileID: 2207164578646099634, guid: 58a66f38a0ab4c743b35c2f9b86323bf, type: 3}
   player: {fileID: 0}
   tmp: {fileID: 1789308931}
 --- !u!1 &1931612386
@@ -42349,8 +42350,8 @@ Transform:
   m_GameObject: {fileID: 2038774361}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 0, y: 2, z: 50}
-  m_LocalScale: {x: 110, y: 4, z: 10}
+  m_LocalPosition: {x: 0, y: 1, z: 50}
+  m_LocalScale: {x: 110, y: 1, z: 10}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 894860648}

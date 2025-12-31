@@ -233,6 +233,7 @@ public class List
 
     public const int gotItemCount = 15;
     public PriorityQueue<Item> GotItem = new PriorityQueue<Item>(gotItemCount);
+    public PriorityQueue<Item> DebuffItem = new();
 
     List<ItemDef> all = new List<ItemDef>{
         new ItemDef("만물석", Array.Empty<ItemIngredient>()),
@@ -1297,7 +1298,8 @@ new ItemDef("이브", new []{new ItemIngredient("이브", ItemRank.히든, 1), n
         {
             UnitySet(4, item);
         }
-        else if (item.Rank != ItemRank.상위 && (
+        else if (
+            item.Rank != ItemRank.상위 &&( 
             item.Percent == 0 &&
             item.BossPercentAttack == false &&
             item.MultiStun == 0))
@@ -1517,7 +1519,6 @@ new ItemDef("이브", new []{new ItemIngredient("이브", ItemRank.히든, 1), n
             Stats.manaRegen[number] += DataManager.Instance.RoundX(item.ManaRegen, 3);
             Stats.doublePhysics[number] += item.DoublePhysics;
             Stats.TrueDamage[number] += item.TrueDamage;
-            Stats.neutralizeDefense += item.NeutralizeDefense;
             Stats.Radius[number] = Mathf.Max(Stats.Radius[number], DataManager.Instance.RoundX(item.AttackRange * 0.01f,3));
             Stats.someSortOfSkillEffect[0] += item.Blink;
             Cannon.SetCannon(item.TowerDamage, item.TowerAttackSpeed);
@@ -1539,7 +1540,6 @@ new ItemDef("이브", new []{new ItemIngredient("이브", ItemRank.히든, 1), n
         Stats.manaRegen[number] -= DataManager.Instance.RoundX(item.ManaRegen, 3);
         Stats.doublePhysics[number] -= item.DoublePhysics;
         Stats.TrueDamage[number] -= item.TrueDamage;
-        Stats.neutralizeDefense -= item.NeutralizeDefense;
         Stats.someSortOfSkillEffect[0] -= item.Blink;
         Cannon.SetCannon(-item.TowerDamage, -item.TowerAttackSpeed);
         if(Stats.Radius[number] <= item.AttackRange)
@@ -1599,7 +1599,6 @@ new ItemDef("이브", new []{new ItemIngredient("이브", ItemRank.히든, 1), n
         bool BossPercentAttack = item.BossPercentAttack;
         ArmorType attackType = item.AttackType;
         float doubledDamage = item.DoublePhysics;
-        int neutralizeDefense = item.NeutralizeDefense;
         PercentKind percentKind = item.PercentKind;
         
         float DamagePercentage = 0f;
@@ -1616,7 +1615,7 @@ new ItemDef("이브", new []{new ItemIngredient("이브", ItemRank.히든, 1), n
 
                 actor.TakeDamage_explosions(Percent, attackType, PercentageCategory);
 
-                actor.TakeDamageAll_physics(MultiPhysics, MonoPhysics, Range, attackType, doubledDamage, neutralizeDefense);
+                actor.TakeDamageAll_physics(MultiPhysics, MonoPhysics, Range, attackType, doubledDamage);
 
                 actor.TakeDamageAll_magics(MultiMagic, MonoMagic, Range, false);
 
