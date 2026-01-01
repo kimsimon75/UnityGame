@@ -6,14 +6,14 @@ using UnityEngine;
 public class StatsWindow : MonoBehaviour
 {
     // Start is called once before the first execution of Update after the MonoBehaviour is created
-    [NonSerialized] public PlayerStats stats;
+    [NonSerialized] public OriginStatFor6 originStatFor6;
     [NonSerialized] public ActionScript action;
     private TextMeshProUGUI PlayerStatsText;
     void Start()
     {
         PlayerStatsText = GameManager.Instance.PlayerStatsText;
         action = GetComponent<ActionScript>();
-        stats = GetComponent<PlayerStats>();
+        originStatFor6 = GetComponent<OriginStatFor6>();
     }
 
     // Update is called once per frame
@@ -22,19 +22,19 @@ public class StatsWindow : MonoBehaviour
         
         PlayerStatsText.SetVerticesDirty();       
 
-        int targetNumber = GameManager.Instance.originStatFor6.targetNumber;
+        int targetNumber = originStatFor6.targetNumber;
         StringBuilder stringBuilder = new StringBuilder();
         int keyValue = GameManager.Instance.KeyValueNumber;
 
         if (keyValue >= DataManager.NumCount)
         {
-            var status = stats.GetStats();
+            var status = GameManager.Instance.playerStats[targetNumber].GetStats();
             stringBuilder.AppendLine($"부대 {GameManager.Instance.originStatFor6.targetNumber + 1}");
-            stringBuilder.AppendLine($"공격력 : {status.damage[targetNumber]} + {status.damage[targetNumber] * status.damageBonus[targetNumber]:F0}");
+            stringBuilder.AppendLine($"공격력 : {status.damage} + {status.damage * status.damageBonus:F0}");
             stringBuilder.AppendLine($"공격 속도 : {1 / status.attackCooldown:F3}");
             stringBuilder.AppendLine($"공속 보너스 : {status.attackSpeedBonus:F3}%");
-            stringBuilder.AppendLine($"공격력 비례 물리피해(짭플) : {status.doublePhysics[targetNumber]:F3}");
-            stringBuilder.AppendLine($"공격 범위 : {status.Radius[targetNumber] * 100}");
+            stringBuilder.AppendLine($"공격력 비례 물리피해(짭플) : {status.doublePhysics:F3}");
+            stringBuilder.AppendLine($"공격 범위 : {status.Radius * 100}");
             stringBuilder.AppendLine($"체력 재생 : {status.HealthRegen:F3}");
             stringBuilder.AppendLine($"마나 재생 : {status.manaRegen:F3}");
             stringBuilder.AppendLine($"마법증폭 : {status.MagicalBuffer * 100}%");
@@ -115,13 +115,13 @@ public class StatsWindow : MonoBehaviour
                 switch ((DataManager.Num)keyValue)
                 {
                     case DataManager.Num.Q:
-                        S += $"{stats.someSortOfSkillEffect[0]}거리를 도약합니다.";
+                        S += $"{originStatFor6.GetComponent<SkillManager>().defs[0].effect}거리를 도약합니다.";
                         break;
                     case DataManager.Num.W:
-                        S += $"{stats.someSortOfSkillDuration[1]}초동안 공격속도를 {stats.someSortOfSkillEffect[1]}% 증가시킵니다.";
+                        S += $"{originStatFor6.GetComponent<SkillManager>().defs[1].duration}초동안 공격속도를 {originStatFor6.GetComponent<SkillManager>().defs[1].effect}% 증가시킵니다.";
                         break;
                     case DataManager.Num.E:
-                        S += $"{stats.someSortOfSkillDuration[2]}초동안 공격력을 {stats.someSortOfSkillEffect[2]}% 증가시킵니다.";
+                        S += $"{originStatFor6.GetComponent<SkillManager>().defs[2].duration}초동안 공격력을 {originStatFor6.GetComponent<SkillManager>().defs[2].effect}% 증가시킵니다.";
                         break;
                     case DataManager.Num.Z:
                         S += $"유닛 하나를 삭제시킵니다.";

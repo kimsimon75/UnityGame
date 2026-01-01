@@ -11,18 +11,13 @@ public class SetPlayer : MonoBehaviour
         playerStats = gameObject.AddComponent<PlayerStats>();
         gameObject.AddComponent<HoldScanner>();
         gameObject.AddComponent<PlayerAttack>();
-        gameObject.AddComponent<PlayerBar>();
         gameObject.AddComponent<Skill>();
-        gameObject.AddComponent<StatsWindow>();
-        gameObject.AddComponent<Teleport>();
         gameObject.AddComponent<Outline>();
-        gameObject.AddComponent<PlayerBar>();
         gameObject.AddComponent<AgentMove>();
-        gameObject.AddComponent<AuraDebuffScanner>();
 
         Outline outline = gameObject.GetComponent<Outline>();
         
-        outline.OutlineWidth = 1f;
+        outline.OutlineWidth = 0.25f;
         outline.OutlineColor = new Color(0, 1, 0, 1);
     }
     
@@ -32,19 +27,12 @@ public class SetPlayer : MonoBehaviour
 
         if (index == DataManager.targetNumberMax - 1)
         {
+            gameObject.AddComponent<AuraDebuffScanner>();
+            gameObject.AddComponent<PlayerBar>();
+            gameObject.AddComponent<StatsWindow>();
+            gameObject.AddComponent<SkillManager>();
             gameObject.AddComponent<AutoAttack>();
             GameManager.Instance.originStatFor6 = gameObject.AddComponent<OriginStatFor6>();
         }
-    }
-
-    void Start()
-    {   
-
-    }
-
-    // Update is called once per frame
-    void Update()
-    {
-        
     }
 }

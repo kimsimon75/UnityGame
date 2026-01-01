@@ -16,9 +16,9 @@ public class ActionScript : MonoBehaviour
     private NavMeshAgent agent;
     private AgentMove move;
     private PlayerStats playerStats;
-    [NonSerialized] public Transform[] target;
+    [NonSerialized] public Transform target;
     [NonSerialized] public NavMeshHit point;
-    [NonSerialized] public float[] attackDisableTime;
+    [NonSerialized] public float attackDisableTime;
     [NonSerialized] public bool[] isStop;
     private bool OnTheStory = false;
     [NonSerialized] public Transform statsTarget = null;
@@ -53,19 +53,14 @@ public class ActionScript : MonoBehaviour
         Lightning = GameManager.Instance.Lightnings;
         StoryCannon = GameManager.Instance.StoryCannons.transform;
 
-        target = new Transform[DataManager.targetNumberMax];
-        attackDisableTime = new float[DataManager.targetNumberMax];
         isStop = new bool[DataManager.targetNumberMax];
 
         TriggerHold();
         mainCamera = Camera.main;
         targetDistance = mainCamera.fieldOfView;
-        mainCamera.transform.position = transform.position + camOffset;
+        if (originStatFor6.targetNumber == playerStats.alterEgoPlayer)
+            mainCamera.transform.position = transform.position + camOffset;
 
-        for (int i = 0; i < target.Length; i++)
-        {
-            target[i] = null;
-        }
         Clone = Instantiate(Lightning, transform);
         Clone.GetComponent<LightningBoltScript>().StartObject = gameObject;
         Clone.SetActive(false);
@@ -105,7 +100,7 @@ public class ActionScript : MonoBehaviour
                 Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
                 if (Physics.Raycast(ray, out RaycastHit hitInfo, 100f, enemyLayer))
                 {
-                    target[originStatFor6.targetNumber] = hitInfo.transform;
+                    target = hitInfo.transform;
                     TriggerAttack();
                 }
                 else
@@ -120,8 +115,7 @@ public class ActionScript : MonoBehaviour
                 Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
                 if (Physics.Raycast(ray, out RaycastHit hitInfo, 100f, enemyLayer))
                 {
-                    for(int i=0;i<DataManager.targetNumberMax;i++)
-                    target[i] = hitInfo.transform;
+                    target = hitInfo.transform;
                     TriggerAttack();
                 }
                 else
@@ -130,7 +124,7 @@ public class ActionScript : MonoBehaviour
                 }
                 isAllReady = false;
             }
-            else if (GameManager.Instance.TeleportOn)
+            else if (GameManager.Instance.playerStats[originStatFor6.targetNumber].TeleportOn)
             {
                 Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
 
@@ -163,7 +157,7 @@ public class ActionScript : MonoBehaviour
 
             if (Physics.Raycast(ray, out RaycastHit hitInfo, 100f, enemyLayer))
             {
-                target[originStatFor6.targetNumber] = hitInfo.transform;
+                target = hitInfo.transform;
                 TriggerAttack();
             }
             else if (Physics.Raycast(ray, out RaycastHit groundHit, 100f))
@@ -228,15 +222,14 @@ public class ActionScript : MonoBehaviour
 
     void LateUpdate()
     {
+        if (originStatFor6 == null) return;
+        if (originStatFor6.targetNumber != playerStats.alterEgoPlayer) return;        
         mainCamera.fieldOfView = Mathf.SmoothDamp(
             mainCamera.fieldOfView,
             targetDistance,
             ref zoomVelocity,
             smoothTimeZoom
         );
-
-
-
     }
 
     public void TriggerAttack()
@@ -269,7 +262,7 @@ public class ActionScript : MonoBehaviour
         agent.isStopped = false;
         move.enabled = true;
 
-        target[originStatFor6.targetNumber] = null;
+        target = null;
         isStop[originStatFor6.targetNumber] = false;
         anim.CrossFade("Walking", 0);
 
@@ -282,15 +275,15 @@ public class ActionScript : MonoBehaviour
         agent.isStopped = true;
         
         move.enabled = false;
-        target[originStatFor6.targetNumber] = null;
+        target = null;
         isStop[originStatFor6.targetNumber] = true;
         anim.CrossFade("Idle", 0);
     }
     
     
-    public bool IsAttackDisabledFor(int target)
+    public bool IsAttackDisabledFor()
     {
-        return Time.time < attackDisableTime[target];
+        return Time.time < attackDisableTime;
     }
     
 

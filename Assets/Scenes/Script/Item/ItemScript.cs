@@ -11,14 +11,14 @@ public class ItemScript : MonoBehaviour
     private Image[] darkImg = new Image[DataManager.NumCount];
 
     SkillCool[] skillCooldown;
-    SkillCool[] someSortOfSkillCooldown;
+    SkillManager someSortOfSkillCooldown;
 
     Sprite[][] sprites = new Sprite[2][];
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
     {
         skillCooldown = GameManager.Instance.skillCooldown;
-        someSortOfSkillCooldown = GameManager.Instance.playerStats[DataManager.targetNumberMax -1].someSortOfSkillCooldown;
+        someSortOfSkillCooldown = GameManager.Instance.originStatFor6.GetComponent<SkillManager>();
         item = GameManager.Instance.ItemManager;
         items = GameManager.Instance.items;
 
@@ -87,8 +87,9 @@ public class ItemScript : MonoBehaviour
         for (int i = 0; i < DataManager.NumCount-1; i++)
         {
             darkImg[i].fillAmount = GameManager.Instance.items.activeSelf ? 0 : 
-            (GameManager.Instance.SkillToggle ? (someSortOfSkillCooldown[i].Remaining / GameManager.Instance.playerStats[DataManager.targetNumberMax -1].someSortOfSkillCooltime[i]) :
-             (skillCooldown[i].Remaining / GameManager.Instance.skillCoolInit[i]));
+            (GameManager.Instance.SkillToggle ? 
+            (someSortOfSkillCooldown.CoolLeft(GameManager.Instance.originStatFor6.targetNumber, (SkillId)i) / someSortOfSkillCooldown.defs[i].cooldown) :
+            (skillCooldown[i].Remaining / GameManager.Instance.skillCoolInit[i]));
         }
 
 

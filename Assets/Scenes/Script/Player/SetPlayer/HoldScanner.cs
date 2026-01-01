@@ -19,21 +19,21 @@ public class HoldScanner : MonoBehaviour
     void Update()
     {
         // 타깃 재검색
-            if (action.target[GameManager.Instance.originStatFor6.targetNumber] == null || Vector3.Distance(action.target[GameManager.Instance.originStatFor6.targetNumber].position, transform.position) > stats.detectRange)
+            if (action.target == null || Vector3.Distance(action.target.position, transform.position) > stats.detectRange)
             {
                 FindClosestEnemy(transform.position, stats.detectRange, LayerMask.GetMask("Enemy"), GameManager.Instance.originStatFor6.targetNumber);
             }
 
-        if (action.target[GameManager.Instance.originStatFor6.targetNumber] != null)
+        if (action.target != null)
         {
             
-            Vector3 dir = (action.target[GameManager.Instance.originStatFor6.targetNumber].position - transform.position).normalized;
+            Vector3 dir = (action.target.position - transform.position).normalized;
             Quaternion rot = Quaternion.LookRotation(new Vector3(dir.x, 0, dir.z));
             transform.rotation = Quaternion.Slerp(transform.rotation, rot, Time.deltaTime * 10f);
         }
 
-        if (action.IsAttackDisabledFor(GameManager.Instance.originStatFor6.targetNumber)) return;   // 쿨다운 중이면 대기
-        if (action.target[GameManager.Instance.originStatFor6.targetNumber] != null)
+        if (action.IsAttackDisabledFor()) return;   // 쿨다운 중이면 대기
+        if (action.target != null)
         {
             // 바라보기
 
@@ -68,6 +68,6 @@ public class HoldScanner : MonoBehaviour
                 closest = hit.transform;
             }
         }
-        action.target[targetNum] = closest;
+        action.target = closest;
     }
 }

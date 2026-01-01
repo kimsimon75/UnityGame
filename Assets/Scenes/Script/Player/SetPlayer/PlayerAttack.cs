@@ -19,12 +19,12 @@ public class PlayerAttack : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        if (action.target[GameManager.Instance.originStatFor6.targetNumber] == null)
+        if (action.target == null)
         {
             action.TriggerHold();
             return;
         }
-        Transform target = action.target[GameManager.Instance.originStatFor6.targetNumber];
+        Transform target = action.target;
         float dist = Vector3.Distance(transform.position, target.position);
         
         
@@ -33,7 +33,7 @@ public class PlayerAttack : MonoBehaviour
         transform.rotation = Quaternion.Slerp(transform.rotation, lookRotation, UnityEngine.Time.deltaTime * 10f);
 
 
-        if (dist > stats.detectRange && !action.IsAttackDisabledFor(GameManager.Instance.originStatFor6.targetNumber))
+        if (dist > stats.detectRange && !action.IsAttackDisabledFor())
         {
             agent.isStopped = false;
             agent.SetDestination(target.position);
@@ -44,7 +44,7 @@ public class PlayerAttack : MonoBehaviour
         }
         else
         {
-            if (!action.IsAttackDisabledFor(GameManager.Instance.originStatFor6.targetNumber))
+            if (!action.IsAttackDisabledFor())
             {
                 agent.isStopped = true;
                 if (!anim.GetCurrentAnimatorStateInfo(0).IsName("Attack") &&

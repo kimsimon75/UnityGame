@@ -15267,8 +15267,8 @@ MonoBehaviour:
   m_faceColor:
     serializedVersion: 2
     rgba: 4294967295
-  m_fontSize: 20
-  m_fontSizeBase: 20
+  m_fontSize: 15
+  m_fontSizeBase: 15
   m_fontWeight: 400
   m_enableAutoSizing: 0
   m_fontSizeMin: 18
@@ -39911,6 +39911,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   characterPrefab: {fileID: 2207164578646099634, guid: 58a66f38a0ab4c743b35c2f9b86323bf, type: 3}
+  NormalUnit: {fileID: 0}
   player: {fileID: 0}
   tmp: {fileID: 1789308931}
 --- !u!1 &1931612386

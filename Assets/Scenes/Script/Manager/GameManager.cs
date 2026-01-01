@@ -99,7 +99,6 @@ public class GameManager : MonoBehaviour
 
     public bool SkillToggle = false;
 
-    public bool TeleportOn = false;
     public Transform magicZone;
     public Slider HPBar;
     public Slider MPBar;
@@ -222,14 +221,14 @@ public class GameManager : MonoBehaviour
             {
                 GameObject CooldownTimer = cooldownImage[i];
     
-                if ((SkillToggle ? playerStats[DataManager.targetNumberMax -1].someSortOfSkillCooldown[i] : skillCooldown[i]).Remaining <= 0)
+                if (SkillToggle ? originStatFor6.GetComponent<SkillManager>().CanUse(originStatFor6.targetNumber, (SkillId)i) : skillCooldown[i].IsReady)
                 {
                     CooldownTimer.SetActive(false);
                 }
                 else
                 {
                     CooldownTimer.GetComponentInChildren<TextMeshProUGUI>(true).text = 
-                    ((int)(SkillToggle ? playerStats[DataManager.targetNumberMax -1].someSortOfSkillCooldown[i] : skillCooldown[i]).Remaining + 1).ToString();
+                    ((int)((SkillToggle ? originStatFor6.GetComponent<SkillManager>().CoolLeft(originStatFor6.targetNumber, (SkillId)i) : skillCooldown[i].Remaining) + 1f)).ToString();
                     CooldownTimer.SetActive(true);
                 }
             }
@@ -496,7 +495,7 @@ public class GameManager : MonoBehaviour
             else if(!SkillToggle)
             {   
 
-                 if (energy.currentEnergy >= skillEnergy[target] && skillCooldown[target].IsReady)
+                if (energy.currentEnergy >= skillEnergy[target] && skillCooldown[target].IsReady)
                 {
                     isSkill[target] = true;
                     keyValueImages[target].GetComponent<UnityEngine.UI.Outline>().enabled = true;
@@ -508,15 +507,15 @@ public class GameManager : MonoBehaviour
             }
             else if(SkillToggle) 
             {
-                if(playerStats[DataManager.targetNumberMax -1].someSortOfSkillCooldown[target].IsReady)
+                if(originStatFor6.GetComponent<SkillManager>().CanUse(originStatFor6.targetNumber, (SkillId)target))
                 {                
                     if(target == (int)DataManager.Num.Q)
                     {
-                        TeleportOn = true;
+                        playerStats[target].TeleportOn = true;
                         keyValueImages[(int)DataManager.Num.Q].GetComponent<UnityEngine.UI.Outline>().enabled = true;
                     }
                     else
-                        action[DataManager.targetNumberMax -1].GetComponent<Skill>().ApplyAttackBuff(target);
+                        originStatFor6.GetComponent<SkillManager>().TryUse(originStatFor6.targetNumber, (SkillId)target);
                 }
                 else chat.Push($"스킬이 준비중입니다.");
             }

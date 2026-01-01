@@ -51,9 +51,9 @@ public class HitPoint : StateMachineBehaviour
 
     public override void OnStateUpdate(Animator animator, AnimatorStateInfo stateInfo, int layerIndex)
     {
-        if (action.IsAttackDisabledFor(GameManager.Instance.originStatFor6.targetNumber)) return;
+        if (action.IsAttackDisabledFor()) return;
 
-        if (action.target[GameManager.Instance.originStatFor6.targetNumber] == null)
+        if (action.target == null)
         {
             action.Clone.SetActive(false);
             animator.CrossFade("Idle", 0.0f, layerIndex); // 네 Idle 상태명으로
@@ -69,12 +69,12 @@ public class HitPoint : StateMachineBehaviour
 
         if (!hashitThisLoop && progress >= hitTiming)
         {
-            if (action.target[GameManager.Instance.originStatFor6.targetNumber] == null || !action.target[GameManager.Instance.originStatFor6.targetNumber].gameObject.activeInHierarchy) return;
+            if (action.target == null || !action.target.gameObject.activeInHierarchy) return;
 
             // ⚠ LightningBoltScript 사용법 수정: Start/EndObject를 '대상 오브젝트'로 지정하고
             // 오프셋은 Start/EndPosition으로 줘야 null 에러가 안 납니다.
             var lb = action.Clone.GetComponent<LightningBoltScript>();
-            lb.EndObject = action.target[GameManager.Instance.originStatFor6.targetNumber].gameObject;
+            lb.EndObject = action.target.gameObject;
 
             // 수명은 타이머로 처리 (애니메이터와 독립, 지연 없음)
             killer.Init(duration);   // duration = 0.15f 등
@@ -82,29 +82,29 @@ public class HitPoint : StateMachineBehaviour
             action.Clone.SetActive(true);
             action.Clone.GetComponent<KillMyself>().info = 0;
             // 데미지/스킬
-            if (action.target[GameManager.Instance.originStatFor6.targetNumber].gameObject.activeInHierarchy)
+            if (action.target.gameObject.activeInHierarchy)
             {
-                stats.HealthTrigger(GameManager.Instance.originStatFor6.targetNumber, action.target[GameManager.Instance.originStatFor6.targetNumber]);
-                stats.ManaTrigger(GameManager.Instance.originStatFor6.targetNumber,action.target[GameManager.Instance.originStatFor6.targetNumber]);
-                stats.CurrentHealth[GameManager.Instance.originStatFor6.targetNumber] += 1;
-                stats.CurrentMana[GameManager.Instance.originStatFor6.targetNumber] += 1;
+                stats.HealthTrigger(action.target);
+                stats.ManaTrigger(action.target);
+                stats.CurrentHealth += 1;
+                stats.CurrentMana += 1;
                 float damageUp = 0;
                 foreach (Item item1 in item.list.currentItem[GameManager.Instance.originStatFor6.targetNumber])
-                    damageUp += item.list.SetSkill(action.target[GameManager.Instance.originStatFor6.targetNumber].GetComponent<Actor>(), item1);
+                    damageUp += item.list.SetSkill(action.target.GetComponent<Actor>(), item1);
 
-                Actor actor = action.target[GameManager.Instance.originStatFor6.targetNumber].GetComponent<Actor>();
+                Actor actor = action.target.GetComponent<Actor>();
 
-                actor.TakeDamageAll_physics((int)(stats.damage[GameManager.Instance.originStatFor6.targetNumber] * (1 + damageUp + stats.damageBonus[GameManager.Instance.originStatFor6.targetNumber])), 
-                0, stats.Radius[GameManager.Instance.originStatFor6.targetNumber], stats.armorType, stats.doublePhysics[GameManager.Instance.originStatFor6.targetNumber]);
+                actor.TakeDamageAll_physics((int)(stats.damage * (1 + damageUp + stats.damageBonus)), 
+                0, stats.Radius, stats.armorType, stats.doublePhysics);
 
                 actor.TakeDamageAll_magics(
-                    (int)(stats.damage[GameManager.Instance.originStatFor6.targetNumber] * (1 + damageUp + stats.damageBonus[GameManager.Instance.originStatFor6.targetNumber]) * stats.TrueDamage[GameManager.Instance.originStatFor6.targetNumber]),
-                 0, stats.Radius[GameManager.Instance.originStatFor6.targetNumber], true);
+                    (int)(stats.damage * (1 + damageUp + stats.damageBonus) * stats.TrueDamage),
+                 0, stats.Radius, true);
                 
             }
 
             hashitThisLoop = true;
-            action.attackDisableTime[GameManager.Instance.originStatFor6.targetNumber] = Time.time + attackDelay;
+            action.attackDisableTime = Time.time + attackDelay;
         }
         if (hashitThisLoop)
             SetDisableUntilStateEnd(stateInfo);
@@ -114,9 +114,9 @@ public class HitPoint : StateMachineBehaviour
     public override void OnStateExit(Animator animator, AnimatorStateInfo stateInfo, int layerIndex)
     {
         if (hashitThisLoop)
-            action.attackDisableTime[GameManager.Instance.originStatFor6.targetNumber] = Time.time + stats.attackCooldown[GameManager.Instance.originStatFor6.targetNumber] * (1 - stateInfo.normalizedTime % 1f);
+            action.attackDisableTime = Time.time + stats.attackCooldown * (1 - stateInfo.normalizedTime % 1f);
         else
-            action.attackDisableTime[GameManager.Instance.originStatFor6.targetNumber] = 0;
+            action.attackDisableTime = 0;
         action.Clone.SetActive(false);
     }
 
@@ -124,6 +124,6 @@ public class HitPoint : StateMachineBehaviour
     {
         float progress = info.normalizedTime % 1f;          // 0~1
         float remaining = (1f - progress) * info.length;    // 지금 속도 기준 남은 초
-        action.attackDisableTime[GameManager.Instance.originStatFor6.targetNumber] = Time.time + remaining;
+        action.attackDisableTime = Time.time + remaining;
     }
 }

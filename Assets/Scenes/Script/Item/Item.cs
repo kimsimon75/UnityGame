@@ -220,7 +220,7 @@ public class ItemIngredient
 public class List
 {
     public List<Item>[] itemList = new List<Item>[(int)ItemRank.상위 + 1];
-    public PlayerStats Stats;
+    public PlayerStats[] Stats;
     public CannonManager Cannon;
     public ItemManager ItemManager;
     private Dictionary<(string, ItemRank), Item> dict;
@@ -251,11 +251,13 @@ public class List
     List<ItemDef> upperRanked;
 
     public List<ItemDef>[] table;
+    OriginStatFor6 originStatFor6;
 
-    public List(PlayerStats stats, CannonManager cannon, ItemManager itemManager)
+    public List(PlayerStats[] stats, CannonManager cannon, ItemManager itemManager)
     {
         currentItem = new PriorityQueue<Item>[DataManager.targetNumberMax];
         rankOn = new int[DataManager.targetNumberMax];
+        originStatFor6 = GameManager.Instance.originStatFor6;
         for (int i = 0; i < currentItem.Length; i++)
         {
             currentItem[i] = new PriorityQueue<Item>(30);
@@ -1337,25 +1339,25 @@ new ItemDef("이브", new []{new ItemIngredient("이브", ItemRank.히든, 1), n
                 switch ((ItemRank)(Mathf.Log(i, 2) + (int)ItemRank.안흔함))
                 {
                     case ItemRank.안흔함:
-                        Stats.damage[number] += 100;
-                        Stats.attackDelay[number] = 0.95f;
+                        Stats[number].damage += 100;
+                        Stats[number].attackDelay = 0.95f;
                         break;
                     case ItemRank.특별함:
-                        Stats.damage[number] += 400;
-                        Stats.attackDelay[number] = 0.9f;
-                        Stats.attackSpeedBonus[number] += 25f;
-                        Stats.someSortOfSkillEffect[0] += 300;
+                        Stats[number].damage += 400;
+                        Stats[number].attackDelay = 0.9f;
+                        Stats[number].attackSpeedBonus += 25f;
+                        originStatFor6.GetComponent<SkillManager>().defs[0].effect += 300;
                         GameManager.Instance.chat.Push("도약 잠금 해제");
                         break;
                     case ItemRank.희귀함:
-                        Stats.damage[number] += 4500;
-                        Stats.attackDelay[number] = 0.85f;
-                        Stats.attackSpeedBonus[number] += 45f;
+                        Stats[number].damage += 4500;
+                        Stats[number].attackDelay = 0.85f;
+                        Stats[number].attackSpeedBonus += 45f;
                         break;
                     case ItemRank.전설적인:
-                        Stats.damage[number] += 9000;
-                        Stats.attackDelay[number] = 0.70f;
-                        Stats.attackSpeedBonus[number] += 215f;
+                        Stats[number].damage += 9000;
+                        Stats[number].attackDelay = 0.70f;
+                        Stats[number].attackSpeedBonus += 215f;
                         break;
 
                 }
@@ -1403,20 +1405,20 @@ new ItemDef("이브", new []{new ItemIngredient("이브", ItemRank.히든, 1), n
                 switch ((ItemRank)(Mathf.Log(i, 2) + (int)ItemRank.안흔함))
                 {
                     case ItemRank.안흔함:
-                        Stats.damage[number] -= 100;
-                        Stats.attackDelay[number] = 1f;
+                        Stats[number].damage -= 100;
+                        Stats[number].attackDelay = 1f;
                         break;
                     case ItemRank.특별함:
-                        Stats.damage[number] -= 400;
-                        Stats.attackSpeedBonus[number] -= 25f;
+                        Stats[number].damage -= 400;
+                        Stats[number].attackSpeedBonus -= 25f;
                         break;
                     case ItemRank.희귀함:
-                        Stats.damage[number] -= 4500;
-                        Stats.attackSpeedBonus[number] -= 45f;
+                        Stats[number].damage -= 4500;
+                        Stats[number].attackSpeedBonus -= 45f;
                         break;
                     case ItemRank.전설적인:
-                        Stats.damage[number] -= 9000;
-                        Stats.attackSpeedBonus[number] -= 215f;
+                        Stats[number].damage -= 9000;
+                        Stats[number].attackSpeedBonus -= 215f;
                         break;
                     case ItemRank.상위:
                         break;
@@ -1513,14 +1515,14 @@ new ItemDef("이브", new []{new ItemIngredient("이브", ItemRank.히든, 1), n
     {
         if (Stats != null)
         {
-            Stats.damage[number] += item.AttackPower;
-            Stats.attackSpeedBonus[number] += item.AttackSpeed;
-            Stats.HealthRegen[number] += DataManager.Instance.RoundX(item.HealthRegen, 3);
-            Stats.manaRegen[number] += DataManager.Instance.RoundX(item.ManaRegen, 3);
-            Stats.doublePhysics[number] += item.DoublePhysics;
-            Stats.TrueDamage[number] += item.TrueDamage;
-            Stats.Radius[number] = Mathf.Max(Stats.Radius[number], DataManager.Instance.RoundX(item.AttackRange * 0.01f,3));
-            Stats.someSortOfSkillEffect[0] += item.Blink;
+            Stats[number].damage += item.AttackPower;
+            Stats[number].attackSpeedBonus += item.AttackSpeed;
+            Stats[number].HealthRegen += DataManager.Instance.RoundX(item.HealthRegen, 3);
+            Stats[number].manaRegen += DataManager.Instance.RoundX(item.ManaRegen, 3);
+            Stats[number].doublePhysics += item.DoublePhysics;
+            Stats[number].TrueDamage += item.TrueDamage;
+            Stats[number].Radius = Mathf.Max(Stats[number].Radius, DataManager.Instance.RoundX(item.AttackRange * 0.01f,3));
+            Stats[number].blinkRange += item.Blink;
             Cannon.SetCannon(item.TowerDamage, item.TowerAttackSpeed);
             if (item.NecessaryItem.Count() == 0)
                 return;
@@ -1534,21 +1536,21 @@ new ItemDef("이브", new []{new ItemIngredient("이브", ItemRank.히든, 1), n
     }
     public void StatsDown(Item item, int number)
     {
-        Stats.damage[number] -= item.AttackPower;
-        Stats.attackSpeedBonus[number] -= item.AttackSpeed;
-        Stats.HealthRegen[number] -= DataManager.Instance.RoundX(item.HealthRegen, 3);
-        Stats.manaRegen[number] -= DataManager.Instance.RoundX(item.ManaRegen, 3);
-        Stats.doublePhysics[number] -= item.DoublePhysics;
-        Stats.TrueDamage[number] -= item.TrueDamage;
-        Stats.someSortOfSkillEffect[0] -= item.Blink;
+        Stats[number].damage -= item.AttackPower;
+        Stats[number].attackSpeedBonus -= item.AttackSpeed;
+        Stats[number].HealthRegen -= DataManager.Instance.RoundX(item.HealthRegen, 3);
+        Stats[number].manaRegen -= DataManager.Instance.RoundX(item.ManaRegen, 3);
+        Stats[number].doublePhysics -= item.DoublePhysics;
+        Stats[number].TrueDamage -= item.TrueDamage;
+        Stats[number].blinkRange -= item.Blink;
         Cannon.SetCannon(-item.TowerDamage, -item.TowerAttackSpeed);
-        if(Stats.Radius[number] <= item.AttackRange)
+        if(Stats[number].Radius <= item.AttackRange)
         {
-            Stats.Radius[number] = 0f;
+            Stats[number].Radius = 0f;
             foreach(Item itemIn in itemList[number])
             {
-                if(Stats.Radius[number] < itemIn.AttackRange)
-                Stats.Radius[number] = itemIn.AttackRange;
+                if(Stats[number].Radius < itemIn.AttackRange)
+                Stats[number].Radius = itemIn.AttackRange;
 
             }
         }

@@ -163,7 +163,7 @@ public class ItemManager : MonoBehaviour
         {
             image.AddComponent<MyButtonTrigger>();
         }
-        list = new List(GameManager.Instance.playerStats[DataManager.targetNumberMax - 1], GameManager.Instance.cannonManager, this);
+        list = new List(GameManager.Instance.playerStats, GameManager.Instance.cannonManager, this);
         list.Clear();
     }
 

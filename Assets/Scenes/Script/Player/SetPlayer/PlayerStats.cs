@@ -5,46 +5,40 @@ using UnityEngine;
 
 public class PlayerStats : MonoBehaviour
 {
-    [NonSerialized] public int[] CurrentHealth;
-    [NonSerialized] public int[] MaxHealth;
-    [NonSerialized] public int[] CurrentMana;
-    [NonSerialized] public int[] MaxMana;
+    [NonSerialized] public int CurrentHealth;
+    [NonSerialized] public int MaxHealth;
+    [NonSerialized] public int CurrentMana;
+    [NonSerialized] public int MaxMana;
 
-    [NonSerialized] public float[] HealthRegen;
-    [NonSerialized] public float[] manaRegen;
+    [NonSerialized] public float HealthRegen;
+    [NonSerialized] public float manaRegen;
 
-    private float[] hpRegenBuffer;
-    private float[] mpRegenBuffer;
-    [NonSerialized] public float[] attackSpeedBonus;
+    private float hpRegenBuffer;
+    private float mpRegenBuffer;
+    [NonSerialized] public float attackSpeedBonus;
 
-    [NonSerialized] public float[] attackSpeedBonusBonus;
-    [NonSerialized] public float[] attackCooldown;
-    [NonSerialized] public float[] attackDelay;
+    [NonSerialized] public float attackSpeedBonusBonus;
+    [NonSerialized] public float attackCooldown;
+    [NonSerialized] public float attackDelay;
     [NonSerialized] public float lastAttackTime = float.MinValue;
-    [NonSerialized] public int[] damage;
+    [NonSerialized] public int damage;
 
-    [NonSerialized] public float[] damageBonus;
-    [NonSerialized] public float[] doublePhysics;
+    [NonSerialized] public float damageBonus;
+    [NonSerialized] public float doublePhysics;
     [NonSerialized] public float MoveSpeed;
-    [NonSerialized] public float[] Radius;
+    [NonSerialized] public float Radius;
     [NonSerialized] public int player = 1;
     [NonSerialized] public int alterEgoPlayer = 6;
     [NonSerialized] public float detectRange = 6f;
-    [NonSerialized]public float MagicalBuffer = 0f;
-    [NonSerialized]public float MagicalDebuffer = 0.90f;
-    [NonSerialized]public float[] TrueDamage;
-    [NonSerialized]public int TowerDamage;
-    [NonSerialized]public int TowerAttackSpeed;
-
-    [NonSerialized]public float[] someSortOfSkillActive;
-
-    [NonSerialized]public int[] someSortOfSkillDuration;
-
-    [NonSerialized]public float[] someSortOfSkillCooltime;
-
-    [NonSerialized]public SkillCool[] someSortOfSkillCooldown;
-
-    [NonSerialized]public float[] someSortOfSkillEffect;
+    [NonSerialized] public float MagicalBuffer = 0f;
+    [NonSerialized] public float MagicalDebuffer = 0.90f;
+    [NonSerialized] public float TrueDamage;
+    [NonSerialized] public int TowerDamage;
+    [NonSerialized] public int TowerAttackSpeed;
+    [NonSerialized] public bool TeleportOn = false;
+    [NonSerialized] public float blinkRange;     // 아이템으로 결정된 최종 도약거리
+    [NonSerialized] public float blinkCooldown;
+    [NonSerialized] public float blinkDuration;  // 보통 0
 
 
 
@@ -61,83 +55,18 @@ public class PlayerStats : MonoBehaviour
         action = GetComponent<ActionScript>();
         itemManager = GameManager.Instance.ItemManager;
 
-        CurrentHealth = new int[DataManager.targetNumberMax];
-        MaxHealth = new int[DataManager.targetNumberMax];
-        CurrentMana = new int[DataManager.targetNumberMax];
-
-        MaxMana = new int[DataManager.targetNumberMax];
-
-        HealthRegen = new float[DataManager.targetNumberMax];
-        manaRegen = new float[DataManager.targetNumberMax];
-
-        hpRegenBuffer =  new float[DataManager.targetNumberMax];
-        mpRegenBuffer = new float[DataManager.targetNumberMax];
-
-        attackCooldown = new float[DataManager.targetNumberMax];
-        attackDelay = new float[DataManager.targetNumberMax];
-
-        damage = new int[DataManager.targetNumberMax];
-        doublePhysics = new float[DataManager.targetNumberMax];
-        Radius = new float[DataManager.targetNumberMax];
-
-        TrueDamage = new float[DataManager.targetNumberMax];
-
-        someSortOfSkillActive = new float[DataManager.NumCount-1];
-        someSortOfSkillDuration = new int[DataManager.NumCount-1];
-        someSortOfSkillCooltime = new float[DataManager.NumCount-1];
-        someSortOfSkillCooldown = new SkillCool[DataManager.NumCount-1];
-        someSortOfSkillEffect = new float[DataManager.NumCount-1];
-
-        attackSpeedBonus = new float[DataManager.targetNumberMax];
-
-        attackSpeedBonusBonus = new float[DataManager.targetNumberMax];
-        damageBonus = new float[DataManager.targetNumberMax];
-
         armorType = ArmorType.패기;
 
-        for (int i = 0; i < DataManager.targetNumberMax; i++)
-        {
-            MaxHealth[i] = 100;
-            CurrentHealth[i] = 0;
-            
-            MaxMana[i] = 100;          // ➕ 추가
-            CurrentMana[i] = 0;
-
-            HealthRegen[i] = 0f;
-            manaRegen[i] = 0f;
-        }        // ➕ 추가
-
-        for(int i=0;i<DataManager.NumCount-1; i++)
-        {
-            someSortOfSkillCooldown[i] = new SkillCool();
-        }
-
-
-        someSortOfSkillDuration[1] = 7;
-        someSortOfSkillDuration[2] = 15;
-
-        someSortOfSkillCooltime[0] = 4; // 도약
-        someSortOfSkillCooltime[1] = 50; // 각성
-        someSortOfSkillCooltime[2] = 40; // 도핑
-
-        someSortOfSkillEffect[0] = 0f;
-        someSortOfSkillEffect[1] = 80f;
-        someSortOfSkillEffect[2] = 15f;
-
+        MaxHealth = 100;
+        MaxMana = 100;
 
         MoveSpeed = 6f;
+        damage = 10;
+        attackDelay = 1f;
+        attackCooldown = 1f;
 
 
         action = GetComponent<ActionScript>();
-
-        for (int i = 0; i < damage.Length; i++)
-        {
-            damage[i] = 10;
-            attackDelay[i] = 1f;
-            attackSpeedBonus[i] = 0f;
-            attackCooldown[i] = 1f;
-        }
-
     }
 
     void Start()
@@ -151,7 +80,7 @@ public class PlayerStats : MonoBehaviour
     {
         text.text = $"{GameManager.Instance.UnitCount}";
         for(int i=0;i<DataManager.targetNumberMax;i++)
-        attackCooldown[i] = attackDelay[i] / (1 + attackSpeedBonus[i] * 0.01f + attackSpeedBonusBonus[i] * 0.01f);
+        attackCooldown = attackDelay / (1 + attackSpeedBonus * 0.01f + attackSpeedBonusBonus * 0.01f);
 
         Animator anim = GetComponent<Animator>();
         AnimationClip[] clips = anim.runtimeAnimatorController.animationClips;
@@ -160,7 +89,7 @@ public class PlayerStats : MonoBehaviour
         {
             if (clip.name == "Attack") // 원하는 클립 이름
             {
-                float animationLength = clip.length / attackCooldown[originStatFor6.targetNumber];
+                float animationLength = clip.length / attackCooldown;
                 anim.SetFloat("AttackSpeed", animationLength);
             }
         }       
@@ -174,37 +103,37 @@ public class PlayerStats : MonoBehaviour
     {
         // 1. 매 프레임마다 누적
         int targetNum = originStatFor6.targetNumber;
-        hpRegenBuffer[targetNum] += HealthRegen[targetNum] * Time.fixedDeltaTime;
+        hpRegenBuffer += HealthRegen * Time.fixedDeltaTime;
 
         // 2. 누적값이 1 이상이면 정수만큼 회복
-        if (hpRegenBuffer[targetNum] >= 1f)
+        if (hpRegenBuffer >= 1f)
         {
-            int regenAmount = Mathf.FloorToInt(hpRegenBuffer[targetNum]);  // 정수만큼 회복
-            CurrentHealth[targetNum] += regenAmount;
-            CurrentHealth[targetNum] = Mathf.Min(CurrentHealth[targetNum], MaxHealth[targetNum]);
+            int regenAmount = Mathf.FloorToInt(hpRegenBuffer);  // 정수만큼 회복
+            CurrentHealth += regenAmount;
+            CurrentHealth = Mathf.Min(CurrentHealth, MaxHealth);
 
-            hpRegenBuffer[targetNum] -= regenAmount;  // 버퍼에서 소모한 만큼 빼기 (소수점 유지됨)
+            hpRegenBuffer -= regenAmount;  // 버퍼에서 소모한 만큼 빼기 (소수점 유지됨)
         }
 
-        mpRegenBuffer[targetNum] += manaRegen[targetNum] * Time.fixedDeltaTime;
+        mpRegenBuffer += manaRegen * Time.fixedDeltaTime;
 
         // 2. 누적값이 1 이상이면 정수만큼 회복
-        if (mpRegenBuffer[targetNum] >= 1f)
+        if (mpRegenBuffer >= 1f)
         {
-            int regenAmount = Mathf.FloorToInt(mpRegenBuffer[targetNum]);  // 정수만큼 회복
-            CurrentMana[targetNum] += regenAmount;
-            CurrentMana[targetNum] = Mathf.Min(CurrentMana[targetNum], MaxMana[targetNum]);
+            int regenAmount = Mathf.FloorToInt(mpRegenBuffer);  // 정수만큼 회복
+            CurrentMana += regenAmount;
+            CurrentMana = Mathf.Min(CurrentMana, MaxMana);
 
-            mpRegenBuffer[targetNum] -= regenAmount;  // 버퍼에서 소모한 만큼 빼기 (소수점 유지됨)
+            mpRegenBuffer -= regenAmount;  // 버퍼에서 소모한 만큼 빼기 (소수점 유지됨)
         }
     }
 
-    public void HealthTrigger(int targetNum, Transform target)
+    public void HealthTrigger(Transform target)
     {
         Actor actor = target.GetComponent<Actor>();
-        if (CurrentHealth[targetNum] == MaxHealth[targetNum])
+        if (CurrentHealth == MaxHealth)
         {
-            foreach(Item item in itemManager.list.currentItem[targetNum])
+            foreach(Item item in itemManager.list.currentItem[alterEgoPlayer])
             {
                 if(!item.HaveRegenSkill && item.RegenStun == 0)
                 continue;
@@ -237,33 +166,33 @@ public class PlayerStats : MonoBehaviour
                 }
 
             }
-            CurrentHealth[targetNum] = 0;
+            CurrentHealth= 0;
         }
     }
 
-    public void ManaTrigger(int targetNum, Transform target)
+    public void ManaTrigger(Transform target)
     {
-        if (CurrentMana[targetNum] == MaxMana[targetNum])
+        if (CurrentMana == MaxMana)
         {
-            CurrentMana[targetNum] = 0;
+            CurrentMana = 0;
         }
     }
     public Vector2 GetHP()
     {
-        return new Vector2(CurrentHealth[originStatFor6.targetNumber], MaxHealth[originStatFor6.targetNumber]);
+        return new Vector2(CurrentHealth, MaxHealth);
     }
     public Vector2 GetMP()
     {
-        return new Vector2(CurrentMana[originStatFor6.targetNumber], MaxMana[originStatFor6.targetNumber]);
+        return new Vector2(CurrentMana, MaxMana);
     }
 
-    public (int[] damage, float[] damageBonus, float attackCooldown, float attackSpeedBonus, float HealthRegen, float manaRegen,
-      float MagicalBuffer, float MagicalDebuffer, float TrueDamage, float[] doublePhysics, float[] Radius)
+    public (int damage, float damageBonus, float attackCooldown, float attackSpeedBonus, float HealthRegen, float manaRegen,
+      float MagicalBuffer, float MagicalDebuffer, float TrueDamage, float doublePhysics, float Radius)
       GetStats()
     {
-        return (damage, damageBonus, attackCooldown[originStatFor6.targetNumber], attackSpeedBonus[originStatFor6.targetNumber] + attackSpeedBonusBonus[originStatFor6.targetNumber]
-        , HealthRegen[originStatFor6.targetNumber], manaRegen[originStatFor6.targetNumber],
-     MagicalBuffer, MagicalDebuffer, TrueDamage[originStatFor6.targetNumber], doublePhysics, Radius);
+        return (damage, damageBonus, attackCooldown, attackSpeedBonus + attackSpeedBonusBonus
+        , HealthRegen, manaRegen,
+     MagicalBuffer, MagicalDebuffer, TrueDamage, doublePhysics, Radius);
     }
 
 }

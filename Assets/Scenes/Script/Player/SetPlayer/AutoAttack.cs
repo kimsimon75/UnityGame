@@ -10,6 +10,7 @@ public class AutoAttack : MonoBehaviour
     ActionScript action;
     HoldScanner hold;
     ItemManager item;
+    OriginStatFor6 originStatFor6;
     float attackDelay;
     float hitTiming;
     float Cycle;
@@ -19,6 +20,7 @@ public class AutoAttack : MonoBehaviour
         stats = GetComponent<PlayerStats>();
         action = GetComponent<ActionScript>();
         hold = GetComponent<HoldScanner>();
+        originStatFor6 = GameManager.Instance.originStatFor6;
         item = GameManager.Instance.ItemManager;
 
         Animator animator = GetComponent<Animator>();
@@ -45,51 +47,51 @@ public class AutoAttack : MonoBehaviour
             if (i == GameManager.Instance.originStatFor6.targetNumber) continue;
             if (action.isStop[i]) continue;
 
-            Cycle = stats.attackCooldown[i];
-            attackDelay = stats.attackCooldown[i] * (1 - hitTiming);
+            Cycle = originStatFor6.playerStats[i].attackCooldown;
+            attackDelay = originStatFor6.playerStats[i].attackCooldown * (1 - hitTiming);
             
 
-            if (action.target[i] == null || Vector3.Distance(action.target[i].position, transform.position) > stats.detectRange)
+            if (action.target == null || Vector3.Distance(action.target.position, transform.position) > stats.detectRange)
             {
                 hold.FindClosestEnemy(transform.position, stats.detectRange, LayerMask.GetMask("Enemy"), i);
             }
 
-            if (action.target[i] != null)
+            if (action.target != null)
             {
 
                 // Cycle 간격으로 공격 실행 체크
-                if (Time.time >= action.attackDisableTime[i] + attackDelay)
+                if (Time.time >= action.attackDisableTime + attackDelay)
                 {
-                    if (action.target[i].gameObject.activeInHierarchy)
+                    if (action.target.gameObject.activeInHierarchy)
                     {
                         // 공격 실행
-                        stats.HealthTrigger(i,action.target[i]);
-                        stats.ManaTrigger(i,action.target[i]);
-                        stats.CurrentHealth[i] += 1;
-                        stats.CurrentMana[i] += 1;
+                        stats.HealthTrigger(action.target);
+                        stats.ManaTrigger(action.target);
+                        originStatFor6.playerStats[i].CurrentHealth += 1;
+                        originStatFor6.playerStats[i].CurrentMana += 1;
                         float damageUp = 0;
                         foreach (Item item1 in item.list.currentItem[i])
-                            damageUp += item.list.SetSkill(action.target[i].GetComponent<Actor>(), item1);
+                            damageUp += item.list.SetSkill(action.target.GetComponent<Actor>(), item1);
 
 
-                        Actor actor = action.target[i].GetComponent<Actor>();
+                        Actor actor = action.target.GetComponent<Actor>();
 
-                        actor.TakeDamageAll_physics((int)(stats.damage[i] * (1 + damageUp + stats.damageBonus[i])), 
-                        0, stats.Radius[i], stats.armorType, stats.doublePhysics[i]);
+                        actor.TakeDamageAll_physics((int)(originStatFor6.playerStats[i].damage * (1 + damageUp + originStatFor6.playerStats[i].damageBonus)), 
+                        0, originStatFor6.playerStats[i].Radius, stats.armorType, originStatFor6.playerStats[i].doublePhysics);
 
                         actor.TakeDamageAll_magics(
-                            (int)(stats.damage[i] * (1 + damageUp + stats.damageBonus[i]) * stats.TrueDamage[i]),
-                        0, stats.Radius[i], true); 
+                            (int)(originStatFor6.playerStats[i].damage * (1 + damageUp + originStatFor6.playerStats[i].damageBonus) * originStatFor6.playerStats[i].TrueDamage),
+                        0, originStatFor6.playerStats[i].Radius, true); 
 
                         if (item == null) Debug.Log("None item");
                         // 공격 비활성화 시간 설정 (hitTiming 적용)
-                        action.attackDisableTime[i] = Time.time + Cycle - attackDelay;
+                        action.attackDisableTime = Time.time + Cycle - attackDelay;
                     }
                 }
             }
             else
             {
-                action.attackDisableTime[i] = Time.time;
+                action.attackDisableTime = Time.time;
             }
         }
     }

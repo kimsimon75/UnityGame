@@ -5,9 +5,10 @@ using UnityEngine.AI;
 
 public class Skill : MonoBehaviour
 {
-    private PlayerStats stats;
     private Camera cam;
     private NavMeshAgent agent;
+    private SkillManager skillManager;
+    private OriginStatFor6 originStatFor6;
     // Start is called once before the first execution of Update after the MonoBehaviour is created
 
     void Awake()
@@ -17,80 +18,21 @@ public class Skill : MonoBehaviour
     }
     void Start()
     {
-        stats = GetComponent<PlayerStats>();
+        skillManager = GetComponent<SkillManager>();
+        originStatFor6 = GameManager.Instance.originStatFor6;
 
     }
 
     // Update is called once per frame
     void Update()
     {
-        bool anyActive = false;
-
-        for (int i = 0; i < DataManager.NumCount-1; i++) // ✅ -1 제거
-        {
-            if (stats.someSortOfSkillActive[i] <= 0f)
-            {
-                stats.someSortOfSkillActive[i] = 0f;
-                BuffDelete(i);
-                continue;
-            }
-
-            stats.someSortOfSkillActive[i] -= Time.deltaTime;
-
-            if (stats.someSortOfSkillActive[i] <= 0f)
-            {
-                stats.someSortOfSkillActive[i] = 0f;
-                BuffDelete(i);
-            }
-            else
-            {
-                anyActive = true;
-            }
-        }
-
-        if (!anyActive)
-            enabled = false;
+        
     }
 
-    private void BuffDelete(int target)
-    {
-        switch ((DataManager.Num)target)
-        {
-            case DataManager.Num.W:
-            for(int i=0;i<DataManager.targetNumberMax; i++)
-                stats.attackSpeedBonusBonus[i] = 0f;
-            break;
-            case DataManager.Num.E:
-            for(int i=0;i<DataManager.targetNumberMax; i++)
-                stats.damageBonus[i] = 0;
-            break;
-        }
-    }
-
-    public void ApplyAttackBuff(int target)
-    {
-        stats.someSortOfSkillActive[target] = stats.someSortOfSkillDuration[target];
-        if((DataManager.Num)target == DataManager.Num.W)
-        {
-            for(int i=0;i<DataManager.targetNumberMax; i++)
-            {
-                stats.attackSpeedBonusBonus[i] = stats.someSortOfSkillEffect[target];
-            }
-        }
-        if((DataManager.Num)target == DataManager.Num.E)
-        {
-            for(int i=0;i<DataManager.targetNumberMax; i++)
-            {
-                stats.damageBonus[i] = stats.someSortOfSkillEffect[target] * 0.01f;
-            }
-        }
-        stats.someSortOfSkillCooldown[target].Start(stats.someSortOfSkillCooltime[target]);
-        enabled = true; 
-    }
 
     public void Teleport(Vector3 point)
     {
-        float maxRange = stats.someSortOfSkillEffect[(int)DataManager.Num.Q] * 0.01f;
+        float maxRange = DataManager.Instance.RoundX(originStatFor6.GetComponent<SkillManager>().ResolveBlinkRange(originStatFor6.targetNumber) * 0.01f, 3);
 
         Vector3 from = transform.position;
 
@@ -116,9 +58,10 @@ public class Skill : MonoBehaviour
             agent.velocity = Vector3.zero;
 
             int q = (int)DataManager.Num.Q;
-            stats.someSortOfSkillCooldown[q].Start(stats.someSortOfSkillCooltime[q]);
-            GameManager.Instance.TeleportOn = false;
+
+            originStatFor6.GetComponent<SkillManager>().TryUse(originStatFor6.targetNumber, (SkillId)q);
+            
+            GameManager.Instance.playerStats[originStatFor6.targetNumber].TeleportOn = false;
         }
     }
-
 }
